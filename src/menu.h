@@ -3,7 +3,7 @@
 
 void menu_init();
 void menu_create(char *cMenuTitle, void (*vFunc)(int iSelection));
-void menu_add(char *cFmt, ...);
+void menu_add(const char *cFmt, ...);
 void menu_input(SDL_Event *sdlEvent);
 void menu_render();
 void menu_close();

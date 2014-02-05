@@ -93,7 +93,7 @@ void script_run_chunk(void *vChunk, lua_Writer writer, lua_Reader reader) {
 	return;
 }
 
-void script_call_function(char *cFunc, int iArgs, int iRes, int iErr) {
+void script_call_function(const char *cFunc, int iArgs, int iRes, int iErr) {
 	lua_getglobal(g_luaState, cFunc);
 	lua_pcall(g_luaState, iArgs, iRes, iErr);
 	return;

@@ -32,7 +32,7 @@ void menu_create(char *cMenuTitle, void (*vFunc)(int iSelection)) {
 	return;
 }
 
-void menu_add(char *cFmt, ...) {
+void menu_add(const char *cFmt, ...) {
 	char cLabel[512];
 	va_list vArgs;
 	va_start(vArgs, cFmt);
