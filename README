@@ -1,7 +1,9 @@
 Wyrmwick CRPG
 
-Requires: lua-5.2.3
-					SDL2-2.0.1
+Requires:
+
+lua-5.2.3
+SDL2-2.0.1
 
 
 Nothing special here for now.

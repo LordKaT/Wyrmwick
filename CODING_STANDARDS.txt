@@ -1,0 +1,28 @@
+Coding practices for Wyrmwick:
+
+Use TAB not spaces. Everyone loves spaces. Everyone loves using a different
+number of spaces. I don't like this. Use TAB, set your editor to the number of
+spaces per TAB that you like. One TAB per indentation.
+
+Code should be short and legible. If you can't read code like a book, then you
+either don't comment enough, or you're out-thinking yourself and making a damned
+mess of your code.
+
+Always use {} when available. Lends to readability.
+
+Keep opening curly bracketys { on the same line as the statement it's opening.
+
+Comment as needed. Not every function should require an opening monologue about
+what it does and how it does it - your code should explain that.
+
+Algorithms should be commented, explaining what they do. How is optional, unless
+you are using a non-standard algorithm that can't be looked up on a wiki easily.
+We don't need paragraphs of comments explaining bubble sort.
+
+Use /* */ or // for comments. I don't care.
+
+Keep globals to a minimum. There's usually another way to use them. If you must
+keep ALL globals in globals.cpp. Yes, even those shitty ones you use in one or
+two functions. It's my way of enforcing a limit on global variables.
+
+extern your globals in globals.h
