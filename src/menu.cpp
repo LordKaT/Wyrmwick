@@ -1,6 +1,8 @@
 #include "include.h"
 
 void menu_init() {
+	/* this is wrong. */
+	debug_print("Loading Menu ...\r\n");
 	if (g_menu.m_cLabel != nullptr) {
 		free(g_menu.m_cLabel);
 		g_menu.m_cLabel = nullptr;
@@ -26,7 +28,7 @@ void menu_create(char *cMenuTitle, void (*vFunc)(int iSelection)) {
 		free(g_menu.m_cLabel);
 		g_menu.m_cLabel = nullptr;
 	}
-	g_menu.m_cLabel = (char *)malloc(sizeof(char) * strlen(cMenuTitle));
+	g_menu.m_cLabel = (char *)malloc(sizeof(char) * (strlen(cMenuTitle) + 1));
 	strcpy(g_menu.m_cLabel, cMenuTitle);
 	g_menu.m_vFunc = vFunc;
 	return;
@@ -40,7 +42,7 @@ void menu_add(char *cFmt, ...) {
 	va_end(vArgs);
 	for (int i = 0; i < 16; i++) {
 		if (g_menu.m_cMenuItem[i] == nullptr) {
-			g_menu.m_cMenuItem[i] = (char *)malloc(sizeof(char) * strlen(cLabel));
+			g_menu.m_cMenuItem[i] = (char *)malloc(sizeof(char) * (strlen(cLabel) + 1));
 			strcpy(g_menu.m_cMenuItem[i], cLabel);
 			if (strlen(cLabel) > g_menu.m_uiMenuWidth) {
 				g_menu.m_uiMenuWidth = strlen(cLabel);
@@ -52,6 +54,8 @@ void menu_add(char *cFmt, ...) {
 	return;
 }
 
+/* Grabs input in the SDL_PollEvent loop, interprets it.
+Menus take input precedence over game input. */
 void menu_input(SDL_Event *sdlEvent) {
 	if  (sdlEvent->type == SDL_KEYDOWN) {
 		if (sdlEvent->key.keysym.sym == SDLK_UP) {
@@ -74,6 +78,7 @@ void menu_input(SDL_Event *sdlEvent) {
 void menu_render() {
 	if (g_menu.m_cLabel != nullptr) {
 		/* Show the menu. */
+
 		/* Top line of menu */
 		font_putc(0, 0, 201);
 		font_print(16, 0, g_menu.m_cLabel);
@@ -83,6 +88,7 @@ void menu_render() {
 		font_putc((g_menu.m_uiMenuWidth + 4) * 16, 0, 187);
 
 		font_putc(32, 32 * (g_menu.m_iCursorPos + 1), 16);
+
 		/* Menu Items. */
 		for (int i = 0; i < 16; i++) {
 			if (g_menu.m_cMenuItem[i] != nullptr) {

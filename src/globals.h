@@ -14,4 +14,7 @@ extern font g_font;
 extern int g_iGameState;
 extern menu g_menu;
 
+
+extern SDL_Texture *g_sdlMapTex;
+extern map g_map;
 #endif

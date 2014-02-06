@@ -76,9 +76,24 @@ struct menu {
 	unsigned int m_uiMenuHeight;
 	char *m_cMenuItem[16];
 	void (*m_vFunc)(int iSelection);
+	bool m_bIsOpen;
 	char *m_cLuaScript;
 	luaChunk m_luaChunk;
 	SDL_Texture *m_sdlMenu;
+};
+
+struct map {
+	char *m_cName;
+	SDL_Rect m_rect[100][100];
+	SDL_Rect m_rectView;
+	SDL_Rect m_rectDest;
+	SDL_Texture *m_tex;
+};
+
+struct audio {
+	int *m_iPosition;
+	int m_iLength;
+	void (*m_callbackFunc)(void *vUserData, Uint8 *uiStream, int iLen);
 };
 
 #endif

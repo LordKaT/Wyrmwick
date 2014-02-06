@@ -12,3 +12,6 @@ SDL_Event g_sdlEvent;
 font g_font;
 int g_iGameState;
 menu g_menu;
+
+SDL_Texture *g_sdlMapTex;
+map g_map;
