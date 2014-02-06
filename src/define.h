@@ -1,19 +1,20 @@
 #ifndef __DEFINE_H__
 #define __DEFINE_H__
 
-#define WYRMWICK_VERSION	"FEB 05 2014 Pre-Alpha"
+#define WYRMWICK_VERSION	"FEB 06 2014 Pre-Alpha"
 
 #define DEBUG	/* Well, yeah. Don't forget to change build type
 					if we remove this. */
 
-#define GAME_START	0
-#define GAME_DEBUG	1
-#define GAME_MENU	2
-#define GAME_WORLD	3
-#define GAME_SHOP	4
-#define GAME_DIALOG	5
-#define GAME_BATTLE	6
-#define GAME_END	7
+#define GAME_START		0
+#define GAME_DEBUG		1
+#define GAME_MENU		2
+#define GAME_WORLD		3
+#define GAME_SHOP		4
+#define GAME_DIALOG		5
+#define GAME_BATTLE		6
+#define GAME_END		7
+#define GAME_MAP_EDITOR	8
 
 #define MENU_NONE	0
 #define MENU_TEXT	1

@@ -23,7 +23,7 @@ void menu_init() {
 	return;
 }
 
-void menu_create(char *cMenuTitle, void (*vFunc)(int iSelection)) {
+void menu_create(char *cMenuTitle, int iXPos, int iYPos, void (*vFunc)(int iSelection)) {
 	if (g_menu.m_cLabel != nullptr) {
 		free(g_menu.m_cLabel);
 		g_menu.m_cLabel = nullptr;
@@ -75,6 +75,7 @@ void menu_input(SDL_Event *sdlEvent) {
 	return;
 }
 
+/* one day we'll replace this with a dialog box. */
 void menu_render() {
 	if (g_menu.m_cLabel != nullptr) {
 		/* Show the menu. */

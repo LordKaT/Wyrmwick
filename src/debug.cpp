@@ -40,7 +40,7 @@ void debug_menu_func(int iSelection) {
 void debug_loop() {
 	if (g_iGameState != GAME_DEBUG) {
 		g_iGameState = GAME_DEBUG;
-		menu_create("Debug Menu", debug_menu_func);
+		menu_create("Debug Menu", 0, 0, debug_menu_func);
 		menu_add("Show map");
 		menu_add("Play music");
 		menu_add("Exit");

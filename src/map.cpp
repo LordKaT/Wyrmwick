@@ -25,6 +25,11 @@ void map_init() {
 	return;
 }
 
+void map_load(char *cMap) {
+
+	return;
+}
+
 void map_move(int iX, int iY) {
 	g_map.m_rectView.x += iX;
 	g_map.m_rectView.y += iY;

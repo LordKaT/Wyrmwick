@@ -97,6 +97,7 @@ struct font {
 
 struct menu {
 	char *m_cLabel;
+	char *m_cInput;
 	int m_iCursorPos;
 	unsigned int m_uiMenuWidth;
 	unsigned int m_uiMenuHeight;
@@ -108,8 +109,13 @@ struct menu {
 	image m_image;
 };
 
+struct mapData {
+
+};
+
 struct map {
 	char *m_cName;
+	char *m_cTileset;
 	rect m_rect[100][100];
 	rect m_rectView;
 	rect m_rectDest;
