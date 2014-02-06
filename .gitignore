@@ -28,6 +28,12 @@ local.properties
 # PDT-specific
 .buildpath
 
+# Wyrmwick Project Binaries
+Default
+
+# Wyrmwick Build Dependencies
+src/lua-5.2.3/
+src/SDL2-2.0.1/
 
 #################
 ## Visual Studio
