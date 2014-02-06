@@ -93,9 +93,9 @@ void menu_render() {
 		for (int i = 0; i < 16; i++) {
 			if (g_menu.m_cMenuItem[i] != nullptr) {
 				if (i == g_menu.m_iCursorPos) {
-					SDL_SetTextureColorMod(g_font.m_sdlFont, 0x00, 0xaa, 0x00);
+					image_setcolormod(&g_font.m_image, 0x00, 0xaa, 0x00);
 					font_print(48, 32 * (i + 1), g_menu.m_cMenuItem[i]);
-					SDL_SetTextureColorMod(g_font.m_sdlFont, 0xff, 0xff, 0xff);
+					image_setcolormod(&g_font.m_image, 0xff, 0xff, 0xff);
 				}
 				else {
 					font_print(48, 32 * (i + 1), g_menu.m_cMenuItem[i]);

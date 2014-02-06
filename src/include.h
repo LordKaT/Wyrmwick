@@ -18,7 +18,7 @@ extern "C" {
 #ifdef SCREEN_SDL2
 #include "SDL2-2.0.1/SDL.h"
 
-#include "sdl2.h"
+#include "screen_sdl2.h"
 #endif
 
 #ifdef AUDIO_SDL2MIXER
@@ -35,5 +35,6 @@ extern "C" {
 #include "menu.h"
 #include "map.h"
 #include "audio.h"
+#include "image.h"
 
 #endif
