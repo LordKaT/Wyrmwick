@@ -9,6 +9,11 @@
 
 #include "SDL2-2.0.1/SDL.h"
 
+// Define nullptr; not part of GCC norm, I guess it's a VC++ism?
+#ifndef nullptr
+#define nullptr (0)
+#endif
+
 extern "C" {
 	#include "lua-5.2.3/lua.h"
 	#include "lua-5.2.3/lualib.h"
