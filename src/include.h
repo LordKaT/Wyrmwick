@@ -7,12 +7,15 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "SDL2-2.0.1/SDL.h"
+// dependency includes need to be like this
+// because the cmake scripts point to the actual include directories
+
+#include "SDL.h"
 
 extern "C" {
-	#include "lua-5.2.3/lua.h"
-	#include "lua-5.2.3/lualib.h"
-	#include "lua-5.2.3/lauxlib.h"
+	#include "lua.h"
+	#include "lualib.h"
+	#include "lauxlib.h"
 }
 
 #include "define.h"
@@ -21,7 +24,7 @@ extern "C" {
 #include "debug.h"
 #include "script.h"
 #include "screen.h"
-#include "sdl.h"
+#include "sdl_helpers.h" // this had to be renamed because it conflicted with the real SDL.h
 #include "font.h"
 #include "menu.h"
 
