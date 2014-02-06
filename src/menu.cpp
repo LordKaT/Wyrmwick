@@ -140,7 +140,6 @@ bool menu_is_open() {
 }
 
 void menu_destroy() {
-	/*
 	if (g_menu.m_cLabel != nullptr) {
 		free(g_menu.m_cLabel);
 		g_menu.m_cLabel = nullptr;
@@ -155,7 +154,6 @@ void menu_destroy() {
 			g_menu.m_cMenuItem[i] = nullptr;
 		}
 	}
-	*/
 	g_menu.m_iCursorPos = 0;
 	g_menu.m_uiMenuWidth = 0;
 	g_menu.m_uiMenuHeight = 0;

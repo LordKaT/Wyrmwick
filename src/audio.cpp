@@ -1,20 +1,33 @@
 #include "include.h"
 
-#define AUDIO_SDLMIXER
-
 void audio_init() {
-#ifdef AUDIO_SDLMIXER
-	Mix_Init(MIX_INIT_MP3);
-	printf("Mix_Init: %s\r\n", Mix_GetError());
+#ifdef AUDIO_SDL2MIXER
+	sdl2mixer_init();
 #endif
 	return;
 }
 
-void audio_destroy() {
-#ifdef AUDIO_SDLMIXER
-	while (Mix_Init(0)) {
-		Mix_Quit();
+int audio_load_music(audio *audioChunk, char *cFile) {
+#ifdef AUDIO_SDL2MIXER
+	audioChunk->m_music = Mix_LoadMUS(cFile);
+	if (audioChunk->m_music == nullptr) {
+		debug_print("audio_load_music(): %s\r\n", Mix_GetError());
+		return 0;
 	}
+#endif
+	return 0;
+}
+
+int audio_play_music(audio *audioChunk) {
+#ifdef AUDIO_SDL2MIXER
+	Mix_PlayMusic(audioChunk->m_music, 0);
+#endif
+	return 0;
+}
+
+void audio_destroy() {
+#ifdef AUDIO_SDL2MIXER
+	sdl2mixer_destroy();
 #endif
 	return;
 }

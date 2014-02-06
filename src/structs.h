@@ -28,7 +28,10 @@ struct image {
 struct audio {
 	int *m_iPosition;
 	int m_iLength;
-	void (*m_callbackFunc)(void *vUserData, Uint8 *uiStream, int iLen);
+#ifdef AUDIO_SDL2MIXER
+	Mix_Chunk *m_sound;
+	Mix_Music *m_music;
+#endif
 };
 
 struct item {

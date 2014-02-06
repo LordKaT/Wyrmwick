@@ -23,6 +23,8 @@ extern "C" {
 
 #ifdef AUDIO_SDL2MIXER
 #include "SDL2-2.0.1/SDL_mixer.h"
+
+#include "audio_sdl2mixer.h"
 #endif
 
 #include "define.h"

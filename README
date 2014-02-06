@@ -4,6 +4,8 @@ Requires:
 
 lua-5.2.3
 SDL2-2.0.1
+SDL2_Mixer-2.0.0
+smpeg2 (for MP3 playback)
 
 To set up your build environment, from the terminal:
 
@@ -12,5 +14,3 @@ cd build
 Cmake -G "Visual Studio 11" ..
 
 Replace "Visual Studio 11" with your preferred IDE/compiler.
-
-Nothing special here for now.

@@ -4,6 +4,7 @@ int main(int iArgC, char * cArgV[]) {
 	debug_print("Wyrmwick: %s\r\n", WYRMWICK_VERSION);
 	script_init();
 	screen_init();
+	audio_init();
 	font_init();
 	menu_init();
 	map_init();
@@ -49,6 +50,7 @@ int main(int iArgC, char * cArgV[]) {
 			}
 		}
 		screen_clear();
+
 		/* game logic, drawing. */
 		switch (g_iGameState) {
 			case GAME_START:

@@ -1,17 +1,19 @@
 #include "include.h"
 
+bool g_bRun;
+int g_iGameState;
 lua_State *g_luaState;
 item g_items[ITEMS_MAX];
 skill g_skills[SKILLS_MAX];
 quest g_quests[QUESTS_MAX];
 npc g_npc[NPC_MAX];
-bool g_bRun;
+font g_font;
+menu g_menu;
+map g_map;
+audio g_audio;
+
+#ifdef SCREEN_SDL2
 SDL_Window *g_sdlWindow;
 SDL_Renderer *g_sdlRenderer;
 SDL_Event g_sdlEvent;
-font g_font;
-int g_iGameState;
-menu g_menu;
-
-SDL_Texture *g_sdlMapTex;
-map g_map;
+#endif

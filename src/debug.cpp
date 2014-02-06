@@ -24,6 +24,10 @@ void debug_menu_func(int iSelection) {
 			menu_close();
 			break;
 		case 1:
+			audio_load_music(&g_audio, "data/audio/Encounter5.mp3");
+			audio_play_music(&g_audio);
+			break;
+		case 2:
 			g_bRun = false;
 			menu_close();
 			break;
@@ -38,6 +42,7 @@ void debug_loop() {
 		g_iGameState = GAME_DEBUG;
 		menu_create("Debug Menu", debug_menu_func);
 		menu_add("Show map");
+		menu_add("Play music");
 		menu_add("Exit");
 	}
 	return;
