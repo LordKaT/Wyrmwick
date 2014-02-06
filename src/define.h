@@ -1,14 +1,10 @@
 #ifndef __DEFINE_H__
 #define __DEFINE_H__
 
-#define WYRMWICK_VERSION	"31/01/2014 Pre-Alpha"
+#define WYRMWICK_VERSION	"FEB 05 2014 Pre-Alpha"
 
-#define DEBUG	/* undef to remove debug msgs. */
-#ifdef DEBUG
-	#define DEBUG_PRINT(x) printf x
-#else
-	#define DEBUG_PRINT(x)
-#endif
+#define DEBUG	/* Well, yeah. Don't forget to change build type
+					if we remove this. */
 
 #define GAME_START	0
 #define GAME_DEBUG	1

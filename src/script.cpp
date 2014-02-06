@@ -1,9 +1,11 @@
 #include "include.h"
 
 void script_init() {
+	debug_print("Loading LUA 5.2.1 ...\r\n");
 	g_luaState = luaL_newstate();
 	luaL_openlibs(g_luaState);
 
+	debug_print("	defining LUA globals\r\n");
 	LUA_DEFINE("GAME_START", GAME_START);
 	LUA_DEFINE("GAME_DEBUG", GAME_DEBUG);
 	LUA_DEFINE("GAME_MENU", GAME_MENU);
@@ -83,7 +85,13 @@ void script_init() {
 	LUA_DEFINE("STATUS_MAX", STATUS_MAX);
 	LUA_DEFINE("ITEMS_MAX", ITEMS_MAX);
 
-
+	debug_print("	loading item scripts\r\n");
+	script_load_items();
+	debug_print("	loading skill scripts\r\n");
+	script_load_skills();
+	debug_print("	loading quest scripts\r\n");
+	script_load_quests();
+	debug_print("	LUA loaded!\r\n");
 	return;
 }
 

@@ -8,6 +8,32 @@ struct luaChunk {
 	size_t m_sizeLuaChunk;
 };
 
+#ifdef SCREEN_SDL2
+typedef SDL_Rect rect;
+#else
+struct rect {
+	int x;
+	int y;
+	int w;
+	int h;
+};
+#endif
+
+struct image {
+#ifdef SCREEN_SDL2
+	SDL_Texture *m_image;
+#endif
+};
+
+struct audio {
+	int *m_iPosition;
+	int m_iLength;
+#ifdef AUDIO_SDL2MIXER
+	Mix_Chunk *m_sound;
+	Mix_Music *m_music;
+#endif
+};
+
 struct item {
 	char *m_cName;
 	char *m_cDesc;
@@ -63,9 +89,9 @@ struct smartObject {
 };
 
 struct font {
-	SDL_Texture *m_sdlFont;
-	SDL_Rect m_rectClip[256];
-	SDL_Rect m_rectDraw[256];
+	image m_image;
+	rect m_rectClip[256];
+	rect m_rectDraw[256];
 	char *m_cText;
 };
 
@@ -76,9 +102,19 @@ struct menu {
 	unsigned int m_uiMenuHeight;
 	char *m_cMenuItem[16];
 	void (*m_vFunc)(int iSelection);
+	bool m_bIsOpen;
 	char *m_cLuaScript;
 	luaChunk m_luaChunk;
-	SDL_Texture *m_sdlMenu;
+	image m_image;
+};
+
+struct map {
+	char *m_cName;
+	rect m_rect[100][100];
+	rect m_rectView;
+	rect m_rectDest;
+	image m_imageMap;
+	image m_imageTiles;
 };
 
 #endif
