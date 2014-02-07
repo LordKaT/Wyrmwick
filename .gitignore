@@ -215,4 +215,4 @@ pip-log.txt
 .mr.developer.cfg
 
 src/SDL2-2.0.1/
-lua-5.2.3/
+src/lua-5.2.3/

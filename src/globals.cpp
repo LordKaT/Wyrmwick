@@ -18,5 +18,5 @@ input_mapping g_inmap[IN_MAX];
 SDL_Window *g_sdlWindow;
 SDL_Renderer *g_sdlRenderer;
 SDL_Event g_sdlEvent;
-SDL_Joystick* g_sdlJoystick;
+SDL_Joystick *g_sdlJoystick;
 #endif

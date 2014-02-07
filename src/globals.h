@@ -19,7 +19,7 @@ extern input_mapping g_inmap[IN_MAX];
 extern SDL_Window *g_sdlWindow;
 extern SDL_Renderer *g_sdlRenderer;
 extern SDL_Event g_sdlEvent;
-extern SDL_Joystick* g_sdlJoystick;
+extern SDL_Joystick *g_sdlJoystick;
 #endif
 
 #endif
