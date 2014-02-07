@@ -12,11 +12,14 @@ extern font g_font;
 extern menu g_menu;
 extern map g_map;
 extern audio g_audio;
+extern input_state g_input_state;
+extern input_mapping g_inmap[IN_MAX];
 
 #ifdef SCREEN_SDL2
 extern SDL_Window *g_sdlWindow;
 extern SDL_Renderer *g_sdlRenderer;
 extern SDL_Event g_sdlEvent;
+extern SDL_Joystick* g_sdlJoystick;
 #endif
 
 #endif
