@@ -8,6 +8,7 @@ int main(int iArgC, char * cArgV[]) {
 	font_init();
 	menu_init();
 	map_init();
+	input_init();
 	debug_print("Init finished!\r\n");
 
 	g_bRun = true;
@@ -86,6 +87,7 @@ int main(int iArgC, char * cArgV[]) {
 
 	menu_destroy();
 	font_destroy();
+	input_destroy();
 	screen_destroy();
 
 	return 0;

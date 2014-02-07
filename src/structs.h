@@ -117,4 +117,23 @@ struct map {
 	image m_imageTiles;
 };
 
+struct input_state {
+	int m_iDirection;
+	int m_iActive;
+};
+
+struct input_event {
+	int m_iType;  // IN_NONE, IN_ON, IN_OFF or IN_DIRCHANGE
+	int m_iKey;
+};
+
+struct input_mapping {
+	int m_type;             // IN_TYPE_KEYBOARD, IN_TYPE_JOYBUTTON or IN_TYPE_JOYAXIS
+	Uint8 m_iIndex;         // joystick button/axis index
+	int m_iAxisDir;       // axis direction, 1 or -1
+	SDL_Keycode m_keycode;
+	
+	int m_iTo;    // logical button (KEY_DIRUP etc.)
+};
+
 #endif

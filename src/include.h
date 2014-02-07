@@ -38,5 +38,6 @@ extern "C" {
 #include "map.h"
 #include "audio.h"
 #include "image.h"
+#include "input.h"
 
 #endif
