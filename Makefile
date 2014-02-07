@@ -1,5 +1,5 @@
 SDL_CCFLAGS=$(shell sdl2-config --cflags)
-SDL_LDFLAGS=$(shell sdl2-config --libs)
+SDL_LDFLAGS=$(shell sdl2-config --libs) -lSDL2_mixer
 LUA_LDFLAGS=-Lsrc/lua-5.2.3/ -llua
 
 CC=g++
