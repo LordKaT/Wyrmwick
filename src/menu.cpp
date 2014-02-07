@@ -57,18 +57,22 @@ void menu_add(char *cFmt, ...) {
 /* Grabs input in the SDL_PollEvent loop, interprets it.
 Menus take input precedence over game input. */
 void menu_input(SDL_Event *sdlEvent) {
-	if  (sdlEvent->type == SDL_KEYDOWN) {
-		if (sdlEvent->key.keysym.sym == SDLK_UP) {
-			if (g_menu.m_iCursorPos > 0) {
-				g_menu.m_iCursorPos--;
-			}
+	input_event ev;
+	map_input_event(*sdlEvent, &ev);
+	
+	switch(ev.m_iKey) {
+	case IN_DIRUP:
+		if (g_menu.m_iCursorPos > 0) {
+			g_menu.m_iCursorPos--;
 		}
-		if (sdlEvent->key.keysym.sym == SDLK_DOWN) {
-			if ((unsigned int)g_menu.m_iCursorPos < g_menu.m_uiMenuHeight - 1) {
-				g_menu.m_iCursorPos++;
-			}
+		break;
+	case IN_DIRDOWN:
+		if ((unsigned int)g_menu.m_iCursorPos < g_menu.m_uiMenuHeight - 1) {
+			g_menu.m_iCursorPos++;
 		}
-		if (sdlEvent->key.keysym.sym == SDLK_RETURN) {
+		break;
+	case IN_OK:
+		if(ev.m_iType == IN_OFF) {
 			g_menu.m_vFunc(g_menu.m_iCursorPos);
 		}
 	}

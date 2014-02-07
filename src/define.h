@@ -116,4 +116,24 @@
 #define LUA_FUNCTION(g, c, f)	lua_pushcfunction(g, f); \
 								lua_setglobal(g, c);
 
+
+#define IN_NONE     0
+
+#define IN_TYPE_KEYBOARD   1
+#define IN_TYPE_JOYBUTTON  2
+#define IN_TYPE_JOYAXIS    3
+
+#define IN_ON        1
+#define IN_OFF       2
+#define IN_DIRCHANGE 3
+
+#define IN_DIRUP    1
+#define IN_DIRDOWN  2
+#define IN_DIRLEFT  4
+#define IN_DIRRIGHT 8
+
+#define IN_OK       16
+
+#define IN_MAX 100
+
 #endif

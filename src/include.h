@@ -39,5 +39,6 @@ extern "C" {
 #include "map_editor.h"
 #include "audio.h"
 #include "image.h"
+#include "input.h"
 
 #endif
