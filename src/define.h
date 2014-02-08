@@ -136,4 +136,15 @@
 
 #define IN_MAX 100
 
+
+/* Walkability of a tile. */
+#define WALK_NONE	0
+#define WALK_WALK	1
+#define WALK_RUN	2
+#define WALK_SWIM	3
+#define WALK_CLIMB	4
+#define WALK_FLY	5
+
+#define WALK_MAX	128
+
 #endif

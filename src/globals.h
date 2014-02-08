@@ -14,6 +14,7 @@ extern map g_map;
 extern audio g_audio;
 extern input_state g_input_state;
 extern input_mapping g_inmap[IN_MAX];
+extern mapEditor g_mapEditor;
 
 #ifdef SCREEN_SDL2
 extern SDL_Window *g_sdlWindow;
