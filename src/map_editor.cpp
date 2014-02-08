@@ -2,7 +2,7 @@
 
 void map_editor_init() {
 	g_mapEditor.m_bDragMap = false;
-	g_mapEditor.m_iActiveTile = 0;
+	g_mapEditor.m_iActiveTile = 2;
 	return;
 }
 
@@ -20,16 +20,25 @@ void map_editor_input(SDL_Event *sdlEvent) {
 		if (sdlEvent->key.keysym.sym == SDLK_RIGHT) {
 			map_move(1, 0);
 		}
+		if (sdlEvent->key.keysym.sym == SDLK_F5) {
+			map_save();
+		}
 	}
 
 	if (sdlEvent->type == SDL_MOUSEBUTTONDOWN) {
-		debug_print("Mouse: %i (%i %i)\r\n", sdlEvent->button.button, sdlEvent->button.x, sdlEvent->button.y);
 		if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) {
 			g_mapEditor.m_bDragMap = true;
 		}
 	}
 
 	if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
+		if (sdlEvent->button.button == 1) {
+			rect tempSrc = {g_mapEditor.m_iActiveTile * 32, 0, 32, 32};
+			rect tempDst = {((g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
+			g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_iTileID = g_mapEditor.m_iActiveTile;
+			image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempSrc, &tempDst);
+			map_draw_view();
+		}
 		if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) {
 			g_mapEditor.m_bDragMap = false;
 		}
@@ -48,11 +57,12 @@ void map_editor_input(SDL_Event *sdlEvent) {
 
 void map_editor_render() {
 	map_render();
-	font_print(0, 0, "Mouse X: %i | Mouse Y: %i", g_mapEditor.m_iMouseX, g_mapEditor.m_iMouseY);
-	font_print(0, 16, "Rel X: %i | Rel Y: %i", (g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32, (g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32);
-	font_print(0, 32, "Dest X: %i | Dest Y: %i", g_map.m_rectDest.x, g_map.m_rectDest.y);
-	font_print(0, 48, "View X: %i | View Y: %i", g_map.m_rectView.x, g_map.m_rectView.y);
-	font_print(0, 64, "MRel X: %i | MRel Y: %i", g_sdlEvent.motion.xrel, g_sdlEvent.motion.yrel);
+
+	rect tempSrc = {g_mapEditor.m_iActiveTile * 32, 0, 32, 32};
+	rect tempDst = {1180, 32, 64, 64};
+	image_draw(&g_map.m_imageTiles, &tempSrc, &tempDst);
+
+	font_print(10, 10, "%s", g_map.m_cName);
 	return;
 }
 

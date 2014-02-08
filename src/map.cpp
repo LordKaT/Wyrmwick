@@ -35,6 +35,27 @@ void map_draw() {
 			tempTile.y = 0;
 			tempTile.w = 32;
 			tempTile.h = 32;
+			image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempTile, &tempRect);
+		}
+	}
+	return;
+}
+
+/* Only redraw the map in the visible view. */
+void map_draw_view() {
+	rect tempRect;
+	rect tempTile;
+	for (int x = (g_map.m_rectView.x / 32); x < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); x++) {
+		for (int y = (g_map.m_rectView.y / 32); y < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); y++) {
+			tempRect.x = x * 32;
+			tempRect.y = y * 32;
+			tempRect.w = 32;
+			tempRect.h = 32;
+
+			tempTile.x = g_map.m_map[x][y].m_iTileID * 32;
+			tempTile.y = 0;
+			tempTile.w = 32;
+			tempTile.h = 32;
 
 			image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempTile, &tempRect);
 		}

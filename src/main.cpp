@@ -12,7 +12,8 @@ int main(int iArgC, char * cArgV[]) {
 	debug_print("Init finished!\r\n");
 
 	g_bRun = true;
-	g_iGameState = GAME_START;
+	map_editor_init();
+	g_iGameState = GAME_MAP_EDITOR;
 
 	while (g_bRun == true) {
 		while (SDL_PollEvent(&g_sdlEvent)) {

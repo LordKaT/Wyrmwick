@@ -79,6 +79,37 @@ int image_draw_to(image *imageDest, image *imageSource, rect *rectSource, rect *
 #endif
 }
 
+int image_draw_rect_to(image *imageDest, rect *rectDest) {
+#ifdef SCREEN_SDL2
+	int iRet = 0;
+	if (imageDest->m_image == nullptr) {
+		debug_print("image_draw_rect_to(): image is null. How do I draw to it?\r\n");
+		return iRet;
+	}
+	iRet = SDL_SetTextureBlendMode(imageDest->m_image, SDL_BLENDMODE_BLEND);
+	if (iRet < 0) {
+		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
+		return iRet;
+	}
+	iRet = SDL_SetRenderTarget(g_sdlRenderer, imageDest->m_image);
+	if (iRet < 0) {
+		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
+		return iRet;
+	}
+	iRet = SDL_RenderDrawRect(g_sdlRenderer, rectDest);
+	if (iRet < 0) {
+		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
+		return iRet;
+	}
+	iRet = SDL_SetRenderTarget(g_sdlRenderer, nullptr);
+	if (iRet < 0) {
+		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
+		return iRet;
+	}
+	return iRet;
+#endif
+}
+
 void image_destroy(image *iImage) {
 #ifdef SCREEN_SDL2
 	SDL_DestroyTexture(iImage->m_image);
