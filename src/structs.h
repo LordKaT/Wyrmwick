@@ -133,7 +133,7 @@ struct input_mapping {
 	int m_iAxisDir;       // axis direction, 1 or -1
 	SDL_Keycode m_keycode;
 	
-	int m_iTo;    // logical button (KEY_DIRUP etc.)
+	int m_iTo;    // logical button (IN_DIRUP etc.)
 };
 
 #endif
