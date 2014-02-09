@@ -6,6 +6,10 @@
 #define DEBUG	/* Well, yeah. Don't forget to change build type
 					if we remove this. */
 
+#define SIZE(X) ((int) ( sizeof(X) / sizeof((X)[0]) ) )
+
+const char* const controls_file_path = "save/keys.cfg";
+
 #define GAME_START	0
 #define GAME_DEBUG	1
 #define GAME_MENU	2
