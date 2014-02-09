@@ -1,11 +1,25 @@
 #include "include.h"
 
-static bool _update_key(int which, int newstate);
+
+static bool _load_map();
+static void _load_defaults();
 void _set_lua_constants(lua_State *st);
+void _set_lua_functions(lua_State *L);
+void _append_mapping(input_mapping map);
+int _lua_map_key(lua_State *L);
+int _lua_map_joy_button(lua_State *L);
+int _lua_map_joy_axis(lua_State *L);
 const char* _kcname(SDL_Keycode code);
 
+static bool _update_key(int which, int newstate);
+
+
 void input_init() {
-	input_load_mapping();
+	g_inmap[0].m_type = IN_NONE;
+	
+	if (! _load_map()) {
+		_load_defaults();
+	}
 	
 	g_sdlJoystick = SDL_JoystickOpen(0);
 	if (g_sdlJoystick == nullptr) {
@@ -22,9 +36,27 @@ void input_destroy() {
 	}
 }
 
-void input_load_mapping() {
-	// TODO: Load key mappings from a config file
+bool _load_map() {
+	lua_State *state = luaL_newstate();
+	if(! state) {
+		debug_print("Ran out of memory while trying to read controls.\r\n");
+		//exit(1);
+		return false;
+	}
 	
+	_set_lua_constants(state);
+	_set_lua_functions(state);
+	
+	int err = luaL_dofile(state, controls_file_path);
+	if(err) {
+		debug_print("Failed to load \"%s\": %s\r\n", controls_file_path, lua_tostring(state, -1));
+		return false;
+	}
+	
+	return true;
+}
+
+void _load_defaults() {
 	input_mapping m;
 	m.m_type = IN_TYPE_KEYBOARD;
 	
@@ -186,7 +218,12 @@ bool _update_key(int which, int newstate) {
 void _append_mapping(input_mapping map) {
 	int i;
 	for (i = 0; i < IN_MAX-1; i++) {
-		if (g_inmap[i].m_type == IN_NONE) { break; }
+		if (g_inmap[i].m_type == IN_NONE) {
+			g_inmap[i] = map;
+			g_inmap[i+1].m_type = IN_NONE;
+			return;
+		}
+		
 		if (g_inmap[i].m_type != map.m_type) { continue; }
 		switch (map.m_type) {
 			case IN_TYPE_KEYBOARD:
@@ -210,9 +247,6 @@ void _append_mapping(input_mapping map) {
 				break;
 		}
 	}
-	
-	g_inmap[i] = map;
-	g_inmap[i+1].m_type = IN_NONE;
 }
 
 void _set_lua_functions(lua_State *L) {
@@ -224,19 +258,19 @@ void _set_lua_functions(lua_State *L) {
 int _lua_map_key(lua_State *L) {
 	if (lua_gettop(L) != 2) {
 		lua_pushstring(L, "function map_key needs exactly 2 arguments");
-		lua_error();
+		lua_error(L);
 		return 0;
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2))) {
 		lua_pushstring(L, "arguments of function map_key must be (number, number)");
-		lua_error();
+		lua_error(L);
 		return 0;
 	}
 	
 	int from = lua_tointeger(L, 1);
 	int to   = lua_tointeger(L, 2);
-	input_mapping m = {.m_type = IN_TYPE_KEYBOARD, .m_keycode = from, .m_iTo = to};
+	input_mapping m = {IN_TYPE_KEYBOARD, 0, 0, (SDL_Keycode) from, to};
 	_append_mapping(m);
 	return 0;
 }
@@ -244,19 +278,19 @@ int _lua_map_key(lua_State *L) {
 int _lua_map_joy_button(lua_State *L) {
 	if (lua_gettop(L) != 2) {
 		lua_pushstring(L, "function map_key needs exactly 2 arguments");
-		lua_error();
+		lua_error(L);
 		return 0;
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2))) {
 		lua_pushstring(L, "arguments of function map_key must be (number, number)");
-		lua_error();
+		lua_error(L);
 		return 0;
 	}
 	
 	int from = lua_tointeger(L, 1);
 	int to   = lua_tointeger(L, 2);
-	input_mapping m = {.m_type = IN_TYPE_JOYBUTTON, .m_iIndex = from, .m_iTo = to};
+	input_mapping m = {IN_TYPE_JOYBUTTON, (Uint8) from, 0, 0, to};
 	_append_mapping(m);
 	return 0;
 }
@@ -264,20 +298,20 @@ int _lua_map_joy_button(lua_State *L) {
 int _lua_map_joy_axis(lua_State *L) {
 	if (lua_gettop(L) != 2) {
 		lua_pushstring(L, "function map_key needs exactly 3 arguments");
-		lua_error();
+		lua_error(L);
 		return 0;
 	}
 	
-	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2))) {
+	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2)) || (! lua_isnumber(L, 3))) {
 		lua_pushstring(L, "arguments of function map_key must be (number, number, number)");
-		lua_error();
+		lua_error(L);
 		return 0;
 	}
 	
 	int axis = lua_tointeger(L, 1);
 	int dir  = lua_tointeger(L, 2);
 	int to   = lua_tointeger(L, 3);
-	input_mapping m = {.m_type = IN_TYPE_JOYAXIS, .m_iIndex = axis, .m_iAxisDir = dir, .m_iTo = to};
+	input_mapping m = {IN_TYPE_JOYAXIS, (Uint8) axis, dir, 0, to};
 	_append_mapping(m);
 	return 0;
 }

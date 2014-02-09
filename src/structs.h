@@ -124,7 +124,7 @@ struct input_state {
 
 struct input_event {
 	int m_iType;  // IN_NONE, IN_ON, IN_OFF or IN_DIRCHANGE
-	int m_iKey;
+	int m_iKey;  // key if ON/OFF or new direction for DIRCHANGE
 };
 
 struct input_mapping {

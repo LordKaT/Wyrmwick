@@ -2,7 +2,6 @@
 #define __KEYS_H__
 
 void input_init();
-void input_load_mapping();
 void input_save_mapping();
 
 // maps an SDL event to a logical input event and updates global state
