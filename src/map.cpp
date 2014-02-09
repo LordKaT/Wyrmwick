@@ -5,7 +5,14 @@ void map_init() {
 	g_map.m_cName = (char *)malloc(sizeof(char) * strlen("Debug Map") + 1);
 	strcpy(g_map.m_cName, "Debug Map");
 	image_load(&g_map.m_imageTiles, "data/images/tiles/tileset_test.bmp", false, 0, 0, 0);
-	image_create_texture(&g_map.m_imageMap, 8192, 8192);
+	image_create_texture(&g_map.m_imageMap, MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE);
+
+	for (int x = 0; x < MAP_SIZE; x++) {
+		for (int y = 0; y < MAP_SIZE; y++) {
+			g_map.m_map[x][y].m_iTileID = 0;
+		}
+	}
+
 	map_load("Debug Map");
 	map_draw();
 
@@ -24,8 +31,8 @@ void map_init() {
 void map_draw() {
 	rect tempRect;
 	rect tempTile;
-	for (int x = 0; x < 256; x++) {
-		for (int y = 0; y < 256; y++) {
+	for (int x = 0; x < MAP_SIZE; x++) {
+		for (int y = 0; y < MAP_SIZE; y++) {
 			tempRect.x = x * 32;
 			tempRect.y = y * 32;
 			tempRect.w = 32;
@@ -74,7 +81,7 @@ void map_load(char *cMap) {
 		debug_print("map_load(): could not open file: %s\r\n", cFile);
 		return;
 	}
-	fread(g_map.m_map, sizeof(struct mapData), 256*256, file);
+	fread(g_map.m_map, sizeof(struct mapData), MAP_SIZE*MAP_SIZE, file);
 	fclose(file);
 	free(cFile);
 	return;
@@ -104,14 +111,14 @@ void map_move(int iX, int iY) {
 	if (g_map.m_rectView.x < 0) {
 		g_map.m_rectView.x = 0;
 	}
-	if (g_map.m_rectView.x > 6912) {
-		g_map.m_rectView.x = 6912;
+	if (g_map.m_rectView.x > MAP_TEXTURE_SIZE - SCREEN_WIDTH) {
+		g_map.m_rectView.x = MAP_TEXTURE_SIZE - SCREEN_WIDTH;
 	}
 	if (g_map.m_rectView.y < 0) {
 		g_map.m_rectView.y = 0;
 	}
-	if (g_map.m_rectView.y > 7472) {
-		g_map.m_rectView.y = 7472;
+	if (g_map.m_rectView.y > MAP_TEXTURE_SIZE - SCREEN_HEIGHT) {
+		g_map.m_rectView.y = MAP_TEXTURE_SIZE - SCREEN_HEIGHT;
 	}
 	return;
 }

@@ -8,17 +8,11 @@ void map_editor_init() {
 
 void map_editor_input(SDL_Event *sdlEvent) {
 	if  (sdlEvent->type == SDL_KEYDOWN) {
-		if (sdlEvent->key.keysym.sym == SDLK_UP) {
-			map_move(0, -1);
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_DOWN) {
-			map_move(0, 1);
-		}
 		if (sdlEvent->key.keysym.sym == SDLK_LEFT) {
-			map_move(-1, 0);
+			g_mapEditor.m_iActiveTile--;
 		}
 		if (sdlEvent->key.keysym.sym == SDLK_RIGHT) {
-			map_move(1, 0);
+			g_mapEditor.m_iActiveTile++;
 		}
 		if (sdlEvent->key.keysym.sym == SDLK_F5) {
 			map_save();

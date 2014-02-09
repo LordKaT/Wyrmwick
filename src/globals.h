@@ -3,6 +3,8 @@
 
 extern bool g_bRun;
 extern int g_iGameState;
+extern int g_iScreenWidth;
+extern int g_iScreenHeight;
 extern lua_State *g_luaState;
 extern item g_items[ITEMS_MAX];
 extern skill g_skills[SKILLS_MAX];

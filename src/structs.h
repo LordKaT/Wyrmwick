@@ -127,7 +127,7 @@ struct map {
 	char *m_cName;
 	char *m_cTileset;
 	char *m_cLuaScript;
-	mapData m_map[256][256];
+	mapData m_map[MAP_SIZE][MAP_SIZE];
 
 	/* Not saved to file. */
 	rect m_rectView;

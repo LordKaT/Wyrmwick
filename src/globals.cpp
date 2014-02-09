@@ -2,6 +2,8 @@
 
 bool g_bRun;
 int g_iGameState;
+int g_iScreenWidth = 1280;
+int g_iScreenHeight = 720;
 lua_State *g_luaState;
 item g_items[ITEMS_MAX];
 skill g_skills[SKILLS_MAX];
