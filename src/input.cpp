@@ -3,13 +3,17 @@
 
 static bool _load_map();
 static void _load_defaults();
+
 void _set_lua_constants(lua_State *st);
 void _set_lua_functions(lua_State *L);
+
 void _append_mapping(input_mapping map);
 int _lua_map_key(lua_State *L);
 int _lua_map_joy_button(lua_State *L);
 int _lua_map_joy_axis(lua_State *L);
+
 const char* _kcname(SDL_Keycode code);
+const char* _inkname(int key);
 
 static bool _update_key(int which, int newstate);
 
@@ -19,6 +23,7 @@ void input_init() {
 	
 	if (! _load_map()) {
 		_load_defaults();
+		input_save_mapping();
 	}
 	
 	g_sdlJoystick = SDL_JoystickOpen(0);
@@ -36,6 +41,32 @@ void input_destroy() {
 	}
 }
 
+void input_save_mapping() {
+	FILE* file = fopen(controls_file_path, "w");
+	if (!file) {
+		debug_print("Failed to save controls: %s\r\n", strerror(errno));
+		return;
+	}
+	
+	for (int i = 0; i < IN_MAX; i++) {
+		if (g_inmap[i].m_type == IN_NONE) { break; }
+		switch (g_inmap[i].m_type) {
+			case IN_TYPE_KEYBOARD:
+				fprintf(file, "map_key(%s, %s)\n", _kcname(g_inmap[i].m_keycode), _inkname(g_inmap[i].m_iTo));
+				break;
+			case IN_TYPE_JOYBUTTON:
+				fprintf(file, "map_joy_button(%d, %s)\n", g_inmap[i].m_iIndex, _inkname(g_inmap[i].m_iTo));
+				break;
+			case IN_TYPE_JOYAXIS:
+				fprintf(file, "map_joy_axis(%d, %d, %s)\n",
+					g_inmap[i].m_iIndex, g_inmap[i].m_iAxisDir, _inkname(g_inmap[i].m_iTo));
+				break;
+		}
+	}
+	
+	fclose(file);
+}
+
 bool _load_map() {
 	lua_State *state = luaL_newstate();
 	if(! state) {
@@ -49,7 +80,7 @@ bool _load_map() {
 	
 	int err = luaL_dofile(state, controls_file_path);
 	if(err) {
-		debug_print("Failed to load \"%s\": %s\r\n", controls_file_path, lua_tostring(state, -1));
+		debug_print("Failed to load controls: %s\r\n", lua_tostring(state, -1));
 		return false;
 	}
 	
@@ -319,7 +350,7 @@ int _lua_map_joy_axis(lua_State *L) {
 const struct keycode {
 	const char *name;
 	SDL_Keycode code;
-} keycodes[] = {
+} _keycodes[] = {
 	{"SDLK_UNKNOWN", SDLK_UNKNOWN},
 	{"SDLK_RETURN", SDLK_RETURN},
 	{"SDLK_ESCAPE", SDLK_ESCAPE},
@@ -558,26 +589,39 @@ const struct keycode {
 	{"SDLK_SLEEP", SDLK_SLEEP},
 };
 
-void input_save_mapping() {
-}
-
-#define SETGLOBAL(L, N, S) ( lua_pushnumber((L), (lua_Number) (N)), lua_setglobal((L), (S)) )
+const struct _inkeyname {
+	const char* name;
+	int key;
+} _in_key_names[] = {
+	{"UP",    IN_DIRUP},
+	{"DOWN",  IN_DIRDOWN},
+	{"LEFT",  IN_DIRLEFT},
+	{"RIGHT", IN_DIRRIGHT},
+	{"OK",    IN_OK},
+};
 
 void _set_lua_constants(lua_State *L) {
-	for (int i = 0; i < SIZE(keycodes); i++) {
-		SETGLOBAL(L, keycodes[i].code, keycodes[i].name);
+	for (int i = 0; i < SIZE(_keycodes); i++) {
+		lua_pushnumber(L, (lua_Number) _keycodes[i].code);
+		lua_setglobal(L, _keycodes[i].name);
 	}
 	
-	SETGLOBAL(L, IN_DIRUP,    "UP");
-	SETGLOBAL(L, IN_DIRDOWN,  "DOWN");
-	SETGLOBAL(L, IN_DIRLEFT,  "LEFT");
-	SETGLOBAL(L, IN_DIRRIGHT, "RIGHT");
-	SETGLOBAL(L, IN_OK,       "OK");
+	for (int i = 0; i < SIZE(_in_key_names); i++) {
+		lua_pushnumber(L, (lua_Number) _in_key_names[i].key);
+		lua_setglobal(L, _in_key_names[i].name);
+	}
 }
 
 const char* _kcname(SDL_Keycode code) {
-	for (int i = 0; i < SIZE(keycodes); i++) {
-		if (keycodes[i].code == code) { return keycodes[i].name; }
+	for (int i = 0; i < SIZE(_keycodes); i++) {
+		if (_keycodes[i].code == code) { return _keycodes[i].name; }
 	}
 	return "SDLK_UNKNOWN";
+}
+
+const char* _inkname(int key) {
+	for (int i = 0; i < SIZE(_in_key_names); i++) {
+		if (_in_key_names[i].key == key) { return _in_key_names[i].name; }
+	}
+	return nullptr;
 }
