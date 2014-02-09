@@ -98,39 +98,6 @@ void _load_defaults() {
 	m.m_keycode = SDLK_RETURN;  m.m_iTo = IN_OK;        g_inmap[4] = m;
 	
 	m.m_type = IN_NONE; g_inmap[5] = m;
-	
-	// Test map for a Logitech F310 gamepad
-	/*m.m_type = IN_TYPE_JOYAXIS;
-	m.m_iIndex = 0;
-	m.m_iAxisDir = -1;
-	m.m_iTo = IN_DIRLEFT;
-	g_inmap[0] = m;
-	
-	m.m_type = IN_TYPE_JOYAXIS;
-	m.m_iIndex = 0;
-	m.m_iAxisDir = 1;
-	m.m_iTo = IN_DIRRIGHT;
-	g_inmap[1] = m;
-	
-	m.m_type = IN_TYPE_JOYAXIS;
-	m.m_iIndex = 1;
-	m.m_iAxisDir = -1;
-	m.m_iTo = IN_DIRUP;
-	g_inmap[2] = m;
-	
-	m.m_type = IN_TYPE_JOYAXIS;
-	m.m_iIndex = 1;
-	m.m_iAxisDir = 1;
-	m.m_iTo = IN_DIRDOWN;
-	g_inmap[3] = m;
-	
-	m.m_type = IN_TYPE_JOYBUTTON;
-	m.m_iIndex = 0;
-	m.m_iTo = IN_OK;
-	g_inmap[4] = m;	
-	
-	m.m_type = IN_NONE;
-	g_inmap[5] = m;*/
 }
 
 void map_input_event(SDL_Event e, input_event *mapped) {
@@ -169,7 +136,7 @@ void map_input_event(SDL_Event e, input_event *mapped) {
 			case IN_TYPE_JOYAXIS:
 				if (e.jaxis.axis == g_inmap[i].m_iIndex) { found = true; }
 				break;
-			}
+		}
 		if (!found) { continue; }
 		
 		int newstate = 0;
@@ -181,15 +148,13 @@ void map_input_event(SDL_Event e, input_event *mapped) {
 				if (e.type == SDL_JOYBUTTONDOWN) { newstate = g_inmap[i].m_iTo; }
 				break;
 			case IN_TYPE_JOYAXIS:
-				// TODO: Still broken.
 				if (e.jaxis.value * g_inmap[i].m_iAxisDir > 20) { newstate = g_inmap[i].m_iTo; }
 				break;
-			}
+		}
 		
 		bool changed = _update_key(g_inmap[i].m_iTo, newstate);
 		if (!changed) {
-			mapped->m_iType = IN_NONE;
-			return;
+			continue;
 		}
 		
 		if ((g_inmap[i].m_iTo & (IN_DIRUP|IN_DIRDOWN|IN_DIRLEFT|IN_DIRRIGHT)) == 0) {
@@ -308,13 +273,13 @@ int _lua_map_key(lua_State *L) {
 
 int _lua_map_joy_button(lua_State *L) {
 	if (lua_gettop(L) != 2) {
-		lua_pushstring(L, "function map_key needs exactly 2 arguments");
+		lua_pushstring(L, "function map_joy_button needs exactly 2 arguments");
 		lua_error(L);
 		return 0;
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2))) {
-		lua_pushstring(L, "arguments of function map_key must be (number, number)");
+		lua_pushstring(L, "arguments of function map_joy_button must be (number, number)");
 		lua_error(L);
 		return 0;
 	}
@@ -327,14 +292,14 @@ int _lua_map_joy_button(lua_State *L) {
 }
 
 int _lua_map_joy_axis(lua_State *L) {
-	if (lua_gettop(L) != 2) {
-		lua_pushstring(L, "function map_key needs exactly 3 arguments");
+	if (lua_gettop(L) != 3) {
+		lua_pushstring(L, "function map_joy_axis needs exactly 3 arguments");
 		lua_error(L);
 		return 0;
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2)) || (! lua_isnumber(L, 3))) {
-		lua_pushstring(L, "arguments of function map_key must be (number, number, number)");
+		lua_pushstring(L, "arguments of function map_joy_axis must be (number, number, number)");
 		lua_error(L);
 		return 0;
 	}
