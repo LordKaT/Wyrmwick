@@ -6,14 +6,6 @@ void map_editor_init() {
 	return;
 }
 
-#define MAPEDITOR_NONE	0
-#define MAPEDITOR_EDIT	1
-#define MAPEDITOR_NAME	2
-#define MAPEDITOR_SAVE	3
-#define MAPEDITOR_LOAD	4
-#define MAPEDITOR_TILE	5
-#define MAPEDITOR_SHEET	6
-
 int g_iMapEditorState = MAPEDITOR_EDIT;
 
 void map_editor_input(SDL_Event *sdlEvent) {
@@ -45,7 +37,8 @@ void map_editor_input(SDL_Event *sdlEvent) {
 					map_save();
 				}
 				if (sdlEvent->key.keysym.sym == SDLK_F9) {
-					// Load map
+					SDL_StartTextInput();
+					g_iMapEditorState = MAPEDITOR_LOAD;
 				}
 			}
 
@@ -74,6 +67,8 @@ void map_editor_input(SDL_Event *sdlEvent) {
 				}
 			}
 			break;
+
+		/* Rename map. */
 		case MAPEDITOR_NAME:
 			if (sdlEvent->type == SDL_KEYDOWN) {
 				if (sdlEvent->key.keysym.sym == SDLK_BACKSPACE) { // Handle backspace
@@ -84,6 +79,22 @@ void map_editor_input(SDL_Event *sdlEvent) {
 					}
 				}
 				if (sdlEvent->key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL) { // Paste from clipboad (SDL_GetClipboardText())
+					char *cTemp;
+					char *cClipboardText = SDL_GetClipboardText();
+					if (cClipboardText == nullptr) {
+						break;
+					}
+					cTemp = (char *)malloc(sizeof(char) * strlen(g_map.m_cName) + 1);
+					memset(cTemp, 0, sizeof(char) * strlen(g_map.m_cName) + 1);
+					strcpy(cTemp, g_map.m_cName);
+					if (g_map.m_cName != nullptr) {
+						free(g_map.m_cName);
+						g_map.m_cName = nullptr;
+					}
+					g_map.m_cName = (char *)malloc(sizeof(char) * strlen(cTemp) + strlen(cClipboardText) + 2);
+					strcpy(g_map.m_cName, cTemp);
+					strcat(g_map.m_cName, cClipboardText);
+					break;
 				}
 				if (sdlEvent->key.keysym.sym == SDLK_RETURN) {
 					g_iMapEditorState = MAPEDITOR_EDIT;
@@ -97,7 +108,6 @@ void map_editor_input(SDL_Event *sdlEvent) {
 					cTemp = (char *)malloc(sizeof(char) * strlen(g_map.m_cName) + 1);
 					memset(cTemp, 0, sizeof(char) * strlen(g_map.m_cName) + 1);
 					strcpy(cTemp, g_map.m_cName);
-					debug_print("cTemp: %s\r\n", cTemp);
 					if (g_map.m_cName != nullptr) {
 						free(g_map.m_cName);
 						g_map.m_cName = nullptr;
@@ -108,11 +118,58 @@ void map_editor_input(SDL_Event *sdlEvent) {
 				}
 			}
 			break;
+
+		/* Map Loading. */
 		case MAPEDITOR_LOAD:
-			// divert input to gui_ionputbox until != nullptr
-			// rename map
-			// map_load(name);
-			// map_draw();
+			if (sdlEvent->type == SDL_KEYDOWN) {
+				if (sdlEvent->key.keysym.sym == SDLK_BACKSPACE) { // Handle backspace
+					for (unsigned int i = 0; i < strlen(g_map.m_cName)+1; i++) {
+						if (g_map.m_cName[i] == '\0' && i > 0) {
+							g_map.m_cName[i - 1] = '\0';
+						}
+					}
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL) { // Paste from clipboad (SDL_GetClipboardText())
+					char *cTemp;
+					char *cClipboardText = SDL_GetClipboardText();
+					if (cClipboardText == nullptr) {
+						break;
+					}
+					cTemp = (char *)malloc(sizeof(char) * strlen(g_map.m_cName) + 1);
+					memset(cTemp, 0, sizeof(char) * strlen(g_map.m_cName) + 1);
+					strcpy(cTemp, g_map.m_cName);
+					if (g_map.m_cName != nullptr) {
+						free(g_map.m_cName);
+						g_map.m_cName = nullptr;
+					}
+					g_map.m_cName = (char *)malloc(sizeof(char) * strlen(cTemp) + strlen(cClipboardText) + 2);
+					strcpy(g_map.m_cName, cTemp);
+					strcat(g_map.m_cName, cClipboardText);
+					break;
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_RETURN) {
+					map_load(g_map.m_cName);
+					map_draw();
+					g_iMapEditorState = MAPEDITOR_EDIT;
+					SDL_StopTextInput();
+					break;
+				}
+			}
+			if (sdlEvent->type == SDL_TEXTINPUT) {
+				if (!((sdlEvent->text.text[0] == 'v' || sdlEvent->text.text[0] == 'V' ) && SDL_GetModState() & KMOD_CTRL)) { // Ignore CTRL+v
+					char *cTemp;
+					cTemp = (char *)malloc(sizeof(char) * strlen(g_map.m_cName) + 1);
+					memset(cTemp, 0, sizeof(char) * strlen(g_map.m_cName) + 1);
+					strcpy(cTemp, g_map.m_cName);
+					if (g_map.m_cName != nullptr) {
+						free(g_map.m_cName);
+						g_map.m_cName = nullptr;
+					}
+					g_map.m_cName = (char *)malloc(sizeof(char) * strlen(cTemp) + strlen(sdlEvent->text.text) + 2);
+					strcpy(g_map.m_cName, cTemp);
+					strcat(g_map.m_cName, sdlEvent->text.text);
+				}
+			}
 			break;
 		case MAPEDITOR_TILE:
 			// Draw tilesheet
@@ -135,6 +192,32 @@ void map_editor_render() {
 	image_draw(&g_map.m_imageTiles, &tempSrc, &tempDst);
 
 	font_print(10, 10, "%s", g_map.m_cName);
+
+	switch (g_iMapEditorState) {
+		case MAPEDITOR_NONE:
+			font_print(10, 690, "How the fuck are you even here?");
+			break;
+		case MAPEDITOR_EDIT:
+			font_print(10, 690, "Edit Mode");
+			break;
+		case MAPEDITOR_NAME:
+			font_print(10, 690, "Rename Map");
+			break;
+		case MAPEDITOR_SAVE:
+			font_print(10, 690, "Saving Map");
+			break;
+		case MAPEDITOR_LOAD:
+			font_print(10, 690, "Loading Map");
+			break;
+		case MAPEDITOR_TILE:
+			font_print(10, 690, "Tile Select");
+			break;
+		case MAPEDITOR_SHEET:
+			font_print(10, 690, "Sheet Select");
+			break;
+		default:
+			break;
+	}
 	return;
 }
 
