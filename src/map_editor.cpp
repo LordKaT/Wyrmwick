@@ -6,44 +6,122 @@ void map_editor_init() {
 	return;
 }
 
+#define MAPEDITOR_NONE	0
+#define MAPEDITOR_EDIT	1
+#define MAPEDITOR_NAME	2
+#define MAPEDITOR_SAVE	3
+#define MAPEDITOR_LOAD	4
+#define MAPEDITOR_TILE	5
+#define MAPEDITOR_SHEET	6
+
+int g_iMapEditorState = MAPEDITOR_EDIT;
+
 void map_editor_input(SDL_Event *sdlEvent) {
-	if  (sdlEvent->type == SDL_KEYDOWN) {
-		if (sdlEvent->key.keysym.sym == SDLK_LEFT) {
-			g_mapEditor.m_iActiveTile--;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_RIGHT) {
-			g_mapEditor.m_iActiveTile++;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F5) {
-			map_save();
-		}
-	}
-
-	if (sdlEvent->type == SDL_MOUSEBUTTONDOWN) {
-		if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) {
-			g_mapEditor.m_bDragMap = true;
-		}
-	}
-
-	if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
-		if (sdlEvent->button.button == 1) {
-			rect tempSrc = {g_mapEditor.m_iActiveTile * 32, 0, 32, 32};
-			rect tempDst = {((g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
-			g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_iTileID = g_mapEditor.m_iActiveTile;
-			image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempSrc, &tempDst);
-			map_draw_view();
-		}
-		if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) {
-			g_mapEditor.m_bDragMap = false;
-		}
-	}
-
+	// We may as well always check for this, because why not?
 	if (sdlEvent->type == SDL_MOUSEMOTION) {
 		g_mapEditor.m_iMouseX = sdlEvent->motion.x;
 		g_mapEditor.m_iMouseY = sdlEvent->motion.y;
-		if (g_mapEditor.m_bDragMap == true) {
-			map_move(sdlEvent->motion.xrel, sdlEvent->motion.yrel);
-		}
+	}
+	switch (g_iMapEditorState) {
+		case MAPEDITOR_EDIT:
+			if  (sdlEvent->type == SDL_KEYDOWN) {
+				if (sdlEvent->key.keysym.sym == SDLK_LEFT) {
+					g_mapEditor.m_iActiveTile--;
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_RIGHT) {
+					g_mapEditor.m_iActiveTile++;
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_F1) {
+					SDL_StartTextInput();
+					g_iMapEditorState = MAPEDITOR_NAME;
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_F2) {
+					// Choose new tile from sprite sheet
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_F3) {
+					// Choose new sprite sheet
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_F5) {
+					map_save();
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_F9) {
+					// Load map
+				}
+			}
+
+			if (sdlEvent->type == SDL_MOUSEBUTTONDOWN) { // Drag map on right click & hold
+				if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) {
+					g_mapEditor.m_bDragMap = true;
+				}
+			}
+
+			if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
+				if (sdlEvent->button.button == 1) { // place tile
+					rect tempSrc = {g_mapEditor.m_iActiveTile * 32, 0, 32, 32};
+					rect tempDst = {((g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
+					g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_iTileID = g_mapEditor.m_iActiveTile;
+					image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempSrc, &tempDst);
+					map_draw_view(); // Only redraw what's currently visible (unless the map maker is psychic the current view is what changed.
+				}
+				if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) { // stop dragging map
+					g_mapEditor.m_bDragMap = false;
+				}
+			}
+
+			if (sdlEvent->type == SDL_MOUSEMOTION) {
+				if (g_mapEditor.m_bDragMap == true) {
+					map_move(sdlEvent->motion.xrel, sdlEvent->motion.yrel);
+				}
+			}
+			break;
+		case MAPEDITOR_NAME:
+			if (sdlEvent->type == SDL_KEYDOWN) {
+				if (sdlEvent->key.keysym.sym == SDLK_BACKSPACE) { // Handle backspace
+					for (unsigned int i = 0; i < strlen(g_map.m_cName)+1; i++) {
+						if (g_map.m_cName[i] == '\0' && i > 0) {
+							g_map.m_cName[i - 1] = '\0';
+						}
+					}
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL) { // Paste from clipboad (SDL_GetClipboardText())
+				}
+				if (sdlEvent->key.keysym.sym == SDLK_RETURN) {
+					g_iMapEditorState = MAPEDITOR_EDIT;
+					SDL_StopTextInput();
+					break;
+				}
+			}
+			if (sdlEvent->type == SDL_TEXTINPUT) {
+				if (!((sdlEvent->text.text[0] == 'v' || sdlEvent->text.text[0] == 'V' ) && SDL_GetModState() & KMOD_CTRL)) { // Ignore CTRL+v
+					char *cTemp;
+					cTemp = (char *)malloc(sizeof(char) * strlen(g_map.m_cName) + 1);
+					memset(cTemp, 0, sizeof(char) * strlen(g_map.m_cName) + 1);
+					strcpy(cTemp, g_map.m_cName);
+					debug_print("cTemp: %s\r\n", cTemp);
+					if (g_map.m_cName != nullptr) {
+						free(g_map.m_cName);
+						g_map.m_cName = nullptr;
+					}
+					g_map.m_cName = (char *)malloc(sizeof(char) * strlen(cTemp) + strlen(sdlEvent->text.text) + 2);
+					strcpy(g_map.m_cName, cTemp);
+					strcat(g_map.m_cName, sdlEvent->text.text);
+				}
+			}
+			break;
+		case MAPEDITOR_LOAD:
+			// divert input to gui_ionputbox until != nullptr
+			// rename map
+			// map_load(name);
+			// map_draw();
+			break;
+		case MAPEDITOR_TILE:
+			// Draw tilesheet
+			// Input based on tile sheet, not map.
+			// Choose tile on click
+			// g_iMapEditorState = MAPEDITOR_EDIT
+			break;
+		default:
+			break;
 	}
 
 	return;

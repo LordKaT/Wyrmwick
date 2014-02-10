@@ -182,3 +182,26 @@ bool _update_key(int which, int newstate) {
 	g_input_state.m_iDirection = IN_NONE;
 	return true;
 }
+
+char *input_inputText(SDL_Event *sdlEvent, char *cBuffer) {
+	if  (sdlEvent->type == SDL_KEYDOWN) {
+		if (sdlEvent->key.keysym.sym == SDLK_RETURN) {
+			if (cBuffer == nullptr) {
+				return "You passed a null pointer!";
+			}
+			else {
+				return cBuffer;
+			}
+		}
+		else {
+			if (cBuffer == nullptr) {
+				cBuffer = (char *)malloc(sizeof(char) * 256);
+				memset(cBuffer, 0, sizeof(char) * 256);
+			}
+			debug_print("input_inputText(): Got %s\r\n", SDL_GetKeyName(sdlEvent->key.keysym.sym));
+			strcat(cBuffer, SDL_GetKeyName(sdlEvent->key.keysym.sym));
+			return nullptr;
+		}
+	}
+	return nullptr;
+}
