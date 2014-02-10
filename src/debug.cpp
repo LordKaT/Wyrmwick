@@ -12,6 +12,15 @@ void debug_print(const char *cFmt, ...) {
 	return;
 }
 
+void debug_init() {
+	menu_create("Debug Menu", 0, 0, debug_menu_func);
+	menu_add("Show map");
+	menu_add("Sound Test");
+	menu_add("Map Editor");
+	menu_add("Exit");
+	return;
+}
+
 void debug_input(SDL_Event *sdlEvent) {
 }
 
@@ -21,15 +30,20 @@ void debug_menu_func(int iSelection) {
 	switch (iSelection) {
 		case 0:
 			g_iGameState = GAME_WORLD;
-			menu_close();
+			debug_destroy();
 			break;
 		case 1:
 			audio_load_music(&g_audio, "data/audio/Encounter5.mp3");
 			audio_play_music(&g_audio);
 			break;
 		case 2:
+			g_iGameState = GAME_MAP_EDITOR;
+			debug_destroy();
+			map_editor_init();
+			break;
+		case 3:
 			g_bRun = false;
-			menu_close();
+			debug_destroy();
 			break;
 		default:
 			break;
@@ -38,12 +52,10 @@ void debug_menu_func(int iSelection) {
 }
 
 void debug_loop() {
-	if (g_iGameState != GAME_DEBUG) {
-		g_iGameState = GAME_DEBUG;
-		menu_create("Debug Menu", debug_menu_func);
-		menu_add("Show map");
-		menu_add("Play music");
-		menu_add("Exit");
-	}
+	return;
+}
+
+void debug_destroy() {
+	menu_close();
 	return;
 }

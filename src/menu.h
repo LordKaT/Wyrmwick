@@ -2,7 +2,7 @@
 #define __MENU_H__
 
 void menu_init();
-void menu_create(char *cMenuTitle, void (*vFunc)(int iSelection));
+void menu_create(const char *cMenuTitle, int iXPos, int iYPos, void (*vFunc)(int iSelection));
 void menu_add(const char *cFmt, ...);
 void menu_input(SDL_Event *sdlEvent);
 void menu_render();

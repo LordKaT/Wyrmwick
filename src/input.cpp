@@ -107,12 +107,10 @@ void map_input_event(SDL_Event e, input_event *mapped) {
 		case SDL_KEYUP:
 			ktype = IN_TYPE_KEYBOARD;
 			break;
-		
 		case SDL_JOYBUTTONDOWN:
 		case SDL_JOYBUTTONUP:
 			ktype = IN_TYPE_JOYBUTTON;
 			break;
-		
 		case SDL_JOYAXISMOTION:
 			ktype = IN_TYPE_JOYAXIS;
 			break;
@@ -121,10 +119,10 @@ void map_input_event(SDL_Event e, input_event *mapped) {
 			return;
 	}
 	
-	for(int i = 0; i < IN_MAX; i++) {
+	for (int i = 0; i < IN_MAX; i++) {
 		if (g_inmap[i].m_type == IN_NONE) { break; }
 		if (g_inmap[i].m_type != ktype) { continue; }
-		
+
 		bool found = false;
 		switch(ktype) {	
 			case IN_TYPE_KEYBOARD:

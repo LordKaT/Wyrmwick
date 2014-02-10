@@ -12,7 +12,8 @@ int main(int iArgC, char * cArgV[]) {
 	debug_print("Init finished!\r\n");
 
 	g_bRun = true;
-	g_iGameState = GAME_START;
+	map_editor_init();
+	g_iGameState = GAME_MAP_EDITOR;
 
 	while (g_bRun == true) {
 		while (SDL_PollEvent(&g_sdlEvent)) {
@@ -24,26 +25,24 @@ int main(int iArgC, char * cArgV[]) {
 			}
 			else {
 				/* input. */
+				if  (g_sdlEvent.type == SDL_KEYDOWN) {
+					/* no matter what, go to the debug menu. */
+					if (g_sdlEvent.key.keysym.sym == SDLK_F11) {
+						g_iGameState = GAME_DEBUG;
+						debug_init();
+					}
+				}
 				switch (g_iGameState) {
 					case GAME_WORLD:
-						/* testing map scrolling. */
 						if  (g_sdlEvent.type == SDL_KEYDOWN) {
-							if (g_sdlEvent.key.keysym.sym == SDLK_UP) {
-								map_move(0, -1);
-							}
-							if (g_sdlEvent.key.keysym.sym == SDLK_DOWN) {
-								map_move(0, 1);
-							}
-							if (g_sdlEvent.key.keysym.sym == SDLK_LEFT) {
-								map_move(-1, 0);
-							}
-							if (g_sdlEvent.key.keysym.sym == SDLK_RIGHT) {
-								map_move(1, 0);
-							}
-							if (g_sdlEvent.key.keysym.sym == SDLK_ESCAPE) {
-								g_iGameState = GAME_DEBUG;
+							if (g_sdlEvent.key.keysym.sym == SDLK_F9) {
+								map_editor_init();
+								g_iGameState = GAME_MAP_EDITOR;
 							}
 						}
+						break;
+					case GAME_MAP_EDITOR:
+						map_editor_input(&g_sdlEvent);
 						break;
 					default:
 						break;
@@ -55,6 +54,7 @@ int main(int iArgC, char * cArgV[]) {
 		/* game logic, drawing. */
 		switch (g_iGameState) {
 			case GAME_START:
+				break;
 			case GAME_DEBUG:
 				debug_loop();
 				break;
@@ -62,6 +62,9 @@ int main(int iArgC, char * cArgV[]) {
 				break;
 			case GAME_WORLD:
 				map_render();
+				break;
+			case GAME_MAP_EDITOR:
+				map_editor_render();
 				break;
 			default:
 				break;

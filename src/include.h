@@ -37,6 +37,7 @@ extern "C" {
 #include "font.h"
 #include "menu.h"
 #include "map.h"
+#include "map_editor.h"
 #include "audio.h"
 #include "image.h"
 #include "input.h"

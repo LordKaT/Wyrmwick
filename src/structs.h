@@ -97,6 +97,7 @@ struct font {
 
 struct menu {
 	char *m_cLabel;
+	char *m_cInput;
 	int m_iCursorPos;
 	unsigned int m_uiMenuWidth;
 	unsigned int m_uiMenuHeight;
@@ -108,13 +109,32 @@ struct menu {
 	image m_image;
 };
 
+struct mapEditor {
+	int m_iActiveTile;
+	int m_iMouseX;
+	int m_iMouseY;
+	bool m_bDragMap;
+};
+
+struct mapData {
+	int m_iTileID;		// Id of sprite
+	rect m_rectTile;	// hitbox/drawbox
+	char m_cWalk;		// Walkability of this tile (non, climb, walk, fly, etc...)
+};
+
 struct map {
+	/* This data is saved to file. */
 	char *m_cName;
-	rect m_rect[100][100];
+	char *m_cTileset;
+	char *m_cLuaScript;
+	mapData m_map[MAP_SIZE][MAP_SIZE];
+
+	/* Not saved to file. */
 	rect m_rectView;
 	rect m_rectDest;
-	image m_imageMap;
-	image m_imageTiles;
+	image m_imageMap;	// Map is drawn to this texture
+	image m_imageTiles;	// Tile image storage
+	luaChunk m_luaChunk;
 };
 
 struct input_state {
