@@ -3,22 +3,22 @@
 
 static void _load_defaults();
 
-void _set_lua_constants(lua_State *st);
-void _set_lua_functions(lua_State *L);
+static void _set_lua_constants(lua_State *st);
+static int _save_controls(FILE *sfile, void *controls);
 
-void _append_mapping(input_mapping map);
-int _lua_map_key(lua_State *L);
-int _lua_map_joy_button(lua_State *L);
-int _lua_map_joy_axis(lua_State *L);
+static void _append_control(input_control* controls, input_control ctl);
+static int _lua_input_key(lua_State *L);
+static int _lua_input_joy_button(lua_State *L);
+static int _lua_input_joy_axis(lua_State *L);
 
-const char* _kcname(SDL_Keycode code);
-const char* _inkname(int key);
+static const char* _kcname(SDL_Keycode code);
+static const char* _inkname(int key);
 
 static bool _update_key(int which, int newstate);
 
 
 void input_init() {
-	if (g_inmap[0].m_type = IN_NONE) {
+	if (g_inmap[0].m_type == IN_NONE) {
 		// Nothing set in the settings, load defaults.
 		_load_defaults();
 	}
@@ -38,56 +38,41 @@ void input_destroy() {
 	}
 }
 
-//void input_config_settings(settings *st, input_
+void input_config_settings(settings *st, input_control *controls) {
+	controls[0].m_type = IN_NONE;
+	
+	_set_lua_constants(st->m_luaState);
+	
+	settings_add_func(st, "input_key", &_lua_input_key, controls);
+	settings_add_func(st, "input_joy_button", &_lua_input_joy_button, controls);
+	settings_add_func(st, "input_joy_axis", &_lua_input_joy_axis, controls);
+	
+	settings_add_writer(st, &_save_controls, controls);
+}
 
-void input_save_mapping() {
-	FILE* file = fopen(controls_file_path, "w");
-	if (!file) {
-		debug_print("Failed to save controls: %s\r\n", strerror(errno));
-		return;
-	}
+int _save_controls(FILE *sfile, void *controls) {
+	input_control *ctl = (input_control*) controls;
 	
 	for (int i = 0; i < IN_MAX; i++) {
-		if (g_inmap[i].m_type == IN_NONE) { break; }
-		switch (g_inmap[i].m_type) {
+		if (ctl[i].m_type == IN_NONE) { break; }
+		switch (ctl[i].m_type) {
 			case IN_TYPE_KEYBOARD:
-				fprintf(file, "map_key(%s, %s)\n", _kcname(g_inmap[i].m_keycode), _inkname(g_inmap[i].m_iTo));
+				fprintf(sfile, "input_key(%s, %s)\n", _kcname(ctl[i].m_keycode), _inkname(ctl[i].m_iTo));
 				break;
 			case IN_TYPE_JOYBUTTON:
-				fprintf(file, "map_joy_button(%d, %s)\n", g_inmap[i].m_iIndex, _inkname(g_inmap[i].m_iTo));
+				fprintf(sfile, "input_joy_button(%d, %s)\n", ctl[i].m_iIndex, _inkname(ctl[i].m_iTo));
 				break;
 			case IN_TYPE_JOYAXIS:
-				fprintf(file, "map_joy_axis(%d, %d, %s)\n",
-					g_inmap[i].m_iIndex, g_inmap[i].m_iAxisDir, _inkname(g_inmap[i].m_iTo));
+				fprintf(sfile, "input_joy_axis(%d, %d, %s)\n",
+					ctl[i].m_iIndex, ctl[i].m_iAxisDir, _inkname(ctl[i].m_iTo));
 				break;
 		}
 	}
-	
-	fclose(file);
-}
-
-bool _load_map() {
-	lua_State *state = luaL_newstate();
-	if(! state) {
-		debug_print("Ran out of memory while trying to read controls.\r\n");
-		//exit(1);
-		return false;
-	}
-	
-	_set_lua_constants(state);
-	_set_lua_functions(state);
-	
-	int err = luaL_dofile(state, controls_file_path);
-	if(err) {
-		debug_print("Failed to load controls: %s\r\n", lua_tostring(state, -1));
-		return false;
-	}
-	
-	return true;
+	return 0;
 }
 
 void _load_defaults() {
-	input_mapping m;
+	input_control m;
 	m.m_type = IN_TYPE_KEYBOARD;
 	
 	m.m_keycode = SDLK_UP;      m.m_iTo = IN_DIRUP;     g_inmap[0] = m;
@@ -99,7 +84,7 @@ void _load_defaults() {
 	m.m_type = IN_NONE; g_inmap[5] = m;
 }
 
-void map_input_event(SDL_Event e, input_event *mapped) {
+void input_get_event(SDL_Event e, input_event *mapped) {
 	int ktype;
 	switch(e.type) {
 		case SDL_KEYDOWN:
@@ -208,33 +193,33 @@ bool _update_key(int which, int newstate) {
 	return true;
 }
 
-void _append_mapping(input_mapping map) {
+void _append_control(input_control* controls, input_control ctl) {
 	int i;
 	for (i = 0; i < IN_MAX-1; i++) {
-		if (g_inmap[i].m_type == IN_NONE) {
-			g_inmap[i] = map;
-			g_inmap[i+1].m_type = IN_NONE;
+		if (controls[i].m_type == IN_NONE) {
+			controls[i] = ctl;
+			controls[i+1].m_type = IN_NONE;
 			return;
 		}
 		
-		if (g_inmap[i].m_type != map.m_type) { continue; }
-		switch (map.m_type) {
+		if (controls[i].m_type != ctl.m_type) { continue; }
+		switch (ctl.m_type) {
 			case IN_TYPE_KEYBOARD:
-				if (g_inmap[i].m_keycode == map.m_keycode) {
-					g_inmap[i] = map;
+				if (controls[i].m_keycode == ctl.m_keycode) {
+					controls[i] = ctl;
 					return;
 				}
 				break;
 			case IN_TYPE_JOYBUTTON:
-				if (g_inmap[i].m_iIndex == map.m_iIndex) {
-					g_inmap[i] = map;
+				if (controls[i].m_iIndex == ctl.m_iIndex) {
+					controls[i] = ctl;
 					return;
 				}
 				break;
 			
 			case IN_TYPE_JOYAXIS:
-				if (g_inmap[i].m_iIndex == map.m_iIndex && g_inmap[i].m_iAxisDir == map.m_iAxisDir) {
-					g_inmap[i] = map;
+				if (controls[i].m_iIndex == ctl.m_iIndex && controls[i].m_iAxisDir == ctl.m_iAxisDir) {
+					controls[i] = ctl;
 					return;
 				}
 				break;
@@ -242,74 +227,74 @@ void _append_mapping(input_mapping map) {
 	}
 }
 
-void _set_lua_functions(lua_State *L) {
-	lua_register(L, "map_key", &_lua_map_key);
-	lua_register(L, "map_joy_button", &_lua_map_joy_button);
-	lua_register(L, "map_joy_axis", &_lua_map_joy_axis);
-}
-
-int _lua_map_key(lua_State *L) {
+int _lua_input_key(lua_State *L) {
 	if (lua_gettop(L) != 2) {
-		lua_pushstring(L, "function map_key needs exactly 2 arguments");
+		lua_pushstring(L, "function input_key needs exactly 2 arguments");
 		lua_error(L);
 		return 0;
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2))) {
-		lua_pushstring(L, "arguments of function map_key must be (number, number)");
+		lua_pushstring(L, "arguments of function input_key must be (number, number)");
 		lua_error(L);
 		return 0;
 	}
 	
+	input_control *controls = (input_control*) lua_touserdata(L, lua_upvalueindex(1));
+	
 	int from = lua_tointeger(L, 1);
 	int to   = lua_tointeger(L, 2);
-	input_mapping m = {IN_TYPE_KEYBOARD, 0, 0, (SDL_Keycode) from, to};
-	_append_mapping(m);
+	input_control m = {IN_TYPE_KEYBOARD, 0, 0, (SDL_Keycode) from, to};
+	_append_control(controls, m);
 	return 0;
 }
 
-int _lua_map_joy_button(lua_State *L) {
+int _lua_input_joy_button(lua_State *L) {
 	if (lua_gettop(L) != 2) {
-		lua_pushstring(L, "function map_joy_button needs exactly 2 arguments");
+		lua_pushstring(L, "function input_joy_button needs exactly 2 arguments");
 		lua_error(L);
 		return 0;
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2))) {
-		lua_pushstring(L, "arguments of function map_joy_button must be (number, number)");
+		lua_pushstring(L, "arguments of function input_joy_button must be (number, number)");
 		lua_error(L);
 		return 0;
 	}
 	
+	input_control *controls = (input_control*) lua_touserdata(L, lua_upvalueindex(1));
+	
 	int from = lua_tointeger(L, 1);
 	int to   = lua_tointeger(L, 2);
-	input_mapping m = {IN_TYPE_JOYBUTTON, (Uint8) from, 0, 0, to};
-	_append_mapping(m);
+	input_control m = {IN_TYPE_JOYBUTTON, (Uint8) from, 0, 0, to};
+	_append_control(controls, m);
 	return 0;
 }
 
-int _lua_map_joy_axis(lua_State *L) {
+int _lua_input_joy_axis(lua_State *L) {
 	if (lua_gettop(L) != 3) {
-		lua_pushstring(L, "function map_joy_axis needs exactly 3 arguments");
+		lua_pushstring(L, "function input_joy_axis needs exactly 3 arguments");
 		lua_error(L);
 		return 0;
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2)) || (! lua_isnumber(L, 3))) {
-		lua_pushstring(L, "arguments of function map_joy_axis must be (number, number, number)");
+		lua_pushstring(L, "arguments of function input_joy_axis must be (number, number, number)");
 		lua_error(L);
 		return 0;
 	}
 	
+	input_control *controls = (input_control*) lua_touserdata(L, lua_upvalueindex(1));
+	
 	int axis = lua_tointeger(L, 1);
 	int dir  = lua_tointeger(L, 2);
 	int to   = lua_tointeger(L, 3);
-	input_mapping m = {IN_TYPE_JOYAXIS, (Uint8) axis, dir, 0, to};
-	_append_mapping(m);
+	input_control m = {IN_TYPE_JOYAXIS, (Uint8) axis, dir, 0, to};
+	_append_control(controls, m);
 	return 0;
 }
 
-const struct keycode {
+const struct _keycode {
 	const char *name;
 	SDL_Keycode code;
 } _keycodes[] = {

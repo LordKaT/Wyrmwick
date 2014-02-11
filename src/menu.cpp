@@ -58,7 +58,7 @@ void menu_add(const char *cFmt, ...) {
 Menus take input precedence over game input. */
 void menu_input(SDL_Event *sdlEvent) {
 	input_event ev;
-	map_input_event(*sdlEvent, &ev);
+	input_get_event(*sdlEvent, &ev);
 	
 	switch(ev.m_iKey) {
 	case IN_DIRUP:

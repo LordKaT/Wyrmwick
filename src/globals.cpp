@@ -14,7 +14,7 @@ menu g_menu;
 map g_map;
 audio g_audio;
 input_state g_input_state;
-input_mapping g_inmap[IN_MAX];
+input_control g_inmap[IN_MAX];
 mapEditor g_mapEditor;
 
 #ifdef SCREEN_SDL2

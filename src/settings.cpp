@@ -1,13 +1,13 @@
 #include "include.h"
 
 settings* settings_new() {
-	settings *s = malloc(sizeof(settings));
+	settings *s = (settings*) malloc(sizeof(settings));
 	if (! s) {
 		debug_print("Ran out of memory while trying to load settings.\r\n");
 		// HALT HERE
 	}
 		
-	s->m_luaState = lua_newstate();
+	s->m_luaState = luaL_newstate();
 	if (! s->m_luaState) {
 		debug_print("Ran out of memory while trying to load settings.\r\n");
 		// HALT HERE
@@ -42,8 +42,8 @@ int settings_save(settings *s, const char* path) {
 		return 1;
 	}
 	
-	settings_writer *writers = (setting_writer*) settings->m_aWriters->m_data;
-	for (int i = 0; i < settings->m_aWriters->m_len; i++) {
+	settings_writer *writers = (settings_writer*) s->m_aWriters->m_data;
+	for (int i = 0; i < s->m_aWriters->m_len; i++) {
 		int err = writers[i].m_func(file, writers[i].m_userdata);
 		if (err) {
 			return 1;

@@ -30,17 +30,20 @@ extern "C" {
 
 #include "define.h"
 #include "structs.h"
-#include "globals.h"
-#include "debug.h"
-#include "script.h"
-#include "screen.h"
-#include "font.h"
-#include "menu.h"
-#include "map.h"
-#include "map_editor.h"
+
+#include "arrays.h"
 #include "audio.h"
+#include "debug.h"
+#include "font.h"
+#include "globals.h"
 #include "image.h"
 #include "input.h"
+#include "map.h"
+#include "map_editor.h"
+#include "menu.h"
+#include "screen.h"
+#include "script.h"
+#include "settings.h"
 #include "utils.h"
 
 #endif

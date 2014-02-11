@@ -5,7 +5,7 @@ void sdl2_init() {
 		printf("SDL_Init: %s\r\n", SDL_GetError());
 		return;
 	}
-	g_sdlWindow = SDL_CreateWindow(WYRMWICK_VERSION, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN);
+	g_sdlWindow = SDL_CreateWindow(WYRMWICK_VERSION, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, g_iScreenWidth, g_iScreenHeight, SDL_WINDOW_SHOWN);
 	if (g_sdlWindow == nullptr) {
 		printf("SDL_CreateWindow: %s\r\n", SDL_GetError());
 		return;

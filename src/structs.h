@@ -3,6 +3,12 @@
 
 #include "include.h"
 
+struct array {
+	void* m_data;
+	size_t m_elemSize;
+	int m_len, m_cap;
+};
+
 struct luaChunk {
 	void *m_vLuaChunk;
 	size_t m_sizeLuaChunk;
@@ -155,6 +161,18 @@ struct input_control {
 	SDL_Keycode m_keycode;
 	
 	int m_iTo;    // logical button (IN_DIRUP etc.)
+};
+
+typedef int (*settings_writer_func)(FILE *sfile, void *userdata);
+
+struct settings_writer {
+	settings_writer_func m_func;
+	void *m_userdata;
+};
+
+struct settings {
+	lua_State *m_luaState;
+	array /*of settings_writer*/ *m_aWriters;
 };
 
 #endif
