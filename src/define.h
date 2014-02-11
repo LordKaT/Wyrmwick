@@ -1,7 +1,7 @@
 #ifndef __DEFINE_H__
 #define __DEFINE_H__
 
-#define WYRMWICK_VERSION	"FEB 06 2014 Pre-Alpha"
+#define WYRMWICK_VERSION	"FEB 10 2014 Pre-Alpha"
 
 #define DEBUG	/* Well, yeah. Don't forget to change build type
 					if we remove this. */
@@ -150,5 +150,14 @@ const char* const controls_file_path = "save/keys.cfg";
 #define WALK_FLY	5
 
 #define WALK_MAX	128
+
+
+#define MAPEDITOR_NONE	0
+#define MAPEDITOR_EDIT	1
+#define MAPEDITOR_NAME	2
+#define MAPEDITOR_SAVE	3
+#define MAPEDITOR_LOAD	4
+#define MAPEDITOR_TILE	5
+#define MAPEDITOR_SHEET	6
 
 #endif
