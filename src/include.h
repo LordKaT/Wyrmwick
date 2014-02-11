@@ -40,5 +40,6 @@ extern "C" {
 #include "audio.h"
 #include "image.h"
 #include "input.h"
+#include "utils.h"
 
 #endif
