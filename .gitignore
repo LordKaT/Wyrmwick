@@ -219,3 +219,4 @@ src/lua-5.2.3/
 Makefile
 
 save/*
+!save/.ignore_this_file
