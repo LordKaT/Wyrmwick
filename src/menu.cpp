@@ -23,7 +23,7 @@ void menu_init() {
 	return;
 }
 
-void menu_create(char *cMenuTitle, void (*vFunc)(int iSelection)) {
+void menu_create(const char *cMenuTitle, int iXPos, int iYPos, void (*vFunc)(int iSelection)) {
 	if (g_menu.m_cLabel != nullptr) {
 		free(g_menu.m_cLabel);
 		g_menu.m_cLabel = nullptr;
@@ -34,7 +34,7 @@ void menu_create(char *cMenuTitle, void (*vFunc)(int iSelection)) {
 	return;
 }
 
-void menu_add(char *cFmt, ...) {
+void menu_add(const char *cFmt, ...) {
 	char cLabel[512];
 	va_list vArgs;
 	va_start(vArgs, cFmt);
@@ -58,7 +58,7 @@ void menu_add(char *cFmt, ...) {
 Menus take input precedence over game input. */
 void menu_input(SDL_Event *sdlEvent) {
 	input_event ev;
-	map_input_event(*sdlEvent, &ev);
+	input_get_event(*sdlEvent, &ev);
 	
 	switch(ev.m_iKey) {
 	case IN_DIRUP:
@@ -79,6 +79,7 @@ void menu_input(SDL_Event *sdlEvent) {
 	return;
 }
 
+/* one day we'll replace this with a dialog box. */
 void menu_render() {
 	if (g_menu.m_cLabel != nullptr) {
 		/* Show the menu. */

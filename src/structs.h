@@ -3,6 +3,12 @@
 
 #include "include.h"
 
+struct array {
+	void* m_data;
+	size_t m_elemSize;
+	int m_len, m_cap;
+};
+
 struct luaChunk {
 	void *m_vLuaChunk;
 	size_t m_sizeLuaChunk;
@@ -97,6 +103,7 @@ struct font {
 
 struct menu {
 	char *m_cLabel;
+	char *m_cInput;
 	int m_iCursorPos;
 	unsigned int m_uiMenuWidth;
 	unsigned int m_uiMenuHeight;
@@ -108,13 +115,34 @@ struct menu {
 	image m_image;
 };
 
+struct mapEditor {
+	int m_iActiveTile;
+	int m_iMouseX;
+	int m_iMouseY;
+	int m_iMapEditorState;
+	char m_cMapWalk;
+	bool m_bDragMap;
+	bool m_bGrid;
+};
+
+struct mapData {
+	int m_iTileID;		// Id of sprite
+	char m_cWalk;		// Walkability of this tile (non, climb, walk, fly, etc...)
+};
+
 struct map {
+	/* This data is saved to file. */
 	char *m_cName;
-	rect m_rect[100][100];
+	char *m_cTileset;
+	char *m_cLuaScript;
+	mapData m_map[MAP_SIZE][MAP_SIZE];
+
+	/* Not saved to file. */
 	rect m_rectView;
 	rect m_rectDest;
-	image m_imageMap;
-	image m_imageTiles;
+	image m_imageMap;	// Map is drawn to this texture
+	image m_imageTiles;	// Tile image storage
+	luaChunk m_luaChunk;
 };
 
 struct input_state {
@@ -124,16 +152,28 @@ struct input_state {
 
 struct input_event {
 	int m_iType;  // IN_NONE, IN_ON, IN_OFF or IN_DIRCHANGE
-	int m_iKey;
+	int m_iKey;  // key if ON/OFF or new direction for DIRCHANGE
 };
 
-struct input_mapping {
+struct input_control {
 	int m_type;             // IN_TYPE_KEYBOARD, IN_TYPE_JOYBUTTON or IN_TYPE_JOYAXIS
 	Uint8 m_iIndex;         // joystick button/axis index
 	int m_iAxisDir;       // axis direction, 1 or -1
 	SDL_Keycode m_keycode;
 	
 	int m_iTo;    // logical button (IN_DIRUP etc.)
+};
+
+typedef int (*settings_writer_func)(FILE *sfile, void *userdata);
+
+struct settings_writer {
+	settings_writer_func m_func;
+	void *m_userdata;
+};
+
+struct settings {
+	lua_State *m_luaState;
+	array /*of settings_writer*/ *m_aWriters;
 };
 
 #endif

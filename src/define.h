@@ -1,19 +1,24 @@
 #ifndef __DEFINE_H__
 #define __DEFINE_H__
 
-#define WYRMWICK_VERSION	"FEB 05 2014 Pre-Alpha"
+#define WYRMWICK_VERSION	"FEB 11 2014 Pre-Alpha"
 
 #define DEBUG	/* Well, yeah. Don't forget to change build type
 					if we remove this. */
 
-#define GAME_START	0
-#define GAME_DEBUG	1
-#define GAME_MENU	2
-#define GAME_WORLD	3
-#define GAME_SHOP	4
-#define GAME_DIALOG	5
-#define GAME_BATTLE	6
-#define GAME_END	7
+#define SIZE(X) ((int) ( sizeof(X) / sizeof((X)[0]) ) )
+
+const char* const settings_file_path = "save/settings.cfg";
+
+#define GAME_START		0
+#define GAME_DEBUG		1
+#define GAME_MENU		2
+#define GAME_WORLD		3
+#define GAME_SHOP		4
+#define GAME_DIALOG		5
+#define GAME_BATTLE		6
+#define GAME_END		7
+#define GAME_MAP_EDITOR	8
 
 #define MENU_NONE	0
 #define MENU_TEXT	1
@@ -134,5 +139,26 @@
 #define IN_OK       16
 
 #define IN_MAX 100
+
+
+/* Walkability of a tile. */
+#define WALK_NONE	0
+#define WALK_WALK	1
+#define WALK_RUN	2
+#define WALK_SWIM	3
+#define WALK_CLIMB	4
+#define WALK_FLY	5
+
+#define WALK_MAX	5
+
+
+#define MAPEDITOR_NONE	0
+#define MAPEDITOR_EDIT	1
+#define MAPEDITOR_NAME	2
+#define MAPEDITOR_SAVE	3
+#define MAPEDITOR_LOAD	4
+#define MAPEDITOR_TILE	5
+#define MAPEDITOR_SHEET	6
+#define MAPEDITOR_WALK	7
 
 #endif
