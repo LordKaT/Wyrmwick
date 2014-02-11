@@ -113,12 +113,13 @@ struct mapEditor {
 	int m_iActiveTile;
 	int m_iMouseX;
 	int m_iMouseY;
+	int m_iMapEditorState;
+	char m_cMapWalk;
 	bool m_bDragMap;
 };
 
 struct mapData {
 	int m_iTileID;		// Id of sprite
-	rect m_rectTile;	// hitbox/drawbox
 	char m_cWalk;		// Walkability of this tile (non, climb, walk, fly, etc...)
 };
 

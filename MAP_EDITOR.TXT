@@ -1,0 +1,30 @@
+Map editor is very basic.
+
+There are very little signals that something is happneing. I am a terrible
+UI designer. You'll have to take it on faith that things are working right.
+
+In most modes you will simply use the keyboard to type in what you want.
+
+When in doubt, the bottom-left of the screen will tell you what mode you're in.
+
+Press ESCAPE to return to edit mode at any time. 
+
+
+The following must be pressed from within EDIT mode.
+
+F1 = Rename map
+
+F2 = not finished/does nothing (Future: Choose new tile from sprite sheet)
+F3 = not finished/does nothing (Future: Choose new sprite sheet)
+
+F4 = Walk editor (collision detection)
+F5 = Save map (to: data/maps/Map Name.map)
+F7 = not finished/does nothing (Future: LUA script name)
+F9 = Load map (from: data/maps/Map Name.map)
+
+
+When in EDIT mode:
+
+Right or Middle click and drag to move map.
+Left/right arrows select new tile.
+Left click to place tile.

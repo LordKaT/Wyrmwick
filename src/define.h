@@ -149,7 +149,7 @@ const char* const controls_file_path = "save/keys.cfg";
 #define WALK_CLIMB	4
 #define WALK_FLY	5
 
-#define WALK_MAX	128
+#define WALK_MAX	5
 
 
 #define MAPEDITOR_NONE	0
@@ -159,5 +159,6 @@ const char* const controls_file_path = "save/keys.cfg";
 #define MAPEDITOR_LOAD	4
 #define MAPEDITOR_TILE	5
 #define MAPEDITOR_SHEET	6
+#define MAPEDITOR_WALK	7
 
 #endif
