@@ -2,6 +2,12 @@
 
 int main(int iArgC, char * cArgV[]) {
 	debug_print("Wyrmwick: %s\r\n", WYRMWICK_VERSION);
+	
+	settings *Settings = settings_new();
+	input_config_settings(Settings, g_inmap);
+	screen_config_settings(Settings, nullptr);
+	settings_load(Settings, settings_file_path);
+	
 	script_init();
 	screen_init();
 	audio_init();
@@ -10,6 +16,10 @@ int main(int iArgC, char * cArgV[]) {
 	map_init();
 	input_init();
 	debug_print("Init finished!\r\n");
+	
+	// This is for debugging only. I don't think we want to obliterate the config every time,
+	// especially if there were parsing errors.
+	settings_save(Settings, settings_file_path);
 
 	g_bRun = true;
 	map_editor_init();
@@ -92,6 +102,7 @@ int main(int iArgC, char * cArgV[]) {
 	font_destroy();
 	input_destroy();
 	screen_destroy();
-
+	settings_free(Settings);
+	
 	return 0;
 }

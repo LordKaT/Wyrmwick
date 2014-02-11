@@ -131,7 +131,7 @@ void map_save() {
 		debug_print("map_save(): could not open file: %s\r\n", cFile);
 		return;
 	}
-	fwrite(g_map.m_map, sizeof(struct mapData),  MAP_SIZE*MAP_SIZE, file);
+	fwrite(g_map.m_map, sizeof(struct mapData), MAP_SIZE*MAP_SIZE, file);
 	fclose(file);
 	free(cFile);
 	return;
