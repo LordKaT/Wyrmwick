@@ -148,7 +148,7 @@ struct input_event {
 	int m_iKey;  // key if ON/OFF or new direction for DIRCHANGE
 };
 
-struct input_mapping {
+struct input_control {
 	int m_type;             // IN_TYPE_KEYBOARD, IN_TYPE_JOYBUTTON or IN_TYPE_JOYAXIS
 	Uint8 m_iIndex;         // joystick button/axis index
 	int m_iAxisDir;       // axis direction, 1 or -1
