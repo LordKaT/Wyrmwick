@@ -5,6 +5,7 @@ void map_editor_init() {
 	g_mapEditor.m_iActiveTile = 2;
 	g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
 	g_mapEditor.m_cMapWalk = WALK_NONE;
+	g_mapEditor.m_bGrid = false;
 	return;
 }
 
@@ -46,6 +47,18 @@ void map_editor_input(SDL_Event *sdlEvent) {
 			map_save();
 			return;
 		}
+		if (sdlEvent->key.keysym.sym == SDLK_F6) {
+			// Turn grid on/off.
+			if (g_mapEditor.m_bGrid == true) { // turn off grid
+				g_mapEditor.m_bGrid = false;
+				map_draw();
+			}
+			else {
+				g_mapEditor.m_bGrid = true;
+				map_draw_grid();
+			}
+			return;
+		}
 		if (sdlEvent->key.keysym.sym == SDLK_F7) {
 			// Change LUA script associated with this map.
 			return;
@@ -82,6 +95,9 @@ void map_editor_input(SDL_Event *sdlEvent) {
 					g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_iTileID = g_mapEditor.m_iActiveTile;
 					image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempSrc, &tempDst);
 					map_draw_view(); // Only redraw what's currently visible (unless the map maker is psychic the current view is what changed)
+					if (g_mapEditor.m_bGrid == true) {
+						map_draw_grid_view();
+					}
 				}
 				if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) { // stop dragging map
 					g_mapEditor.m_bDragMap = false;
@@ -141,6 +157,9 @@ void map_editor_input(SDL_Event *sdlEvent) {
 					image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempSrc, &tempDst);
 					map_draw_view(); // Only redraw what's currently visible
 					map_editor_draw_walk();
+					if (g_mapEditor.m_bGrid == true) {
+						map_draw_grid_view();
+					}
 				}
 				if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) { // stop dragging map
 					g_mapEditor.m_bDragMap = false;

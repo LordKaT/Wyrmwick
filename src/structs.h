@@ -122,6 +122,7 @@ struct mapEditor {
 	int m_iMapEditorState;
 	char m_cMapWalk;
 	bool m_bDragMap;
+	bool m_bGrid;
 };
 
 struct mapData {

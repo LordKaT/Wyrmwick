@@ -70,6 +70,39 @@ void map_draw_view() {
 	return;
 }
 
+void map_draw_grid() {
+	rect tempRect;
+	// Not portable code, change this later
+	SDL_SetRenderTarget(g_sdlRenderer, g_map.m_imageMap.m_image);
+	for (int x = 0; x < MAP_SIZE; x++) {
+		for (int y = 0; y < MAP_SIZE; y++) {
+			tempRect.x = x * 32;
+			tempRect.y = y * 32;
+			tempRect.w = 32;
+			tempRect.h = 32;
+			SDL_RenderDrawRect(g_sdlRenderer, &tempRect);
+		}
+	}
+	SDL_SetRenderTarget(g_sdlRenderer, nullptr);
+	return;
+}
+
+void map_draw_grid_view() {
+	rect tempRect;
+	// Not portable code, change this later
+	SDL_SetRenderTarget(g_sdlRenderer, g_map.m_imageMap.m_image);
+	for (int x = (g_map.m_rectView.x / 32); x < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); x++) {
+		for (int y = (g_map.m_rectView.y / 32); y < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); y++) {
+			tempRect.x = x * 32;
+			tempRect.y = y * 32;
+			tempRect.w = 32;
+			tempRect.h = 32;
+			SDL_RenderDrawRect(g_sdlRenderer, &tempRect);
+		}
+	}
+	SDL_SetRenderTarget(g_sdlRenderer, nullptr);
+}
+
 void map_load(char *cMap) {
 	char *cFile;
 	cFile = (char *)malloc(sizeof(char) * (strlen(cMap) + strlen("data/maps/.map") + 2));

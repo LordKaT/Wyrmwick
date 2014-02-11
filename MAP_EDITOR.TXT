@@ -19,6 +19,7 @@ F3 = not finished/does nothing (Future: Choose new sprite sheet)
 
 F4 = Walk editor (collision detection)
 F5 = Save map (to: data/maps/Map Name.map)
+F6 = Turn grid on/off 
 F7 = not finished/does nothing (Future: LUA script name)
 F9 = Load map (from: data/maps/Map Name.map)
 
