@@ -8,7 +8,7 @@
 
 #define SIZE(X) ((int) ( sizeof(X) / sizeof((X)[0]) ) )
 
-const char* const controls_file_path = "save/keys.cfg";
+const char* const settings_file_path = "save/settings.cfg";
 
 #define GAME_START		0
 #define GAME_DEBUG		1

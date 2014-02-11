@@ -1,7 +1,6 @@
 #include "include.h"
 
 
-static bool _load_map();
 static void _load_defaults();
 
 void _set_lua_constants(lua_State *st);
@@ -19,11 +18,9 @@ static bool _update_key(int which, int newstate);
 
 
 void input_init() {
-	g_inmap[0].m_type = IN_NONE;
-	
-	if (! _load_map()) {
+	if (g_inmap[0].m_type = IN_NONE) {
+		// Nothing set in the settings, load defaults.
 		_load_defaults();
-		input_save_mapping();
 	}
 	
 	g_sdlJoystick = SDL_JoystickOpen(0);
@@ -40,6 +37,8 @@ void input_destroy() {
 		SDL_JoystickClose(g_sdlJoystick);
 	}
 }
+
+//void input_config_settings(settings *st, input_
 
 void input_save_mapping() {
 	FILE* file = fopen(controls_file_path, "w");
