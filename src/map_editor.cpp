@@ -21,6 +21,9 @@ void map_editor_input(SDL_Event *sdlEvent) {
 	if  (sdlEvent->type == SDL_KEYDOWN) {
 		if (sdlEvent->key.keysym.sym == SDLK_ESCAPE) {
 			map_draw_view();
+			if (g_mapEditor.m_bGrid == true) {
+				map_draw_grid_view();
+			}
 			g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
 			return;
 		}
@@ -117,6 +120,8 @@ void map_editor_input(SDL_Event *sdlEvent) {
 				g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
 			}
 			break;
+
+		/* Load map. */
 		case MAPEDITOR_LOAD:
 			if (util_textInput(sdlEvent, &g_map.m_cName) == 1) {
 				map_load(g_map.m_cName);
@@ -124,12 +129,15 @@ void map_editor_input(SDL_Event *sdlEvent) {
 				g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
 			}
 			break;
+
 		case MAPEDITOR_TILE:
 			// Draw tilesheet
 			// Input based on tile sheet, not map.
 			// Choose tile on click
 			// g_iMapEditorState = MAPEDITOR_EDIT
 			break;
+
+		/* collision editor. */
 		case MAPEDITOR_WALK:
 			if  (sdlEvent->type == SDL_KEYDOWN) {
 				if (sdlEvent->key.keysym.sym == SDLK_LEFT) {
