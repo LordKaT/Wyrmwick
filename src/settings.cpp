@@ -37,7 +37,7 @@ int settings_load(settings *s, const char* path) {
 
 int settings_save(settings *s, const char* path) {
 	FILE *file = fopen(path, "w");
-	if(! file) {
+	if (! file) {
 		debug_print("Failed to save controls: %s\r\n", strerror(errno));
 		return 1;
 	}

@@ -86,7 +86,7 @@ void _load_defaults() {
 
 void input_get_event(SDL_Event e, input_event *mapped) {
 	int ktype;
-	switch(e.type) {
+	switch (e.type) {
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
 			ktype = IN_TYPE_KEYBOARD;
@@ -108,7 +108,7 @@ void input_get_event(SDL_Event e, input_event *mapped) {
 		if (g_inmap[i].m_type != ktype) { continue; }
 
 		bool found = false;
-		switch(ktype) {	
+		switch (ktype) {	
 			case IN_TYPE_KEYBOARD:
 				if (e.key.keysym.sym == g_inmap[i].m_keycode) { found = true; }
 				break;
@@ -122,7 +122,7 @@ void input_get_event(SDL_Event e, input_event *mapped) {
 		if (!found) { continue; }
 		
 		int newstate = 0;
-		switch(ktype) {	
+		switch (ktype) {	
 			case IN_TYPE_KEYBOARD:
 				if (e.type == SDL_KEYDOWN) { newstate = g_inmap[i].m_iTo; }
 				break;

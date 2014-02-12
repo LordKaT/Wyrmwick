@@ -58,7 +58,7 @@ void menu_input(SDL_Event *sdlEvent) {
 	input_event ev;
 	input_get_event(*sdlEvent, &ev);
 	
-	switch(ev.m_iKey) {
+	switch (ev.m_iKey) {
 	case IN_DIRUP:
 		if (g_menu.m_iCursorPos > 0) {
 			g_menu.m_iCursorPos--;
@@ -70,7 +70,7 @@ void menu_input(SDL_Event *sdlEvent) {
 		}
 		break;
 	case IN_OK:
-		if(ev.m_iType == IN_OFF) {
+		if (ev.m_iType == IN_OFF) {
 			g_menu.m_vFunc(g_menu.m_iCursorPos);
 		}
 	}
