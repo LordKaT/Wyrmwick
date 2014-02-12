@@ -7,7 +7,7 @@ void audio_init() {
 	return;
 }
 
-int audio_load_music(audio *audioChunk, char *cFile) {
+int audio_load_music(audio *audioChunk, const char *cFile) {
 #ifdef AUDIO_SDL2MIXER
 	audioChunk->m_music = Mix_LoadMUS(cFile);
 	if (audioChunk->m_music == nullptr) {

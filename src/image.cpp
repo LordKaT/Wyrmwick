@@ -1,11 +1,11 @@
 #include "include.h"
 
-int image_load(image *imageDest, char *cFile, bool bColorKey, unsigned int uiRed, unsigned int uiGreen, unsigned int uiBlue) {
+image* image_load(const char *cFile, bool bColorKey, unsigned int uiRed, unsigned int uiGreen, unsigned int uiBlue) {
 #ifdef SCREEN_SDL2
 	SDL_Surface *surfTemp = SDL_LoadBMP(cFile);
 	if (surfTemp == nullptr) {
 		printf("image_load(): %s\r\n", SDL_GetError());
-		return 0;
+		return nullptr;
 	}
 
 	if (bColorKey == true) {
@@ -15,57 +15,69 @@ int image_load(image *imageDest, char *cFile, bool bColorKey, unsigned int uiRed
 	SDL_Texture *texTemp = SDL_CreateTextureFromSurface(g_sdlRenderer, surfTemp);
 	if (texTemp == nullptr) {
 		printf("image_load(): %s\r\n", SDL_GetError());
-		return 0;
+		return nullptr;
 	}
-	imageDest->m_image = texTemp;
+	
 	SDL_FreeSurface(surfTemp);
-	return 0;
+	return texTemp;
 #endif
 }
 
-int image_create_texture(image *imageDest, int iWidth, int iHeight) {
+void image_get_size(image *img, int *iWidth, int *iHeight) {
 #ifdef SCREEN_SDL2
-	if (imageDest->m_image == nullptr) {
-		imageDest->m_image = SDL_CreateTexture(g_sdlRenderer, SDL_GetWindowPixelFormat(g_sdlWindow), SDL_TEXTUREACCESS_TARGET, iWidth, iHeight);
-		if (imageDest->m_image == nullptr) {
-			debug_print("image_draw_to(): %s\r\n", SDL_GetError());
-			return 0;
-		}
+	Uint32 junk1;
+	int junk2;
+	int err = SDL_QueryTexture(img, &junk1, &junk2, iWidth, iHeight);
+	if (err) {
+		debug_print("Failed to get texture size: %s\r\n", SDL_GetError());
+		// HALT HERE
 	}
 #endif
-	return 0;
+}
+
+image* image_create_texture(int iWidth, int iHeight) {
+#ifdef SCREEN_SDL2
+	image *imageDest;
+	imageDest = SDL_CreateTexture(g_sdlRenderer, SDL_GetWindowPixelFormat(g_sdlWindow), SDL_TEXTUREACCESS_TARGET, iWidth, iHeight);
+	if (imageDest == nullptr) {
+		debug_print("image_draw_to(): %s\r\n", SDL_GetError());
+		return nullptr;
+	}
+	return imageDest;
+#endif
+	return nullptr;
 }
 
 int image_setcolormod(image *iImage, unsigned int uiRed, unsigned int uiGreen, unsigned int uiBlue) {
 #ifdef SCREEN_SDL2
-	return SDL_SetTextureColorMod(iImage->m_image, uiRed, uiGreen, uiBlue);
+	return SDL_SetTextureColorMod(iImage, uiRed, uiGreen, uiBlue);
 #endif
 }
 
 int image_draw(image *iImage, rect *rectSource, rect *rectDest) {
 #ifdef SCREEN_SDL2
-	return SDL_RenderCopy(g_sdlRenderer, iImage->m_image, rectSource, rectDest);
+	return SDL_RenderCopy(g_sdlRenderer, iImage, rectSource, rectDest);
 #endif
 }
 
 int image_draw_to(image *imageDest, image *imageSource, rect *rectSource, rect *rectDest) {
 #ifdef SCREEN_SDL2
 	int iRet = 0;
-	if (imageDest->m_image == nullptr) {
+	if (imageDest == nullptr) {
 		debug_print("image_draw_to(): image is null. How do I draw to it?\r\n");
 		return 0;
 	}
-	iRet = SDL_SetTextureBlendMode(imageDest->m_image, SDL_BLENDMODE_BLEND);
+	iRet = SDL_SetTextureBlendMode(imageDest, SDL_BLENDMODE_BLEND);
 	if (iRet < 0) {
 		debug_print("image_draw_to(): %s\r\n", SDL_GetError());
 		return iRet;
 	}
-	iRet = SDL_SetRenderTarget(g_sdlRenderer, imageDest->m_image);
+	iRet = SDL_SetRenderTarget(g_sdlRenderer, imageDest);
 	if (iRet < 0) {
 		debug_print("image_draw_to(): %s\r\n", SDL_GetError());
 		return iRet;
 	}
-	iRet = SDL_RenderCopy(g_sdlRenderer, imageSource->m_image, rectSource, rectDest);
+	iRet = SDL_RenderCopy(g_sdlRenderer, imageSource, rectSource, rectDest);
 	if (iRet < 0) {
 		debug_print("image_draw_to(): %s\r\n", SDL_GetError());
 		return iRet;
@@ -82,16 +94,16 @@ int image_draw_to(image *imageDest, image *imageSource, rect *rectSource, rect *
 int image_draw_rect_to(image *imageDest, rect *rectDest) {
 #ifdef SCREEN_SDL2
 	int iRet = 0;
-	if (imageDest->m_image == nullptr) {
+	if (imageDest == nullptr) {
 		debug_print("image_draw_rect_to(): image is null. How do I draw to it?\r\n");
 		return iRet;
 	}
-	iRet = SDL_SetTextureBlendMode(imageDest->m_image, SDL_BLENDMODE_BLEND);
+	iRet = SDL_SetTextureBlendMode(imageDest, SDL_BLENDMODE_BLEND);
 	if (iRet < 0) {
 		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
 		return iRet;
 	}
-	iRet = SDL_SetRenderTarget(g_sdlRenderer, imageDest->m_image);
+	iRet = SDL_SetRenderTarget(g_sdlRenderer, imageDest);
 	if (iRet < 0) {
 		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
 		return iRet;
@@ -112,7 +124,7 @@ int image_draw_rect_to(image *imageDest, rect *rectDest) {
 
 void image_destroy(image *iImage) {
 #ifdef SCREEN_SDL2
-	SDL_DestroyTexture(iImage->m_image);
+	SDL_DestroyTexture(iImage);
 #endif
 	return;
 }
