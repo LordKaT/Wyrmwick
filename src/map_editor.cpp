@@ -20,6 +20,7 @@ void map_editor_input(SDL_Event *sdlEvent) {
 	/* Generic global keydown events. */
 	if  (sdlEvent->type == SDL_KEYDOWN) {
 		if (sdlEvent->key.keysym.sym == SDLK_ESCAPE) {
+			SDL_StopTextInput();
 			map_draw_view();
 			if (g_mapEditor.m_bGrid == true) {
 				map_draw_grid_view();
@@ -42,8 +43,17 @@ void map_editor_input(SDL_Event *sdlEvent) {
 		}
 		if (sdlEvent->key.keysym.sym == SDLK_F4) {
 			// Change to walk edit mode.
-			g_mapEditor.m_iMapEditorState = MAPEDITOR_WALK;
-			map_editor_draw_walk();
+			if (g_mapEditor.m_iMapEditorState == MAPEDITOR_WALK) {
+				g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
+				map_draw();
+				if (g_mapEditor.m_bGrid == true) {
+					map_draw_grid_view();
+				}
+			}
+			else {
+				g_mapEditor.m_iMapEditorState = MAPEDITOR_WALK;
+				map_editor_draw_walk();
+			}
 			return;
 		}
 		if (sdlEvent->key.keysym.sym == SDLK_F5) {
@@ -159,12 +169,9 @@ void map_editor_input(SDL_Event *sdlEvent) {
 			}
 			if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
 				if (sdlEvent->button.button == 1) { // place walk
-					rect tempSrc = {3 * 32, 0, 32, 32};
-					rect tempDst = {((g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
 					g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_cWalk = g_mapEditor.m_cMapWalk;
-					image_draw_to(g_map.m_imageMap, g_map.m_imageTiles, &tempSrc, &tempDst);
 					map_draw_view(); // Only redraw what's currently visible
-					map_editor_draw_walk();
+					map_editor_draw_walk_view();
 					if (g_mapEditor.m_bGrid == true) {
 						map_draw_grid_view();
 					}
@@ -180,7 +187,6 @@ void map_editor_input(SDL_Event *sdlEvent) {
 				}
 			}
 			break;
-			break;
 		default:
 			break;
 	}
@@ -189,31 +195,31 @@ void map_editor_input(SDL_Event *sdlEvent) {
 }
 
 void map_editor_draw_walk() {
+	rect tempRect;
 	for (int x = 0; x < MAP_SIZE; x++) {
 		for (int y = 0; y < MAP_SIZE; y++) {
 			if (g_map.m_map[x][y].m_cWalk > 0) {
-				switch (g_map.m_map[x][y].m_cWalk) {
-					case WALK_NONE:
-						break;
-					case WALK_WALK:
-						font_print_to(g_map.m_imageMap, x * 32, y * 32, "W");
-						break;
-					case WALK_RUN:
-						font_print_to(g_map.m_imageMap, x * 32, y * 32, "R");
-						break;
-					case WALK_SWIM:
-						font_print_to(g_map.m_imageMap, x * 32, y * 32, "S");
-						break;
-					case WALK_CLIMB:
-						font_print_to(g_map.m_imageMap, x * 32, y * 32, "C");
-						break;
-					case WALK_FLY:
-						font_print_to(g_map.m_imageMap, x * 32, y * 32, "F");
-						break;
-					default:
-						font_print_to(g_map.m_imageMap, x * 32, y * 32, "~");
-						break;
-				}
+				tempRect.x = x * 32;
+				tempRect.y = y * 32;
+				tempRect.w = 32;
+				tempRect.h = 32;
+				image_draw_fill_rect_to(g_map.m_imageMap, &tempRect, 255, 0, 255);
+			}
+		}
+	}
+	return;
+}
+
+void map_editor_draw_walk_view() {
+	rect tempRect;
+	for (int x = (g_map.m_rectView.x / 32); x < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); x++) {
+		for (int y = (g_map.m_rectView.y / 32); y < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); y++) {
+			if (g_map.m_map[x][y].m_cWalk > 0) {
+				tempRect.x = x * 32;
+				tempRect.y = y * 32;
+				tempRect.w = 32;
+				tempRect.h = 32;
+				image_draw_fill_rect_to(g_map.m_imageMap, &tempRect, 255, 0, 255);
 			}
 		}
 	}

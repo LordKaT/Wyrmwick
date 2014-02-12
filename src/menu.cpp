@@ -28,7 +28,7 @@ void menu_create(const char *cMenuTitle, int iXPos, int iYPos, void (*vFunc)(int
 		free(g_menu.m_cLabel);
 		g_menu.m_cLabel = nullptr;
 	}
-	g_menu.m_cLabel = strdup(cMenuTitle);
+	g_menu.m_cLabel = _strdup(cMenuTitle);
 	g_menu.m_vFunc = vFunc;
 	return;
 }
@@ -41,7 +41,7 @@ void menu_add(const char *cFmt, ...) {
 	va_end(vArgs);
 	for (int i = 0; i < 16; i++) {
 		if (g_menu.m_cMenuItem[i] == nullptr) {
-			g_menu.m_cMenuItem[i] = strdup(cLabel);
+			g_menu.m_cMenuItem[i] = _strdup(cLabel);
 			if (strlen(cLabel) > g_menu.m_uiMenuWidth) {
 				g_menu.m_uiMenuWidth = strlen(cLabel);
 			}
