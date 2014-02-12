@@ -28,8 +28,7 @@ void menu_create(const char *cMenuTitle, int iXPos, int iYPos, void (*vFunc)(int
 		free(g_menu.m_cLabel);
 		g_menu.m_cLabel = nullptr;
 	}
-	g_menu.m_cLabel = (char *)malloc(sizeof(char) * (strlen(cMenuTitle) + 1));
-	strcpy(g_menu.m_cLabel, cMenuTitle);
+	g_menu.m_cLabel = strdup(cMenuTitle);
 	g_menu.m_vFunc = vFunc;
 	return;
 }
@@ -42,8 +41,7 @@ void menu_add(const char *cFmt, ...) {
 	va_end(vArgs);
 	for (int i = 0; i < 16; i++) {
 		if (g_menu.m_cMenuItem[i] == nullptr) {
-			g_menu.m_cMenuItem[i] = (char *)malloc(sizeof(char) * (strlen(cLabel) + 1));
-			strcpy(g_menu.m_cMenuItem[i], cLabel);
+			g_menu.m_cMenuItem[i] = strdup(cLabel);
 			if (strlen(cLabel) > g_menu.m_uiMenuWidth) {
 				g_menu.m_uiMenuWidth = strlen(cLabel);
 			}
@@ -98,9 +96,9 @@ void menu_render() {
 		for (int i = 0; i < 16; i++) {
 			if (g_menu.m_cMenuItem[i] != nullptr) {
 				if (i == g_menu.m_iCursorPos) {
-					image_setcolormod(&g_font.m_image, 0x00, 0xaa, 0x00);
+					image_setcolormod(g_font.m_image, 0x00, 0xaa, 0x00);
 					font_print(48, 32 * (i + 1), g_menu.m_cMenuItem[i]);
-					image_setcolormod(&g_font.m_image, 0xff, 0xff, 0xff);
+					image_setcolormod(g_font.m_image, 0xff, 0xff, 0xff);
 				}
 				else {
 					font_print(48, 32 * (i + 1), g_menu.m_cMenuItem[i]);

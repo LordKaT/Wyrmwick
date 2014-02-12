@@ -25,11 +25,11 @@ struct rect {
 };
 #endif
 
-struct image {
 #ifdef SCREEN_SDL2
-	SDL_Texture *m_image;
+typedef SDL_Texture image;
+#else
+struct image {};
 #endif
-};
 
 struct audio {
 	int *m_iPosition;
@@ -95,10 +95,8 @@ struct smartObject {
 };
 
 struct font {
-	image m_image;
-	rect m_rectClip[256];
-	rect m_rectDraw[256];
-	char *m_cText;
+	image *m_image;
+	int m_iGlyphWidth, m_iGlyphHeight;
 };
 
 struct menu {
@@ -112,7 +110,7 @@ struct menu {
 	bool m_bIsOpen;
 	char *m_cLuaScript;
 	luaChunk m_luaChunk;
-	image m_image;
+	image *m_image;
 };
 
 struct mapEditor {
@@ -140,8 +138,8 @@ struct map {
 	/* Not saved to file. */
 	rect m_rectView;
 	rect m_rectDest;
-	image m_imageMap;	// Map is drawn to this texture
-	image m_imageTiles;	// Tile image storage
+	image *m_imageMap;	// Map is drawn to this texture
+	image *m_imageTiles;	// Tile image storage
 	luaChunk m_luaChunk;
 };
 

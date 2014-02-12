@@ -2,10 +2,9 @@
 
 void map_init() {
 	debug_print("Loading Map ...\r\n");
-	g_map.m_cName = (char *)malloc(sizeof(char) * strlen("Debug Map") + 1);
-	strcpy(g_map.m_cName, "Debug Map");
-	image_load(&g_map.m_imageTiles, "data/images/tiles/tileset_test.bmp", false, 0, 0, 0);
-	image_create_texture(&g_map.m_imageMap, MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE);
+	g_map.m_cName = strdup("Debug Map");
+	g_map.m_imageTiles = image_load("data/images/tiles/tileset_test.bmp", false, 0, 0, 0);
+	g_map.m_imageMap = image_create_texture(MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE);
 
 	for (int x = 0; x < MAP_SIZE; x++) {
 		for (int y = 0; y < MAP_SIZE; y++) {
@@ -42,7 +41,7 @@ void map_draw() {
 			tempTile.y = 0;
 			tempTile.w = 32;
 			tempTile.h = 32;
-			image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempTile, &tempRect);
+			image_draw_to(g_map.m_imageMap, g_map.m_imageTiles, &tempTile, &tempRect);
 		}
 	}
 	return;
@@ -64,7 +63,7 @@ void map_draw_view() {
 			tempTile.w = 32;
 			tempTile.h = 32;
 
-			image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempTile, &tempRect);
+			image_draw_to(g_map.m_imageMap, g_map.m_imageTiles, &tempTile, &tempRect);
 		}
 	}
 	return;
@@ -73,7 +72,7 @@ void map_draw_view() {
 void map_draw_grid() {
 	rect tempRect;
 	// Not portable code, change this later
-	SDL_SetRenderTarget(g_sdlRenderer, g_map.m_imageMap.m_image);
+	SDL_SetRenderTarget(g_sdlRenderer, g_map.m_imageMap);
 	for (int x = 0; x < MAP_SIZE; x++) {
 		for (int y = 0; y < MAP_SIZE; y++) {
 			tempRect.x = x * 32;
@@ -90,7 +89,7 @@ void map_draw_grid() {
 void map_draw_grid_view() {
 	rect tempRect;
 	// Not portable code, change this later
-	SDL_SetRenderTarget(g_sdlRenderer, g_map.m_imageMap.m_image);
+	SDL_SetRenderTarget(g_sdlRenderer, g_map.m_imageMap);
 	for (int x = (g_map.m_rectView.x / 32); x < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); x++) {
 		for (int y = (g_map.m_rectView.y / 32); y < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); y++) {
 			tempRect.x = x * 32;
@@ -103,7 +102,7 @@ void map_draw_grid_view() {
 	SDL_SetRenderTarget(g_sdlRenderer, nullptr);
 }
 
-void map_load(char *cMap) {
+void map_load(const char *cMap) {
 	char *cFile;
 	cFile = (char *)malloc(sizeof(char) * (strlen(cMap) + strlen("data/maps/.map") + 2));
 	strcpy(cFile, "data/maps/");
@@ -157,7 +156,7 @@ void map_move(int iX, int iY) {
 }
 
 void map_render() {
-	image_draw(&g_map.m_imageMap, &g_map.m_rectView, &g_map.m_rectDest);
+	image_draw(g_map.m_imageMap, &g_map.m_rectView, &g_map.m_rectDest);
 	return;
 }
 

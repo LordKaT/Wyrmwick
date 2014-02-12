@@ -93,7 +93,7 @@ void map_editor_input(SDL_Event *sdlEvent) {
 					rect tempSrc = {g_mapEditor.m_iActiveTile * 32, 0, 32, 32};
 					rect tempDst = {((g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
 					g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_iTileID = g_mapEditor.m_iActiveTile;
-					image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempSrc, &tempDst);
+					image_draw_to(g_map.m_imageMap, g_map.m_imageTiles, &tempSrc, &tempDst);
 					map_draw_view(); // Only redraw what's currently visible (unless the map maker is psychic the current view is what changed)
 					if (g_mapEditor.m_bGrid == true) {
 						map_draw_grid_view();
@@ -154,7 +154,7 @@ void map_editor_input(SDL_Event *sdlEvent) {
 					rect tempSrc = {3 * 32, 0, 32, 32};
 					rect tempDst = {((g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
 					g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_cWalk = g_mapEditor.m_cMapWalk;
-					image_draw_to(&g_map.m_imageMap, &g_map.m_imageTiles, &tempSrc, &tempDst);
+					image_draw_to(g_map.m_imageMap, g_map.m_imageTiles, &tempSrc, &tempDst);
 					map_draw_view(); // Only redraw what's currently visible
 					map_editor_draw_walk();
 					if (g_mapEditor.m_bGrid == true) {
@@ -181,39 +181,29 @@ void map_editor_input(SDL_Event *sdlEvent) {
 }
 
 void map_editor_draw_walk() {
-	rect tempRect;
-	rect tempTile;
 	for (int x = 0; x < MAP_SIZE; x++) {
 		for (int y = 0; y < MAP_SIZE; y++) {
 			if (g_map.m_map[x][y].m_cWalk > 0) {
-				tempRect.x = x * 32;
-				tempRect.y = y * 32;
-				tempRect.w = 32;
-				tempRect.h = 32;
-				tempTile.x = 3 * 32;
-				tempTile.y = 0;
-				tempTile.w = 32;
-				tempTile.h = 32;
 				switch (g_map.m_map[x][y].m_cWalk) {
 					case WALK_NONE:
 						break;
 					case WALK_WALK:
-						font_print_to(&g_map.m_imageMap, x * 32, y * 32, "W");
+						font_print_to(g_map.m_imageMap, x * 32, y * 32, "W");
 						break;
 					case WALK_RUN:
-						font_print_to(&g_map.m_imageMap, x * 32, y * 32, "R");
+						font_print_to(g_map.m_imageMap, x * 32, y * 32, "R");
 						break;
 					case WALK_SWIM:
-						font_print_to(&g_map.m_imageMap, x * 32, y * 32, "S");
+						font_print_to(g_map.m_imageMap, x * 32, y * 32, "S");
 						break;
 					case WALK_CLIMB:
-						font_print_to(&g_map.m_imageMap, x * 32, y * 32, "C");
+						font_print_to(g_map.m_imageMap, x * 32, y * 32, "C");
 						break;
 					case WALK_FLY:
-						font_print_to(&g_map.m_imageMap, x * 32, y * 32, "F");
+						font_print_to(g_map.m_imageMap, x * 32, y * 32, "F");
 						break;
 					default:
-						font_print_to(&g_map.m_imageMap, x * 32, y * 32, "~");
+						font_print_to(g_map.m_imageMap, x * 32, y * 32, "~");
 						break;
 				}
 			}
@@ -233,7 +223,7 @@ void map_editor_render() {
 			font_print(10, 690, "How the fuck are you even here?");
 			break;
 		case MAPEDITOR_EDIT:
-			image_draw(&g_map.m_imageTiles, &tempSrc, &tempDst);
+			image_draw(g_map.m_imageTiles, &tempSrc, &tempDst);
 			font_print(10, 690, "Edit Mode");
 			break;
 		case MAPEDITOR_NAME:
@@ -252,7 +242,7 @@ void map_editor_render() {
 			font_print(10, 690, "Sheet Select");
 			break;
 		case MAPEDITOR_WALK:
-			image_draw(&g_map.m_imageMap, &g_map.m_rectView, &g_map.m_rectDest);
+			image_draw(g_map.m_imageMap, &g_map.m_rectView, &g_map.m_rectDest);
 			font_print(10, 690, "Walk Edit");
 			switch (g_mapEditor.m_cMapWalk) {
 				case WALK_NONE:
