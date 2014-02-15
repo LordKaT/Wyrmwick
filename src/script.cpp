@@ -152,8 +152,7 @@ void script_load_items() {
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -5, &sTemp);
-					g_items[iItemID].m_cName = (char *)malloc(sTemp);
-					memset(g_items[iItemID].m_cName, 0, sTemp);
+					g_items[iItemID].m_cName = (char *)malloc(sTemp + 1);
 					memcpy(g_items[iItemID].m_cName, cTemp, sTemp + 1);
 				}
 
@@ -162,8 +161,7 @@ void script_load_items() {
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -4, &sTemp);
-					g_items[iItemID].m_cDesc = (char *)malloc(sTemp);
-					memset(g_items[iItemID].m_cDesc, 0, sTemp);
+					g_items[iItemID].m_cDesc = (char *)malloc(sTemp + 1);
 					memcpy(g_items[iItemID].m_cDesc, cTemp, sTemp + 1);
 				}
 
@@ -229,8 +227,7 @@ void script_load_skills() {
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -2, &sTemp);
-					g_skills[iSkillID].m_cName = (char *)malloc(sTemp);
-					memset(g_skills[iSkillID].m_cName, 0, sTemp);
+					g_skills[iSkillID].m_cName = (char *)malloc(sTemp + 1);
 					memcpy(g_skills[iSkillID].m_cName, cTemp, sTemp + 1);
 				}
 
@@ -239,8 +236,7 @@ void script_load_skills() {
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -1, &sTemp);
-					g_skills[iSkillID].m_cDesc = (char *)malloc(sTemp);
-					memset(g_skills[iSkillID].m_cDesc, 0, sTemp);
+					g_skills[iSkillID].m_cDesc = (char *)malloc(sTemp + 1);
 					memcpy(g_skills[iSkillID].m_cDesc, cTemp, sTemp + 1);
 				}
 
