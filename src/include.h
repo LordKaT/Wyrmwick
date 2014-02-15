@@ -44,6 +44,7 @@ extern "C" {
 #include "screen.h"
 #include "script.h"
 #include "settings.h"
+#include "sys.h"
 #include "utils.h"
 
 #endif
