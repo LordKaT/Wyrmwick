@@ -3,10 +3,14 @@
 array* array_new(size_t elemSize, int startingSize, int startingCapacity) {
 	if (startingSize > startingCapacity) {
 		debug_print("Array size > cap.\r\n");
-		// HALT HERE
+		sys_abort();
 	}
 	
 	array* arr = (array*) malloc(sizeof(array));
+	if (! arr) {
+		debug_print("Out of memory.\r\n");
+		sys_abort();
+	}
 	arr->m_elemSize = elemSize;
 	arr->m_len = startingSize;
 	arr->m_cap = startingCapacity;
@@ -26,7 +30,7 @@ void array_append(array *arr, const void *val) {
 		arr->m_data = realloc(arr->m_data, arr->m_elemSize * newcap);
 		if (! arr->m_data) {
 			debug_print("Not enough memory to append.\r\n");
-			// HALT HERE
+			sys_abort();
 		}
 		memset(((unsigned char*)arr->m_data) + arr->m_cap*arr->m_elemSize, 0, newcap - arr->m_cap);
 		arr->m_cap = newcap;
@@ -39,7 +43,7 @@ void array_append(array *arr, const void *val) {
 void array_get(array *arr, int index, void *val) {
 	if (index >= arr->m_len) {
 		debug_print("Array index out of bounds.\r\n");
-		// HALT HERE
+		sys_abort();
 	}
 	memmove(val, ((unsigned char*) arr->m_data) + index * arr->m_elemSize, arr->m_elemSize);
 }
@@ -47,7 +51,7 @@ void array_get(array *arr, int index, void *val) {
 void array_put(array *arr, int index, const void *val) {
 	if (index >= arr->m_len) {
 		debug_print("Array index out of bounds.\r\n");
-		// HALT HERE
+		sys_abort();
 	}
 	memmove(((unsigned char*) arr->m_data) + index * arr->m_elemSize, val, arr->m_elemSize);
 }
@@ -55,9 +59,18 @@ void array_put(array *arr, int index, const void *val) {
 void* array_ind(array *arr, int index) {
 	if (index >= arr->m_len) {
 		debug_print("Array index out of bounds.\r\n");
-		// HALT HERE
+		sys_abort();
 	}
 	return ((unsigned char*) arr->m_data) + index * arr->m_elemSize;
+}
+
+void array_shrink(array *arr, int num) {
+	arr->m_len -= num;
+	if (arr->m_len * 4 < arr->m_cap) {
+		// Note that arrays shrink less often than they grow. This is intentional.
+		arr->m_cap /= 2;
+		arr->m_data = realloc(arr->m_data, arr->m_cap);
+	}
 }
 
 void array_free(array *arr) {

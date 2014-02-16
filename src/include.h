@@ -38,12 +38,14 @@ extern "C" {
 #include "globals.h"
 #include "image.h"
 #include "input.h"
+#include "main_menu.h"
 #include "map.h"
 #include "map_editor.h"
 #include "menu.h"
 #include "screen.h"
 #include "script.h"
 #include "settings.h"
+#include "sys.h"
 #include "utils.h"
 
 #endif

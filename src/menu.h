@@ -1,13 +1,12 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
-void menu_init();
-void menu_create(const char *cMenuTitle, int iXPos, int iYPos, void (*vFunc)(int iSelection));
-void menu_add(const char *cFmt, ...);
-void menu_input(SDL_Event *sdlEvent);
-void menu_render();
-void menu_close();
-bool menu_is_open();
-void menu_destroy();
+menu* menu_init(const char *cMenuTitle, int xPos, int yPos);
+void menu_add_entry(menu *pMenu, const char *fmt, ...);
+// menu_input returns the index of the chosen entry, or -1 if no entry was chosen.
+int menu_input(menu* pMenu, SDL_Event *sdlEvent);
+void menu_render(menu* pMenu);
+void menu_destroy(menu* pMenu);
+
 
 #endif

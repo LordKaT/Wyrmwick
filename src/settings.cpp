@@ -4,13 +4,13 @@ settings* settings_new() {
 	settings *s = (settings*) malloc(sizeof(settings));
 	if (! s) {
 		debug_print("Ran out of memory while trying to load settings.\r\n");
-		// HALT HERE
+		sys_abort();
 	}
 		
 	s->m_luaState = luaL_newstate();
 	if (! s->m_luaState) {
 		debug_print("Ran out of memory while trying to load settings.\r\n");
-		// HALT HERE
+		sys_abort();
 	}
 	s->m_aWriters = array_new(sizeof(settings_writer), 0, 0);
 	return s;

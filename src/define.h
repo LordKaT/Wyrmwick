@@ -8,6 +8,10 @@
 
 #define SIZE(X) ((int) ( sizeof(X) / sizeof((X)[0]) ) )
 
+#ifdef _MSC_VER
+static inline char* strdup(const char* s) { return _strdup(s); }
+#endif
+
 const char* const settings_file_path = "save/settings.cfg";
 
 #define GAME_START		0
