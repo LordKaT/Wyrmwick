@@ -15,7 +15,6 @@ map g_map;
 audio g_audio;
 input_state g_input_state;
 input_control g_inmap[IN_MAX];
-mapEditor g_mapEditor;
 
 #ifdef SCREEN_SDL2
 SDL_Window *g_sdlWindow;

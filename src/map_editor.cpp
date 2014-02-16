@@ -1,20 +1,45 @@
 #include "include.h"
 
-void map_editor_init() {
-	g_mapEditor.m_bDragMap = false;
-	g_mapEditor.m_iActiveTile = 2;
-	g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
-	g_mapEditor.m_cMapWalk = WALK_NONE;
-	g_mapEditor.m_bGrid = false;
+void map_editor_push(state_stack* stack) {
+	state_desc editor = {
+		GAME_MAP_EDITOR, nullptr,
+		&map_editor_init,
+		nullptr, nullptr,
+		&map_editor_input,
+		nullptr,
+		&map_editor_render,
+		&map_editor_destroy,
+		nullptr, false,
+	};
+	array_append(stack, &editor);
+}
+
+void map_editor_init(state_stack* stack) {
+	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	map_editor *mapEditor = (map_editor*) malloc(sizeof(map_editor));
+	
+	map_init();
+
+	mapEditor->m_bDragMap = false;
+	mapEditor->m_iActiveTile = 2;
+	mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
+	mapEditor->m_cMapWalk = WALK_NONE;
+	mapEditor->m_bGrid = false;
+	top->m_pData = mapEditor;
+	
+	// TODO: Stuff the map into the map editor properly.
 	return;
 }
 
 /* TODO: comment this more. Sorry --lk */
-void map_editor_input(SDL_Event *sdlEvent) {
+void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
+	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	map_editor *mapEditor = (map_editor*) top->m_pData;
+
 	// We may as well always check for this, because why not?
 	if (sdlEvent->type == SDL_MOUSEMOTION) {
-		g_mapEditor.m_iMouseX = sdlEvent->motion.x;
-		g_mapEditor.m_iMouseY = sdlEvent->motion.y;
+		mapEditor->m_iMouseX = sdlEvent->motion.x;
+		mapEditor->m_iMouseY = sdlEvent->motion.y;
 	}
 
 	/* Generic global keydown events. */
@@ -22,15 +47,15 @@ void map_editor_input(SDL_Event *sdlEvent) {
 		if (sdlEvent->key.keysym.sym == SDLK_ESCAPE) {
 			SDL_StopTextInput();
 			map_draw_view();
-			if (g_mapEditor.m_bGrid == true) {
+			if (mapEditor->m_bGrid == true) {
 				map_draw_grid_view();
 			}
-			g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
+			mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
 			return;
 		}
 		if (sdlEvent->key.keysym.sym == SDLK_F1) {
 			SDL_StartTextInput();
-			g_mapEditor.m_iMapEditorState = MAPEDITOR_NAME;
+			mapEditor->m_iMapEditorState = MAPEDITOR_NAME;
 			return;
 		}
 		if (sdlEvent->key.keysym.sym == SDLK_F2) {
@@ -43,15 +68,15 @@ void map_editor_input(SDL_Event *sdlEvent) {
 		}
 		if (sdlEvent->key.keysym.sym == SDLK_F4) {
 			// Change to walk edit mode.
-			if (g_mapEditor.m_iMapEditorState == MAPEDITOR_WALK) {
-				g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
+			if (mapEditor->m_iMapEditorState == MAPEDITOR_WALK) {
+				mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
 				map_draw();
-				if (g_mapEditor.m_bGrid == true) {
+				if (mapEditor->m_bGrid == true) {
 					map_draw_grid_view();
 				}
 			}
 			else {
-				g_mapEditor.m_iMapEditorState = MAPEDITOR_WALK;
+				mapEditor->m_iMapEditorState = MAPEDITOR_WALK;
 				map_editor_draw_walk();
 			}
 			return;
@@ -62,12 +87,12 @@ void map_editor_input(SDL_Event *sdlEvent) {
 		}
 		if (sdlEvent->key.keysym.sym == SDLK_F6) {
 			// Turn grid on/off.
-			if (g_mapEditor.m_bGrid == true) { // turn off grid
-				g_mapEditor.m_bGrid = false;
+			if (mapEditor->m_bGrid == true) { // turn off grid
+				mapEditor->m_bGrid = false;
 				map_draw();
 			}
 			else {
-				g_mapEditor.m_bGrid = true;
+				mapEditor->m_bGrid = true;
 				map_draw_grid();
 			}
 			return;
@@ -78,47 +103,47 @@ void map_editor_input(SDL_Event *sdlEvent) {
 		}
 		if (sdlEvent->key.keysym.sym == SDLK_F9) {
 			SDL_StartTextInput();
-			g_mapEditor.m_iMapEditorState = MAPEDITOR_LOAD;
+			mapEditor->m_iMapEditorState = MAPEDITOR_LOAD;
 			return;
 		}
 	}
 
-	switch (g_mapEditor.m_iMapEditorState) {
+	switch (mapEditor->m_iMapEditorState) {
 		case MAPEDITOR_EDIT:
 			if  (sdlEvent->type == SDL_KEYDOWN) {
 				// TODO: bounds checking.
 				if (sdlEvent->key.keysym.sym == SDLK_LEFT) {
-					g_mapEditor.m_iActiveTile--;
+					mapEditor->m_iActiveTile--;
 				}
 				if (sdlEvent->key.keysym.sym == SDLK_RIGHT) {
-					g_mapEditor.m_iActiveTile++;
+					mapEditor->m_iActiveTile++;
 				}
 			}
 
 			if (sdlEvent->type == SDL_MOUSEBUTTONDOWN) { // Drag map on right click & hold
 				if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) {
-					g_mapEditor.m_bDragMap = true;
+					mapEditor->m_bDragMap = true;
 				}
 			}
 
 			if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
 				if (sdlEvent->button.button == 1) { // place tile
-					rect tempSrc = {g_mapEditor.m_iActiveTile * 32, 0, 32, 32};
-					rect tempDst = {((g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
-					g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_iTileID = g_mapEditor.m_iActiveTile;
+					rect tempSrc = {mapEditor->m_iActiveTile * 32, 0, 32, 32};
+					rect tempDst = {((mapEditor->m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((mapEditor->m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
+					g_map.m_map[(mapEditor->m_iMouseX + g_map.m_rectView.x) / 32][(mapEditor->m_iMouseY + g_map.m_rectView.y) / 32].m_iTileID = mapEditor->m_iActiveTile;
 					image_draw_to(g_map.m_imageMap, g_map.m_imageTiles, &tempSrc, &tempDst);
 					map_draw_view(); // Only redraw what's currently visible (unless the map maker is psychic the current view is what changed)
-					if (g_mapEditor.m_bGrid == true) {
+					if (mapEditor->m_bGrid == true) {
 						map_draw_grid_view();
 					}
 				}
 				if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) { // stop dragging map
-					g_mapEditor.m_bDragMap = false;
+					mapEditor->m_bDragMap = false;
 				}
 			}
 
 			if (sdlEvent->type == SDL_MOUSEMOTION) {
-				if (g_mapEditor.m_bDragMap == true) {
+				if (mapEditor->m_bDragMap == true) {
 					map_move(sdlEvent->motion.xrel, sdlEvent->motion.yrel);
 				}
 			}
@@ -127,7 +152,7 @@ void map_editor_input(SDL_Event *sdlEvent) {
 		/* Rename map. */
 		case MAPEDITOR_NAME:
 			if (util_textInput(sdlEvent, &g_map.m_cName) == 1) {
-				g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
+				mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
 			}
 			break;
 
@@ -136,7 +161,7 @@ void map_editor_input(SDL_Event *sdlEvent) {
 			if (util_textInput(sdlEvent, &g_map.m_cName) == 1) {
 				map_load(g_map.m_cName);
 				map_draw();
-				g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
+				mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
 			}
 			break;
 
@@ -151,38 +176,38 @@ void map_editor_input(SDL_Event *sdlEvent) {
 		case MAPEDITOR_WALK:
 			if  (sdlEvent->type == SDL_KEYDOWN) {
 				if (sdlEvent->key.keysym.sym == SDLK_LEFT) {
-					if (g_mapEditor.m_cMapWalk > 0) {
-						g_mapEditor.m_cMapWalk--;
+					if (mapEditor->m_cMapWalk > 0) {
+						mapEditor->m_cMapWalk--;
 					}
 				}
 				if (sdlEvent->key.keysym.sym == SDLK_RIGHT) {
-					if (g_mapEditor.m_cMapWalk < WALK_MAX) {
-						g_mapEditor.m_cMapWalk++;
+					if (mapEditor->m_cMapWalk < WALK_MAX) {
+						mapEditor->m_cMapWalk++;
 					}
 				}
 			}
 
 			if (sdlEvent->type == SDL_MOUSEBUTTONDOWN) { // Drag map on right click & hold
 				if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) {
-					g_mapEditor.m_bDragMap = true;
+					mapEditor->m_bDragMap = true;
 				}
 			}
 			if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
 				if (sdlEvent->button.button == 1) { // place walk
-					g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_cWalk = g_mapEditor.m_cMapWalk;
+					g_map.m_map[(mapEditor->m_iMouseX + g_map.m_rectView.x) / 32][(mapEditor->m_iMouseY + g_map.m_rectView.y) / 32].m_cWalk = mapEditor->m_cMapWalk;
 					map_draw_view(); // Only redraw what's currently visible
 					map_editor_draw_walk_view();
-					if (g_mapEditor.m_bGrid == true) {
+					if (mapEditor->m_bGrid == true) {
 						map_draw_grid_view();
 					}
 				}
 				if (sdlEvent->button.button == 2 || sdlEvent->button.button == 3) { // stop dragging map
-					g_mapEditor.m_bDragMap = false;
+					mapEditor->m_bDragMap = false;
 				}
 			}
 
 			if (sdlEvent->type == SDL_MOUSEMOTION) {
-				if (g_mapEditor.m_bDragMap == true) {
+				if (mapEditor->m_bDragMap == true) {
 					map_move(sdlEvent->motion.xrel, sdlEvent->motion.yrel);
 				}
 			}
@@ -226,13 +251,16 @@ void map_editor_draw_walk_view() {
 	return;
 }
 
-void map_editor_render() {
+void map_editor_render(state_stack* stack) {
+	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	map_editor *mapEditor = (map_editor*) top->m_pData;
+
 	map_render();
 
-	rect tempSrc = {g_mapEditor.m_iActiveTile * 32, 0, 32, 32};
+	rect tempSrc = {mapEditor->m_iActiveTile * 32, 0, 32, 32};
 	rect tempDst = {1180, 32, 64, 64};
 
-	switch (g_mapEditor.m_iMapEditorState) {
+	switch (mapEditor->m_iMapEditorState) {
 		case MAPEDITOR_NONE:
 			font_print(10, 690, "How the fuck are you even here?");
 			break;
@@ -258,7 +286,7 @@ void map_editor_render() {
 		case MAPEDITOR_WALK:
 			image_draw(g_map.m_imageMap, &g_map.m_rectView, &g_map.m_rectDest);
 			font_print(10, 690, "Walk Edit");
-			switch (g_mapEditor.m_cMapWalk) {
+			switch (mapEditor->m_cMapWalk) {
 				case WALK_NONE:
 					font_print(1180, 32, "NONE");
 					break;
@@ -291,6 +319,9 @@ void map_editor_render() {
 	return;
 }
 
-void map_editor_destroy() {
+void map_editor_destroy(state_stack* stack) {
+	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	map_editor *mapEditor = (map_editor*) top->m_pData;
+	free(mapEditor);
 	return;
 }

@@ -132,7 +132,7 @@ struct menu {
 	int m_x, m_y;
 };
 
-struct mapEditor {
+struct map_editor {
 	int m_iActiveTile;
 	int m_iMouseX;
 	int m_iMouseY;

@@ -44,6 +44,7 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 		audio_play_music(&g_audio);
 		break;
 	case 2:
+		top->m_fnPushChild = &map_editor_push;
 		break;
 	case 3:
 		top->m_isDead = true;

@@ -12,21 +12,3 @@ void debug_print(const char *cFmt, ...) {
 	return;
 }
 
-/* Entered from menu_input (menu.cpp). */
-void debug_menu_func(int iSelection) {
-	debug_print("debug_menu_func: %i\r\n", iSelection);
-	switch (iSelection) {
-		case 0:
-			break;
-		case 1:
-			break;
-		case 2:
-			map_editor_init();
-			break;
-		case 3:
-			break;
-		default:
-			break;
-	}
-	return;
-}
