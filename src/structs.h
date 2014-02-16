@@ -9,6 +9,30 @@ struct array {
 	int m_len, m_cap;
 };
 
+typedef array /* of state_desc */ state_stack;
+
+struct state_desc {
+	int m_type;  // e.g. GAME_WORLD
+	void* m_pData;
+	
+	// Init is called just after pushing this state onto the stack.
+	void (*m_fnInit)(state_stack* stack);
+	
+	// Suspend is called before pushing a child state onto the stack, Resume after the child is destroyed.
+	void (*m_fnSuspend)(state_stack* stack);
+	void (*m_fnResume)(state_stack* stack);
+	
+	void (*m_fnEvent)(state_stack* stack, SDL_Event *evt);
+	void (*m_fnUpdate)(state_stack* stack, Uint32 timeDelta_ms);
+	void (*m_fnDraw)(state_stack* stack);
+	// Destroy is called just before popping this state off the stack.
+	void (*m_fnDestroy)(state_stack* stack);
+	
+	void (*m_fnPushChild)(state_stack* stack);
+	// If m_isDead is true, this state description is popped off the stack.
+	bool m_isDead;  
+};
+
 struct luaChunk {
 	void *m_vLuaChunk;
 	size_t m_sizeLuaChunk;
@@ -101,16 +125,11 @@ struct font {
 
 struct menu {
 	char *m_cLabel;
-	char *m_cInput;
 	int m_iCursorPos;
-	unsigned int m_uiMenuWidth;
-	unsigned int m_uiMenuHeight;
-	char *m_cMenuItem[16];
-	void (*m_vFunc)(int iSelection);
-	bool m_bIsOpen;
-	char *m_cLuaScript;
-	luaChunk m_luaChunk;
-	image *m_image;
+	int m_iMaxWidth;
+	array /* of char* */ *m_aEntries;
+	
+	int m_x, m_y;
 };
 
 struct mapEditor {

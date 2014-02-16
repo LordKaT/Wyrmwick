@@ -7,6 +7,10 @@ array* array_new(size_t elemSize, int startingSize, int startingCapacity) {
 	}
 	
 	array* arr = (array*) malloc(sizeof(array));
+	if (! arr) {
+		debug_print("Out of memory.\r\n");
+		sys_abort();
+	}
 	arr->m_elemSize = elemSize;
 	arr->m_len = startingSize;
 	arr->m_cap = startingCapacity;
@@ -58,6 +62,15 @@ void* array_ind(array *arr, int index) {
 		sys_abort();
 	}
 	return ((unsigned char*) arr->m_data) + index * arr->m_elemSize;
+}
+
+void array_shrink(array *arr, int num) {
+	arr->m_len -= num;
+	if (arr->m_len * 4 < arr->m_cap) {
+		// Note that arrays shrink less often than they grow. This is intentional.
+		arr->m_cap /= 2;
+		arr->m_data = realloc(arr->m_data, arr->m_cap);
+	}
 }
 
 void array_free(array *arr) {

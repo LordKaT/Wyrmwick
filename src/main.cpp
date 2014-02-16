@@ -12,7 +12,6 @@ int main(int iArgC, char * cArgV[]) {
 	screen_init();
 	audio_init();
 	font_init();
-	menu_init();
 	map_init();
 	input_init();
 	debug_print("Init finished!\r\n");
@@ -21,84 +20,61 @@ int main(int iArgC, char * cArgV[]) {
 	// especially if there were parsing errors.
 	settings_save(Settings, settings_file_path);
 
-	g_bRun = true;
-	map_editor_init();
-	g_iGameState = GAME_MAP_EDITOR;
+	state_stack *gameStateStack = array_new(sizeof(state_desc), 0, 0);
+	main_menu_push(gameStateStack);
+	main_menu_init(gameStateStack);
+	
+	state_desc *currentState;
+	
+	SDL_Event sdlEvent;
+	
+	Uint32 time, lastTime;
+	lastTime = SDL_GetTicks();
 
-	while (g_bRun == true) {
-		while (SDL_PollEvent(&g_sdlEvent)) {
-			if (g_sdlEvent.type == SDL_QUIT) {
-				g_bRun = false;
+	// Run main loop as long as we have a state to execute.
+	while(gameStateStack->m_len != 0) {
+		currentState = (state_desc*) array_ind(gameStateStack, gameStateStack->m_len-1);
+		
+		while (SDL_PollEvent(&sdlEvent)) {
+			// Emergency self-destruct on Ctrl-Shift-F4
+			if (sdlEvent.type == SDL_KEYUP && sdlEvent.key.keysym.sym == SDLK_F4 &&
+					(sdlEvent.key.keysym.mod & KMOD_SHIFT) != 0 &&
+					(sdlEvent.key.keysym.mod & KMOD_CTRL) != 0) {
+				sys_abort();
 			}
-			if (menu_is_open()) {
-				menu_input(&g_sdlEvent);
-			}
-			else {
-				/* input. */
-				if  (g_sdlEvent.type == SDL_KEYDOWN) {
-					/* no matter what, go to the debug menu. */
-					if (g_sdlEvent.key.keysym.sym == SDLK_F11) {
-						g_iGameState = GAME_DEBUG;
-						debug_init();
-					}
-				}
-				switch (g_iGameState) {
-					case GAME_WORLD:
-						if  (g_sdlEvent.type == SDL_KEYDOWN) {
-							if (g_sdlEvent.key.keysym.sym == SDLK_F9) {
-								map_editor_init();
-								g_iGameState = GAME_MAP_EDITOR;
-							}
-						}
-						break;
-					case GAME_MAP_EDITOR:
-						map_editor_input(&g_sdlEvent);
-						break;
-					default:
-						break;
-				}
-			}
+			
+			if (currentState->m_fnEvent != nullptr) { currentState->m_fnEvent(gameStateStack, &sdlEvent); }
 		}
+		
+		time = SDL_GetTicks();
+		if (currentState->m_fnUpdate != nullptr) { currentState->m_fnUpdate(gameStateStack, time-lastTime); }
+		lastTime = time;
+		
 		screen_clear();
-
-		/* game logic, drawing. */
-		switch (g_iGameState) {
-			case GAME_START:
-				break;
-			case GAME_DEBUG:
-				debug_loop();
-				break;
-			case GAME_MENU:
-				break;
-			case GAME_WORLD:
-				map_render();
-				break;
-			case GAME_MAP_EDITOR:
-				map_editor_render();
-				break;
-			default:
-				break;
-		}
-
-		/*
-			Rendering should take place outside the game logic.
-			Pain in the ass concept, but it's a lot better than tying
-			everything to one system. Makes upgrading later on easier.
-
-			Of course, that means testing things out is a royal pain in
-			the ass, since the whole system needs to be implemented before
-			we're able to do anything basic.
-
-			In other words: I'm working on it. --lk
-		*/
-
-		if (menu_is_open()) {
-			menu_render();
-		}
+		currentState->m_fnDraw(gameStateStack);
 		screen_present();
+		
+		if (currentState->m_isDead) {
+			// Destroy and pop the current state.
+			currentState->m_fnDestroy(gameStateStack);
+			array_shrink(gameStateStack, 1);
+			// Resume the last state, if any.
+			if (gameStateStack->m_len != 0) {
+				currentState = (state_desc*) array_ind(gameStateStack, gameStateStack->m_len-1);
+				if (currentState->m_fnResume != nullptr) { currentState->m_fnResume(gameStateStack); }
+			}
+			continue;
+		}
+		
+		if (currentState->m_fnPushChild != nullptr) {
+			if (currentState->m_fnSuspend != nullptr) { currentState->m_fnSuspend(gameStateStack); }
+			currentState->m_fnPushChild(gameStateStack);
+			
+			currentState = (state_desc*) array_ind(gameStateStack, gameStateStack->m_len-1);
+			currentState->m_fnInit(gameStateStack);
+		}
 	}
 
-	menu_destroy();
 	font_destroy();
 	input_destroy();
 	screen_destroy();
