@@ -15,6 +15,8 @@ int main(int iArgC, char * cArgV[]) {
 	menu_init();
 	map_init();
 	input_init();
+	animator_init();
+	player_init();
 	debug_print("Init finished!\r\n");
 	
 	// This is for debugging only. I don't think we want to obliterate the config every time,
@@ -53,6 +55,7 @@ int main(int iArgC, char * cArgV[]) {
 						break;
 					case GAME_MAP_EDITOR:
 						map_editor_input(&g_sdlEvent);
+						player_input(&g_sdlEvent);
 						break;
 					default:
 						break;
@@ -75,6 +78,7 @@ int main(int iArgC, char * cArgV[]) {
 				break;
 			case GAME_MAP_EDITOR:
 				map_editor_render();
+				player_render();
 				break;
 			default:
 				break;
@@ -98,6 +102,8 @@ int main(int iArgC, char * cArgV[]) {
 		screen_present();
 	}
 
+	player_destroy();
+	animator_destroy();
 	menu_destroy();
 	font_destroy();
 	input_destroy();

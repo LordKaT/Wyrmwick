@@ -174,4 +174,23 @@ struct settings {
 	array /*of settings_writer*/ *m_aWriters;
 };
 
+struct animation {
+	int m_iNumFrames;
+	int m_iCurrFrame;
+	int m_iRow;
+	int m_iAnimTimer;
+	SDL_TimerID m_timerID;
+	rect m_rectSource;
+	rect m_rectDest;
+};
+
+struct player {
+	char *m_cName;
+	image *m_image;
+	int m_iFacing;
+	int m_iMapX;
+	int m_iMapY;
+	animation m_animator;
+};
+
 #endif

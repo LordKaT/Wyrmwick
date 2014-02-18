@@ -3,7 +3,7 @@
 void map_init() {
 	debug_print("Loading Map ...\r\n");
 	g_map.m_cName = _strdup("Debug Map");
-	g_map.m_imageTiles = image_load("data/images/tiles/tileset_test.bmp", false, 0, 0, 0);
+	g_map.m_imageTiles = image_load("data/images/tiles/tileset.bmp", false, 0, 0, 0);
 	g_map.m_imageMap = image_create_texture(MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE);
 
 	for (int x = 0; x < MAP_SIZE; x++) {
@@ -57,12 +57,10 @@ void map_draw_view() {
 			tempRect.y = y * 32;
 			tempRect.w = 32;
 			tempRect.h = 32;
-
 			tempTile.x = g_map.m_map[x][y].m_iTileID * 32;
 			tempTile.y = 0;
 			tempTile.w = 32;
 			tempTile.h = 32;
-
 			image_draw_to(g_map.m_imageMap, g_map.m_imageTiles, &tempTile, &tempRect);
 		}
 	}
@@ -71,35 +69,30 @@ void map_draw_view() {
 
 void map_draw_grid() {
 	rect tempRect;
-	// Not portable code, change this later
-	SDL_SetRenderTarget(g_sdlRenderer, g_map.m_imageMap);
 	for (int x = 0; x < MAP_SIZE; x++) {
 		for (int y = 0; y < MAP_SIZE; y++) {
 			tempRect.x = x * 32;
 			tempRect.y = y * 32;
 			tempRect.w = 32;
 			tempRect.h = 32;
-			SDL_RenderDrawRect(g_sdlRenderer, &tempRect);
+			image_draw_rect_to(g_map.m_imageMap, &tempRect, 0, 0, 0);
 		}
 	}
-	SDL_SetRenderTarget(g_sdlRenderer, nullptr);
 	return;
 }
 
 void map_draw_grid_view() {
 	rect tempRect;
-	// Not portable code, change this later
-	SDL_SetRenderTarget(g_sdlRenderer, g_map.m_imageMap);
 	for (int x = (g_map.m_rectView.x / 32); x < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); x++) {
 		for (int y = (g_map.m_rectView.y / 32); y < ((g_map.m_rectView.x + g_map.m_rectView.w) / 32); y++) {
 			tempRect.x = x * 32;
 			tempRect.y = y * 32;
 			tempRect.w = 32;
 			tempRect.h = 32;
-			SDL_RenderDrawRect(g_sdlRenderer, &tempRect);
+			image_draw_rect_to(g_map.m_imageMap, &tempRect, 0, 0, 0);
 		}
 	}
-	SDL_SetRenderTarget(g_sdlRenderer, nullptr);
+	return;
 }
 
 void map_load(const char *cMap) {

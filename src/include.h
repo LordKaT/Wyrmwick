@@ -45,5 +45,7 @@ extern "C" {
 #include "script.h"
 #include "settings.h"
 #include "utils.h"
+#include "animator.h"
+#include "player.h"
 
 #endif

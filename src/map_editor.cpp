@@ -1,11 +1,24 @@
 #include "include.h"
 
+rect _tile_rect(int index) {
+	rect r;
+	r.x = (index % 16) * 32;
+	r.y = (index / 16) * 32;
+	r.w = 32;
+	r.h = 32;
+	return r;
+}
+
 void map_editor_init() {
 	g_mapEditor.m_bDragMap = false;
 	g_mapEditor.m_iActiveTile = 2;
 	g_mapEditor.m_iMapEditorState = MAPEDITOR_EDIT;
 	g_mapEditor.m_cMapWalk = WALK_NONE;
 	g_mapEditor.m_bGrid = false;
+	return;
+}
+
+void map_editor_destroy() {
 	return;
 }
 
@@ -93,6 +106,17 @@ void map_editor_input(SDL_Event *sdlEvent) {
 				if (sdlEvent->key.keysym.sym == SDLK_RIGHT) {
 					g_mapEditor.m_iActiveTile++;
 				}
+				if (sdlEvent->key.keysym.sym == SDLK_KP_MULTIPLY) { // flood fill
+					for (int x = 0; x < MAP_SIZE; x++) {
+						for (int y = 0; y < MAP_SIZE; y++) {
+							g_map.m_map[x][y].m_iTileID = g_mapEditor.m_iActiveTile;
+						}
+					}
+					map_draw();
+					if (g_mapEditor.m_bGrid == true) {
+						map_draw_grid();
+					}
+				}
 			}
 
 			if (sdlEvent->type == SDL_MOUSEBUTTONDOWN) { // Drag map on right click & hold
@@ -103,7 +127,7 @@ void map_editor_input(SDL_Event *sdlEvent) {
 
 			if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
 				if (sdlEvent->button.button == 1) { // place tile
-					rect tempSrc = {g_mapEditor.m_iActiveTile * 32, 0, 32, 32};
+					rect tempSrc = _tile_rect(g_mapEditor.m_iActiveTile);
 					rect tempDst = {((g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
 					g_map.m_map[(g_mapEditor.m_iMouseX + g_map.m_rectView.x) / 32][(g_mapEditor.m_iMouseY + g_map.m_rectView.y) / 32].m_iTileID = g_mapEditor.m_iActiveTile;
 					image_draw_to(g_map.m_imageMap, g_map.m_imageTiles, &tempSrc, &tempDst);
@@ -229,7 +253,7 @@ void map_editor_draw_walk_view() {
 void map_editor_render() {
 	map_render();
 
-	rect tempSrc = {g_mapEditor.m_iActiveTile * 32, 0, 32, 32};
+	rect tempSrc = _tile_rect(g_mapEditor.m_iActiveTile);
 	rect tempDst = {1180, 32, 64, 64};
 
 	switch (g_mapEditor.m_iMapEditorState) {
@@ -237,6 +261,11 @@ void map_editor_render() {
 			font_print(10, 690, "How the fuck are you even here?");
 			break;
 		case MAPEDITOR_EDIT:
+			tempDst.x = 1176;
+			tempDst.y = 28;
+			tempDst.w = 68;
+			tempDst.h = 68;
+			image_draw_fill_rect(&tempDst, 255, 0, 0);
 			image_draw(g_map.m_imageTiles, &tempSrc, &tempDst);
 			font_print(10, 690, "Edit Mode");
 			break;
@@ -288,9 +317,5 @@ void map_editor_render() {
 
 	font_print(10, 10, "%s", g_map.m_cName);
 	
-	return;
-}
-
-void map_editor_destroy() {
 	return;
 }
