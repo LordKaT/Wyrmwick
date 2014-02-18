@@ -64,7 +64,7 @@ void menu_render(menu* pMenu) {
 	/* Top line of menu */
 	font_putc(0, 0, 201);
 	font_print(16, 0, pMenu->m_cLabel);
-	for (unsigned int i = (16 + (strlen(pMenu->m_cLabel) * 16)); i <= ((pMenu->m_iMaxWidth + 3) * 16); i += 16) {
+	for (int i = (16 + (strlen(pMenu->m_cLabel) * 16)); i <= ((pMenu->m_iMaxWidth + 3) * 16); i += 16) {
 		font_putc(i, 0, 205);
 	}
 	font_putc((pMenu->m_iMaxWidth + 4) * 16, 0, 187);
@@ -90,7 +90,7 @@ void menu_render(menu* pMenu) {
 		font_putc(0, 16 * (i + 1), 186);
 		font_putc((pMenu->m_iMaxWidth + 4) * 16, 16 * (i + 1), 186);
 	}
-	for (unsigned int i = 16; i <= ((pMenu->m_iMaxWidth + 3) * 16); i += 16) {
+	for (int i = 16; i <= ((pMenu->m_iMaxWidth + 3) * 16); i += 16) {
 		font_putc(i, (numEntries + 1) * 32, 205);
 	}
 	font_putc((pMenu->m_iMaxWidth + 4) * 16, (numEntries + 1) * 32, 188);
