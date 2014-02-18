@@ -1,5 +1,15 @@
 #include "include.h"
 
+rect _tile_rect(int index) {
+	rect r;
+	r.x = (index % 32) * 16;
+	r.y = (index / 32) * 16;
+	r.w = 32;
+	r.h = 32;
+	return r;
+}
+
+
 void map_editor_push(state_stack* stack) {
 	state_desc editor = {
 		GAME_MAP_EDITOR, nullptr,
@@ -128,7 +138,7 @@ void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
 
 			if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
 				if (sdlEvent->button.button == 1) { // place tile
-					rect tempSrc = {mapEditor->m_iActiveTile * 32, 0, 32, 32};
+					rect tempSrc = _tile_rect(mapEditor->m_iActiveTile);
 					rect tempDst = {((mapEditor->m_iMouseX + g_map.m_rectView.x) / 32) * 32, ((mapEditor->m_iMouseY + g_map.m_rectView.y) / 32) * 32, 32, 32};
 					g_map.m_map[(mapEditor->m_iMouseX + g_map.m_rectView.x) / 32][(mapEditor->m_iMouseY + g_map.m_rectView.y) / 32].m_iTileID = mapEditor->m_iActiveTile;
 					image_draw_to(g_map.m_imageMap, g_map.m_imageTiles, &tempSrc, &tempDst);
@@ -257,7 +267,7 @@ void map_editor_render(state_stack* stack) {
 
 	map_render();
 
-	rect tempSrc = {mapEditor->m_iActiveTile * 32, 0, 32, 32};
+	rect tempSrc = _tile_rect(mapEditor->m_iActiveTile);
 	rect tempDst = {1180, 32, 64, 64};
 
 	switch (mapEditor->m_iMapEditorState) {
