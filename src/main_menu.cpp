@@ -15,11 +15,11 @@ void main_menu_push(state_stack* stack) {
 		&_destroy,
 		nullptr, false,
 	};
-	array_append(stack, &mm);
+	table_append(stack, &mm);
 }
 	
 void main_menu_init(state_stack* stack) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	
 	menu *pMenu = menu_init("Main Menu", 0, 0);
 	menu_add_entry(pMenu, "Paly Gaem");
@@ -30,7 +30,7 @@ void main_menu_init(state_stack* stack) {
 }
 
 void _event(state_stack* stack, SDL_Event *sdlEvent) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	menu *pMenu = (menu*) top->m_pData;
 	
 	int choice = menu_input(pMenu, sdlEvent);
@@ -53,13 +53,13 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 }
 
 void _draw(state_stack* stack) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	menu *pMenu = (menu*) top->m_pData;
 	menu_render(pMenu);
 }
 
 void _destroy(state_stack* stack) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	menu *pMenu = (menu*) top->m_pData;
 	menu_destroy(pMenu);
 }

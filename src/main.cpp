@@ -20,7 +20,7 @@ int main(int iArgC, char * cArgV[]) {
 	// especially if there were parsing errors.
 	settings_save(Settings, settings_file_path);
 
-	state_stack *gameStateStack = array_new(sizeof(state_desc), 0, 0);
+	state_stack *gameStateStack = table_new(sizeof(state_desc), 0, 0);
 	main_menu_push(gameStateStack);
 	main_menu_init(gameStateStack);
 	
@@ -33,7 +33,7 @@ int main(int iArgC, char * cArgV[]) {
 
 	// Run main loop as long as we have a state to execute.
 	while(gameStateStack->m_len != 0) {
-		currentState = (state_desc*) array_ind(gameStateStack, gameStateStack->m_len-1);
+		currentState = (state_desc*) table_ind(gameStateStack, gameStateStack->m_len-1);
 		
 		while (SDL_PollEvent(&sdlEvent)) {
 			// Emergency self-destruct on Ctrl-Shift-F4
@@ -57,10 +57,10 @@ int main(int iArgC, char * cArgV[]) {
 		if (currentState->m_isDead) {
 			// Destroy and pop the current state.
 			currentState->m_fnDestroy(gameStateStack);
-			array_shrink(gameStateStack, 1);
+			table_shrink(gameStateStack, 1);
 			// Resume the last state, if any.
 			if (gameStateStack->m_len != 0) {
-				currentState = (state_desc*) array_ind(gameStateStack, gameStateStack->m_len-1);
+				currentState = (state_desc*) table_ind(gameStateStack, gameStateStack->m_len-1);
 				if (currentState->m_fnResume != nullptr) { currentState->m_fnResume(gameStateStack); }
 			}
 			continue;
@@ -70,7 +70,7 @@ int main(int iArgC, char * cArgV[]) {
 			if (currentState->m_fnSuspend != nullptr) { currentState->m_fnSuspend(gameStateStack); }
 			currentState->m_fnPushChild(gameStateStack);
 			
-			currentState = (state_desc*) array_ind(gameStateStack, gameStateStack->m_len-1);
+			currentState = (state_desc*) table_ind(gameStateStack, gameStateStack->m_len-1);
 			currentState->m_fnInit(gameStateStack);
 		}
 	}

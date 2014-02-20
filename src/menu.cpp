@@ -6,7 +6,7 @@ menu* menu_init(const char *cMenuTitle, int xPos, int yPos) {
 	pMenu->m_cLabel = strdup(cMenuTitle);
 	pMenu->m_iCursorPos = 0;
 	pMenu->m_iMaxWidth = 0;
-	pMenu->m_aEntries = array_new(sizeof(char*), 0, 0);
+	pMenu->m_aEntries = table_new(sizeof(char*), 0, 0);
 	
 	pMenu->m_x = xPos;
 	pMenu->m_y = yPos;
@@ -25,7 +25,7 @@ void menu_add_entry(menu *pMenu, const char *fmt, ...) {
 	vsnprintf(cText, 512, fmt, vArgs);
 	va_end(vArgs);
 	
-	array_append(pMenu->m_aEntries, &cText);
+	table_append(pMenu->m_aEntries, &cText);
 	int len = strlen(cText);
 	if (len > pMenu->m_iMaxWidth) { pMenu->m_iMaxWidth = len; }
 }
@@ -101,10 +101,10 @@ void menu_destroy(menu* pMenu) {
 	char* entry;
 	free(pMenu->m_cLabel);
 	for(int i = 0; i < pMenu->m_aEntries->m_len; i++) {
-		array_get(pMenu->m_aEntries, i, &entry);
+		table_get(pMenu->m_aEntries, i, &entry);
 		free(entry);
 	}
-	array_free(pMenu->m_aEntries);
+	table_free(pMenu->m_aEntries);
 	free(pMenu);
 
 	return;

@@ -11,11 +11,11 @@ void map_editor_push(state_stack* stack) {
 		&map_editor_destroy,
 		nullptr, false,
 	};
-	array_append(stack, &editor);
+	table_append(stack, &editor);
 }
 
 void map_editor_init(state_stack* stack) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) malloc(sizeof(map_editor));
 	
 	map_init();
@@ -33,7 +33,7 @@ void map_editor_init(state_stack* stack) {
 
 /* TODO: comment this more. Sorry --lk */
 void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) top->m_pData;
 
 	// We may as well always check for this, because why not?
@@ -252,7 +252,7 @@ void map_editor_draw_walk_view() {
 }
 
 void map_editor_render(state_stack* stack) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) top->m_pData;
 
 	map_render();
@@ -320,7 +320,7 @@ void map_editor_render(state_stack* stack) {
 }
 
 void map_editor_destroy(state_stack* stack) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) top->m_pData;
 	free(mapEditor);
 	return;

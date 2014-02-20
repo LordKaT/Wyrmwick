@@ -1,12 +1,12 @@
 #include "include.h"
 
-array* array_new(size_t elemSize, int startingSize, int startingCapacity) {
+table* table_new(size_t elemSize, int startingSize, int startingCapacity) {
 	if (startingSize > startingCapacity) {
 		debug_print("Array size > cap.\r\n");
 		sys_abort();
 	}
 	
-	array* arr = (array*) malloc(sizeof(array));
+	table* arr = (table*) malloc(sizeof(table));
 	if (! arr) {
 		debug_print("Out of memory.\r\n");
 		sys_abort();
@@ -18,7 +18,7 @@ array* array_new(size_t elemSize, int startingSize, int startingCapacity) {
 	return arr;
 }
 
-void array_append(array *arr, const void *val) {
+void table_append(table *arr, const void *val) {
 	if (arr->m_len == arr->m_cap) {
 		int newcap;
 		if (arr->m_cap == 0) {
@@ -40,7 +40,7 @@ void array_append(array *arr, const void *val) {
 	arr->m_len++;
 }
 
-void array_get(array *arr, int index, void *val) {
+void table_get(table *arr, int index, void *val) {
 	if (index >= arr->m_len) {
 		debug_print("Array index out of bounds.\r\n");
 		sys_abort();
@@ -48,7 +48,7 @@ void array_get(array *arr, int index, void *val) {
 	memmove(val, ((unsigned char*) arr->m_data) + index * arr->m_elemSize, arr->m_elemSize);
 }
 
-void array_put(array *arr, int index, const void *val) {
+void table_put(table *arr, int index, const void *val) {
 	if (index >= arr->m_len) {
 		debug_print("Array index out of bounds.\r\n");
 		sys_abort();
@@ -56,7 +56,7 @@ void array_put(array *arr, int index, const void *val) {
 	memmove(((unsigned char*) arr->m_data) + index * arr->m_elemSize, val, arr->m_elemSize);
 }
 
-void* array_ind(array *arr, int index) {
+void* table_ind(table *arr, int index) {
 	if (index >= arr->m_len) {
 		debug_print("Array index out of bounds.\r\n");
 		sys_abort();
@@ -64,16 +64,16 @@ void* array_ind(array *arr, int index) {
 	return ((unsigned char*) arr->m_data) + index * arr->m_elemSize;
 }
 
-void array_shrink(array *arr, int num) {
+void table_shrink(table *arr, int num) {
 	arr->m_len -= num;
 	if (arr->m_len * 4 < arr->m_cap) {
-		// Note that arrays shrink less often than they grow. This is intentional.
+		// Note that tables shrink less often than they grow. This is intentional.
 		arr->m_cap /= 2;
 		arr->m_data = realloc(arr->m_data, arr->m_cap);
 	}
 }
 
-void array_free(array *arr) {
+void table_free(table *arr) {
 	free(arr->m_data);
 	free(arr);
 }

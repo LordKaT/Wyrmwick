@@ -3,13 +3,13 @@
 
 #include "include.h"
 
-struct array {
+struct table {
 	void* m_data;
 	size_t m_elemSize;
 	int m_len, m_cap;
 };
 
-typedef array /* of state_desc */ state_stack;
+typedef table /* of state_desc */ state_stack;
 
 struct state_desc {
 	int m_type;  // e.g. GAME_WORLD
@@ -127,7 +127,7 @@ struct menu {
 	char *m_cLabel;
 	int m_iCursorPos;
 	int m_iMaxWidth;
-	array /* of char* */ *m_aEntries;
+	table /* of char* */ *m_aEntries;
 	
 	int m_x, m_y;
 };
@@ -190,7 +190,7 @@ struct settings_writer {
 
 struct settings {
 	lua_State *m_luaState;
-	array /*of settings_writer*/ *m_aWriters;
+	table /*of settings_writer*/ *m_aWriters;
 };
 
 #endif
