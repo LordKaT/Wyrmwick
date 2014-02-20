@@ -8,6 +8,14 @@ int main(int iArgC, char * cArgV[]) {
 	screen_config_settings(Settings, nullptr);
 	settings_load(Settings, settings_file_path);
 	
+	// Testing listing
+	sys_dir *dir = sys_dir_open(".");
+	const char *f;
+	while ( (f = sys_dir_next(dir)) ) {
+		printf("%s\r\n", f);
+	}
+	sys_dir_close(dir);
+	
 	script_init();
 	screen_init();
 	audio_init();
