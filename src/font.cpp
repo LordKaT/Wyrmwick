@@ -1,6 +1,13 @@
 #include "include.h"
 
-static rect _glyph_rect(font Font, int index);
+rect _glyph_rect(font Font, int index) {
+	rect r;
+	r.x = (index % 16) * Font.m_iGlyphWidth;
+	r.y = (index / 16) * Font.m_iGlyphHeight;
+	r.w = Font.m_iGlyphWidth;
+	r.h = Font.m_iGlyphHeight;
+	return r;
+}
 
 void font_init() {
 	debug_print("Loading Font ...\r\n");
@@ -73,13 +80,4 @@ void font_destroy() {
 		image_destroy(g_font.m_image);
 	}
 	return;
-}
-
-rect _glyph_rect(font Font, int index) {
-	rect r;
-	r.x = (index % 16) * Font.m_iGlyphWidth;
-	r.y = (index / 16) * Font.m_iGlyphHeight;
-	r.w = Font.m_iGlyphWidth;
-	r.h = Font.m_iGlyphHeight;
-	return r;
 }

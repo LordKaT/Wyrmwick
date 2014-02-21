@@ -222,3 +222,11 @@ save/*
 !save/.ignore_this_file
 *.dll
 *.exe
+
+
+##
+lib/
+lib/*
+Wyrmwick-VisualC/
+Wyrmwick-VisualC/*
+*.dll
