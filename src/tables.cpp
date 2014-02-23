@@ -69,7 +69,7 @@ void table_shrink(table *arr, int num) {
 	if (arr->m_len * 4 < arr->m_cap) {
 		// Note that tables shrink less often than they grow. This is intentional.
 		arr->m_cap /= 2;
-		arr->m_data = realloc(arr->m_data, arr->m_cap);
+		arr->m_data = realloc(arr->m_data, arr->m_cap * arr->m_elemSize);
 	}
 }
 

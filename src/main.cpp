@@ -77,6 +77,7 @@ int main(int iArgC, char * cArgV[]) {
 		if (currentState->m_fnPushChild != nullptr) {
 			if (currentState->m_fnSuspend != nullptr) { currentState->m_fnSuspend(gameStateStack); }
 			currentState->m_fnPushChild(gameStateStack);
+			currentState->m_fnPushChild = nullptr;
 			
 			currentState = (state_desc*) table_ind(gameStateStack, gameStateStack->m_len-1);
 			currentState->m_fnInit(gameStateStack);

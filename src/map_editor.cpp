@@ -45,7 +45,12 @@ void map_editor_init(state_stack* stack) {
 void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) top->m_pData;
-
+	
+	if (sdlEvent->type == SDL_QUIT) {
+		// TODO: Check for unsaved changes
+		top->m_isDead = true;
+	}
+	
 	// We may as well always check for this, because why not?
 	if (sdlEvent->type == SDL_MOUSEMOTION) {
 		mapEditor->m_iMouseX = sdlEvent->motion.x;

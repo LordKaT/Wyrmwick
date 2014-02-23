@@ -33,6 +33,16 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	menu *pMenu = (menu*) top->m_pData;
 	
+	if (sdlEvent->type == SDL_QUIT) {
+		top->m_isDead = true;
+		return;
+	}
+	
+	if (sdlEvent->type == SDL_KEYUP && sdlEvent->key.keysym.sym == SDLK_ESCAPE) {
+		top->m_isDead = true;
+		return;
+	}
+	
 	int choice = menu_input(pMenu, sdlEvent);
 	if (choice == -1) { return; }
 	
