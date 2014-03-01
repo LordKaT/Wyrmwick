@@ -277,51 +277,51 @@ void map_editor_render(state_stack* stack) {
 
 	switch (mapEditor->m_iMapEditorState) {
 		case MAPEDITOR_NONE:
-			font_print(10, 690, "How the fuck are you even here?");
+			font_print(g_font, 10, 690, "How the fuck are you even here?");
 			break;
 		case MAPEDITOR_EDIT:
 			image_draw(g_map.m_imageTiles, &tempSrc, &tempDst);
-			font_print(10, 690, "Edit Mode");
+			font_print(g_font, 10, 690, "Edit Mode");
 			break;
 		case MAPEDITOR_NAME:
-			font_print(10, 690, "Rename Map");
+			font_print(g_font, 10, 690, "Rename Map");
 			break;
 		case MAPEDITOR_SAVE:
-			font_print(10, 690, "Saving Map");
+			font_print(g_font, 10, 690, "Saving Map");
 			break;
 		case MAPEDITOR_LOAD:
-			font_print(10, 690, "Loading Map");
+			font_print(g_font, 10, 690, "Loading Map");
 			break;
 		case MAPEDITOR_TILE:
-			font_print(10, 690, "Tile Select");
+			font_print(g_font, 10, 690, "Tile Select");
 			break;
 		case MAPEDITOR_SHEET:
-			font_print(10, 690, "Sheet Select");
+			font_print(g_font, 10, 690, "Sheet Select");
 			break;
 		case MAPEDITOR_WALK:
 			image_draw(g_map.m_imageMap, &g_map.m_rectView, &g_map.m_rectDest);
-			font_print(10, 690, "Walk Edit");
+			font_print(g_font, 10, 690, "Walk Edit");
 			switch (mapEditor->m_cMapWalk) {
 				case WALK_NONE:
-					font_print(1180, 32, "NONE");
+					font_print(g_font, 1180, 32, "NONE");
 					break;
 				case WALK_WALK:
-					font_print(1180, 32, "WALK");
+					font_print(g_font, 1180, 32, "WALK");
 					break;
 				case WALK_RUN:
-					font_print(1180, 32, "RUN");
+					font_print(g_font, 1180, 32, "RUN");
 					break;
 				case WALK_SWIM:
-					font_print(1180, 32, "SWIM");
+					font_print(g_font, 1180, 32, "SWIM");
 					break;
 				case WALK_CLIMB:
-					font_print(1180, 32, "CLIMB");
+					font_print(g_font, 1180, 32, "CLIMB");
 					break;
 				case WALK_FLY:
-					font_print(1180, 32, "FLY");
+					font_print(g_font, 1180, 32, "FLY");
 					break;
 				default:
-					font_print(1180, 32, "BROKEN");
+					font_print(g_font, 1180, 32, "BROKEN");
 					break;
 			}
 			break;
@@ -329,7 +329,7 @@ void map_editor_render(state_stack* stack) {
 			break;
 	}
 
-	font_print(10, 10, "%s", g_map.m_cName);
+	font_print(g_font, 10, 10, "%s", g_map.m_cName);
 	
 	return;
 }

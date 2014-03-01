@@ -55,6 +55,10 @@ typedef SDL_Texture image;
 struct image {};
 #endif
 
+struct color_rgba {
+	Uint8 r, g, b, a;
+};
+
 struct audio {
 	int *m_iPosition;
 	int m_iLength;
@@ -126,10 +130,10 @@ struct font {
 struct menu {
 	char *m_cLabel;
 	int m_iCursorPos;
-	int m_iMaxWidth;
+	int m_iWidth, m_iHeight;
+	table /* of color_rgba */ m_aColors;
 	table /* of char* */ *m_aEntries;
-	
-	int m_x, m_y;
+	table /* of char* */ *m_aValues;
 };
 
 struct map_editor {

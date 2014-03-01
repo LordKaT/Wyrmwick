@@ -41,6 +41,7 @@ void screen_init() {
 
 void screen_clear() {
 #ifdef SCREEN_SDL2
+	SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(g_sdlRenderer);
 #endif
 	return;

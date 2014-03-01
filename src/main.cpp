@@ -19,7 +19,7 @@ int main(int iArgC, char * cArgV[]) {
 	script_init();
 	screen_init();
 	audio_init();
-	font_init();
+	g_font = font_init("data/images/fonts/437_16x16.bmp");
 	map_init();
 	input_init();
 	debug_print("Init finished!\r\n");
@@ -84,7 +84,7 @@ int main(int iArgC, char * cArgV[]) {
 		}
 	}
 
-	font_destroy();
+	font_destroy(g_font);
 	input_destroy();
 	screen_destroy();
 	settings_free(Settings);
