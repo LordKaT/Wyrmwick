@@ -39,6 +39,20 @@ void screen_init() {
 	return;
 }
 
+void screen_fill_rect(rect *dst, Uint32 color) {
+#ifdef SCREEN_SDL2
+	SDL_SetRenderDrawColor(g_sdlRenderer, (color&0xff000000)>>24, (color&0xff0000)>>16, (color&0xff00)>>8, color&0xff);
+	SDL_RenderFillRect(g_sdlRenderer, dst);
+#endif
+}
+
+void screen_draw_rect(rect *dst, Uint32 color) {
+#ifdef SCREEN_SDL2
+	SDL_SetRenderDrawColor(g_sdlRenderer, (color&0xff000000)>>24, (color&0xff0000)>>16, (color&0xff00)>>8, color&0xff);
+	SDL_RenderDrawRect(g_sdlRenderer, dst);
+#endif
+}
+
 void screen_clear() {
 #ifdef SCREEN_SDL2
 	SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255);

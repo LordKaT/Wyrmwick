@@ -1,6 +1,6 @@
 #include "include.h"
 
-#define MARGIN 5
+#define MARGIN 4
 
 menu* menu_init() {
 	menu *pMenu = (menu*) malloc(sizeof(menu));
@@ -47,9 +47,8 @@ void menu_set_value(menu *pMenu, const char *fmt, ...) {
 	table_put(pMenu->m_aValues, pMenu->m_aValues->m_len-1, &cText);
 }
 
-void menu_set_value(menu *pMenu, int r, int g, int b, int a) {
-	color_rgba col = {(Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a};
-	table_put(pMenu->m_aColors, pMenu->m_aColors->m_len-1, &col);
+void menu_set_color(menu *pMenu, Uint32 color) {
+	table_put(pMenu->m_aColors, pMenu->m_aColors->m_len-1, &color);
 }
 
 void menu_auto_resize(menu *pMenu) {
@@ -97,31 +96,31 @@ int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
 
 void menu_render(menu* pMenu, int x, int y) {
 	rect dst;
-	color_rgba color;
+	Uint32 color;
 	int numEntries = pMenu->m_aEntries->m_len;
 	
-	SDL_SetRenderDrawColor(g_sdlRenderer, 0, 51, 128, 255);
-	dst = {x, y, pMenu->m_iWidth, pMenu->m_iHeight};
-	SDL_RenderFillRect(g_sdlRenderer, &dst);
+	dst = {x, y, pMenu->m_iWidth+2, pMenu->m_iHeight+2};
+	screen_draw_rect(&dst, 0xb8fffbff);
+	dst = {x+1, y+1, pMenu->m_iWidth, pMenu->m_iHeight};
+	screen_fill_rect(&dst, 0x003380ff);
 	
 	char **menuItem = (char**) pMenu->m_aEntries->m_data;
 	for (int i = 0; i < numEntries; i++) {
 		if (i == pMenu->m_iCursorPos) {
-			dst = {x, y + i * (g_font.m_iGlyphHeight + MARGIN*2),
+			dst = {x+1, y + i * (g_font.m_iGlyphHeight + MARGIN*2) + 1,
 				pMenu->m_iWidth, g_font.m_iGlyphHeight+MARGIN*2};
-			SDL_SetRenderDrawColor(g_sdlRenderer, 95, 141, 211, 255);
-			SDL_RenderFillRect(g_sdlRenderer, &dst);
+			screen_fill_rect(&dst, 0x5f8dd3ff);
 		}
 		
 		table_get(pMenu->m_aColors, i, &color);
-		image_setcolormod(g_font.m_image, color.r, color.g, color.b);
-		font_print(g_font, x + MARGIN, y + i * (g_font.m_iGlyphHeight + MARGIN*2) + MARGIN, menuItem[i]);
+		image_setcolormod(g_font.m_image, color);
+		font_print(g_font, x + 1 + MARGIN, y + 1 + i * (g_font.m_iGlyphHeight + MARGIN*2) + MARGIN, menuItem[i]);
 	}
 }
 
 void menu_destroy(menu* pMenu) {
 	char* entry;
-	for(int i = 0; i < pMenu->m_aEntries->m_len; i++) {
+	for (int i = 0; i < pMenu->m_aEntries->m_len; i++) {
 		table_get(pMenu->m_aEntries, i, &entry);
 		free(entry);
 	}

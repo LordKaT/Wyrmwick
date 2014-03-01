@@ -66,7 +66,7 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 void _draw(state_stack* stack) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	menu *pMenu = (menu*) top->m_pData;
-	menu_render(pMenu, 0, 0);
+	menu_render(pMenu, 5, 5);
 }
 
 void _destroy(state_stack* stack) {

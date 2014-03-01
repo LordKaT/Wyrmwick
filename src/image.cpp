@@ -48,9 +48,9 @@ image* image_create_texture(int iWidth, int iHeight) {
 	return nullptr;
 }
 
-int image_setcolormod(image *iImage, unsigned int uiRed, unsigned int uiGreen, unsigned int uiBlue) {
+int image_setcolormod(image *iImage, Uint32 color) {
 #ifdef SCREEN_SDL2
-	return SDL_SetTextureColorMod(iImage, uiRed, uiGreen, uiBlue);
+	return SDL_SetTextureColorMod(iImage, (color&0xff000000)>>24, (color&0xff0000)>>16, (color&0xff00)>>8);
 #endif
 }
 

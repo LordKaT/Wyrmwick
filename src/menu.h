@@ -4,6 +4,7 @@
 menu* menu_init();
 void menu_add_entry(menu *pMenu, const char *fmt, ...);
 void menu_set_value(menu *pMenu, const char *fmt, ...);
+void menu_set_color(menu *pMenu, Uint32 color);
 // menu_input returns the index of the chosen entry, or -1 if no entry was chosen.
 void menu_auto_resize(menu *pMenu);
 int menu_input(menu* pMenu, SDL_Event *sdlEvent);
