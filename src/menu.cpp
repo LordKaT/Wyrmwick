@@ -5,11 +5,10 @@
 menu* menu_init() {
 	menu *pMenu = (menu*) malloc(sizeof(menu));
 	
-	//pMenu->m_cLabel = strdup(cMenuTitle);
 	pMenu->m_iCursorPos = 0;
 	pMenu->m_iWidth = 0;
 	pMenu->m_iHeight = 0;
-	//pMenu->m_aColors = table_new(sizeof(color_rgba), 0, 0);
+	pMenu->m_aColors = table_new(sizeof(color_rgba), 0, 0);
 	pMenu->m_aEntries = table_new(sizeof(char*), 0, 0);
 	pMenu->m_aValues = table_new(sizeof(char*), 0, 0);
 	
@@ -30,6 +29,8 @@ void menu_add_entry(menu *pMenu, const char *fmt, ...) {
 	table_append(pMenu->m_aEntries, &cText);
 	cText = nullptr;
 	table_append(pMenu->m_aValues, &cText);
+	color_rgba col = {255, 255, 255, 255};
+	table_append(pMenu->m_aColors, &col);
 }
 
 void menu_set_value(menu *pMenu, const char *fmt, ...) {
@@ -44,6 +45,11 @@ void menu_set_value(menu *pMenu, const char *fmt, ...) {
 	va_end(vArgs);
 	
 	table_put(pMenu->m_aValues, pMenu->m_aValues->m_len-1, &cText);
+}
+
+void menu_set_value(menu *pMenu, int r, int g, int b, int a) {
+	color_rgba col = {(Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a};
+	table_put(pMenu->m_aColors, pMenu->m_aColors->m_len-1, &col);
 }
 
 void menu_auto_resize(menu *pMenu) {
@@ -91,6 +97,7 @@ int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
 
 void menu_render(menu* pMenu, int x, int y) {
 	rect dst;
+	color_rgba color;
 	int numEntries = pMenu->m_aEntries->m_len;
 	
 	SDL_SetRenderDrawColor(g_sdlRenderer, 0, 51, 128, 255);
@@ -106,6 +113,8 @@ void menu_render(menu* pMenu, int x, int y) {
 			SDL_RenderFillRect(g_sdlRenderer, &dst);
 		}
 		
+		table_get(pMenu->m_aColors, i, &color);
+		image_setcolormod(g_font.m_image, color.r, color.g, color.b);
 		font_print(g_font, x + MARGIN, y + i * (g_font.m_iGlyphHeight + MARGIN*2) + MARGIN, menuItem[i]);
 	}
 }

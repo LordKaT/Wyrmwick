@@ -128,10 +128,9 @@ struct font {
 };
 
 struct menu {
-	char *m_cLabel;
 	int m_iCursorPos;
 	int m_iWidth, m_iHeight;
-	table /* of color_rgba */ m_aColors;
+	table /* of color_rgba */ *m_aColors;
 	table /* of char* */ *m_aEntries;
 	table /* of char* */ *m_aValues;
 };
