@@ -129,6 +129,7 @@ struct font {
 
 struct menu {
 	int m_iCursorPos;
+	int m_iX, m_iY;
 	int m_iWidth, m_iHeight;
 	table /* of color_rgba */ *m_aColors;
 	table /* of char* */ *m_aEntries;

@@ -21,7 +21,7 @@ void main_menu_push(state_stack* stack) {
 void main_menu_init(state_stack* stack) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	
-	menu *pMenu = menu_init();
+	menu *pMenu = menu_init(5, 5);
 	menu_add_entry(pMenu, "Paly Gaem");
 	menu_add_entry(pMenu, "Sound Test");
 	menu_add_entry(pMenu, "Map Editor");
@@ -66,7 +66,7 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 void _draw(state_stack* stack) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	menu *pMenu = (menu*) top->m_pData;
-	menu_render(pMenu, 5, 5);
+	menu_render(pMenu);
 }
 
 void _destroy(state_stack* stack) {

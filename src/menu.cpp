@@ -2,10 +2,12 @@
 
 #define MARGIN 4
 
-menu* menu_init() {
+menu* menu_init(int x, int y) {
 	menu *pMenu = (menu*) malloc(sizeof(menu));
 	
 	pMenu->m_iCursorPos = 0;
+	pMenu->m_iX = x;
+	pMenu->m_iY = y;
 	pMenu->m_iWidth = 0;
 	pMenu->m_iHeight = 0;
 	pMenu->m_aColors = table_new(sizeof(color_rgba), 0, 0);
@@ -71,6 +73,20 @@ void menu_auto_resize(menu *pMenu) {
 }
 
 int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
+	if (sdlEvent->type == SDL_MOUSEMOTION) {
+		int x, y;
+		x = sdlEvent->motion.x - pMenu->m_iX;
+		y = sdlEvent->motion.y - pMenu->m_iY;
+		if (x < 0 || y < 0) { return -1; }
+		if (x > pMenu->m_iWidth || y > pMenu->m_iHeight) { return -1; }
+		pMenu->m_iCursorPos = y / (g_font.m_iGlyphHeight+MARGIN*2);
+		return -1;
+	}
+	
+	if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
+		return pMenu->m_iCursorPos;
+	}
+	
 	input_event ev;
 	input_get_event(*sdlEvent, &ev);
 	
@@ -94,28 +110,29 @@ int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
 	return -1;
 }
 
-void menu_render(menu* pMenu, int x, int y) {
+void menu_render(menu* pMenu) {
 	rect dst;
 	Uint32 color;
 	int numEntries = pMenu->m_aEntries->m_len;
 	
-	dst = {x, y, pMenu->m_iWidth+2, pMenu->m_iHeight+2};
-	screen_draw_rect(&dst, 0xb8fffbff);
-	dst = {x+1, y+1, pMenu->m_iWidth, pMenu->m_iHeight};
+	dst = {pMenu->m_iX, pMenu->m_iY, pMenu->m_iWidth, pMenu->m_iHeight};
 	screen_fill_rect(&dst, 0x003380ff);
 	
 	char **menuItem = (char**) pMenu->m_aEntries->m_data;
 	for (int i = 0; i < numEntries; i++) {
 		if (i == pMenu->m_iCursorPos) {
-			dst = {x+1, y + i * (g_font.m_iGlyphHeight + MARGIN*2) + 1,
+			dst = {pMenu->m_iX, pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2),
 				pMenu->m_iWidth, g_font.m_iGlyphHeight+MARGIN*2};
 			screen_fill_rect(&dst, 0x5f8dd3ff);
 		}
 		
 		table_get(pMenu->m_aColors, i, &color);
 		image_setcolormod(g_font.m_image, color);
-		font_print(g_font, x + 1 + MARGIN, y + 1 + i * (g_font.m_iGlyphHeight + MARGIN*2) + MARGIN, menuItem[i]);
+		font_print(g_font, pMenu->m_iX + MARGIN, pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2) + MARGIN, menuItem[i]);
 	}
+	
+	dst = {pMenu->m_iX, pMenu->m_iY, pMenu->m_iWidth, pMenu->m_iHeight};
+	screen_draw_rect(&dst, 0xb8fffbff);
 }
 
 void menu_destroy(menu* pMenu) {
