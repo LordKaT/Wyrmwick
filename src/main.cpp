@@ -3,24 +3,28 @@
 int main(int iArgC, char * cArgV[]) {
 	debug_print("Wyrmwick: %s\r\n", WYRMWICK_VERSION);
 	
-	settings *Settings = settings_new();
-	input_config_settings(Settings, g_inmap);
+	settings *Settings = settings_init();
+	input_config_settings(Settings, g_keybinds);
 	screen_config_settings(Settings, nullptr);
 	settings_load(Settings, settings_file_path);
+	
+	// Testing listing
+	sys_dir *dir = sys_dir_open(".");
+	const char *f;
+	while ( (f = sys_dir_next(dir)) ) {
+		printf("%s\r\n", f);
+	}
+	sys_dir_close(dir);
 	
 	script_init();
 	screen_init();
 	audio_init();
-	font_init();
+	g_font = font_init("data/images/fonts/437_16x16.bmp");
 	map_init();
 	input_init();
 	debug_print("Init finished!\r\n");
 	
-	// This is for debugging only. I don't think we want to obliterate the config every time,
-	// especially if there were parsing errors.
-	settings_save(Settings, settings_file_path);
-
-	state_stack *gameStateStack = array_new(sizeof(state_desc), 0, 0);
+	state_stack *gameStateStack = table_new(sizeof(state_desc), 0, 0);
 	main_menu_push(gameStateStack);
 	main_menu_init(gameStateStack);
 	
@@ -33,7 +37,7 @@ int main(int iArgC, char * cArgV[]) {
 
 	// Run main loop as long as we have a state to execute.
 	while(gameStateStack->m_len != 0) {
-		currentState = (state_desc*) array_ind(gameStateStack, gameStateStack->m_len-1);
+		currentState = (state_desc*) table_ind(gameStateStack, gameStateStack->m_len-1);
 		
 		while (SDL_PollEvent(&sdlEvent)) {
 			// Emergency self-destruct on Ctrl-Shift-F4
@@ -57,10 +61,10 @@ int main(int iArgC, char * cArgV[]) {
 		if (currentState->m_isDead) {
 			// Destroy and pop the current state.
 			currentState->m_fnDestroy(gameStateStack);
-			array_shrink(gameStateStack, 1);
+			table_shrink(gameStateStack, 1);
 			// Resume the last state, if any.
 			if (gameStateStack->m_len != 0) {
-				currentState = (state_desc*) array_ind(gameStateStack, gameStateStack->m_len-1);
+				currentState = (state_desc*) table_ind(gameStateStack, gameStateStack->m_len-1);
 				if (currentState->m_fnResume != nullptr) { currentState->m_fnResume(gameStateStack); }
 			}
 			continue;
@@ -69,16 +73,17 @@ int main(int iArgC, char * cArgV[]) {
 		if (currentState->m_fnPushChild != nullptr) {
 			if (currentState->m_fnSuspend != nullptr) { currentState->m_fnSuspend(gameStateStack); }
 			currentState->m_fnPushChild(gameStateStack);
+			currentState->m_fnPushChild = nullptr;
 			
-			currentState = (state_desc*) array_ind(gameStateStack, gameStateStack->m_len-1);
+			currentState = (state_desc*) table_ind(gameStateStack, gameStateStack->m_len-1);
 			currentState->m_fnInit(gameStateStack);
 		}
 	}
 
-	font_destroy();
+	font_destroy(g_font);
 	input_destroy();
 	screen_destroy();
-	settings_free(Settings);
+	settings_destroy(Settings);
 	
 	return 0;
 }

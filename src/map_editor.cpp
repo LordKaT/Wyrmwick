@@ -21,11 +21,11 @@ void map_editor_push(state_stack* stack) {
 		&map_editor_destroy,
 		nullptr, false,
 	};
-	array_append(stack, &editor);
+	table_append(stack, &editor);
 }
 
 void map_editor_init(state_stack* stack) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) malloc(sizeof(map_editor));
 	
 	map_init();
@@ -43,9 +43,14 @@ void map_editor_init(state_stack* stack) {
 
 /* TODO: comment this more. Sorry --lk */
 void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) top->m_pData;
-
+	
+	if (sdlEvent->type == SDL_QUIT) {
+		// TODO: Check for unsaved changes
+		state_stack_kill(stack);
+	}
+	
 	// We may as well always check for this, because why not?
 	if (sdlEvent->type == SDL_MOUSEMOTION) {
 		mapEditor->m_iMouseX = sdlEvent->motion.x;
@@ -262,7 +267,7 @@ void map_editor_draw_walk_view() {
 }
 
 void map_editor_render(state_stack* stack) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) top->m_pData;
 
 	map_render();
@@ -272,51 +277,51 @@ void map_editor_render(state_stack* stack) {
 
 	switch (mapEditor->m_iMapEditorState) {
 		case MAPEDITOR_NONE:
-			font_print(10, 690, "How the fuck are you even here?");
+			font_print(g_font, 10, 690, "How the fuck are you even here?");
 			break;
 		case MAPEDITOR_EDIT:
 			image_draw(g_map.m_imageTiles, &tempSrc, &tempDst);
-			font_print(10, 690, "Edit Mode");
+			font_print(g_font, 10, 690, "Edit Mode");
 			break;
 		case MAPEDITOR_NAME:
-			font_print(10, 690, "Rename Map");
+			font_print(g_font, 10, 690, "Rename Map");
 			break;
 		case MAPEDITOR_SAVE:
-			font_print(10, 690, "Saving Map");
+			font_print(g_font, 10, 690, "Saving Map");
 			break;
 		case MAPEDITOR_LOAD:
-			font_print(10, 690, "Loading Map");
+			font_print(g_font, 10, 690, "Loading Map");
 			break;
 		case MAPEDITOR_TILE:
-			font_print(10, 690, "Tile Select");
+			font_print(g_font, 10, 690, "Tile Select");
 			break;
 		case MAPEDITOR_SHEET:
-			font_print(10, 690, "Sheet Select");
+			font_print(g_font, 10, 690, "Sheet Select");
 			break;
 		case MAPEDITOR_WALK:
 			image_draw(g_map.m_imageMap, &g_map.m_rectView, &g_map.m_rectDest);
-			font_print(10, 690, "Walk Edit");
+			font_print(g_font, 10, 690, "Walk Edit");
 			switch (mapEditor->m_cMapWalk) {
 				case WALK_NONE:
-					font_print(1180, 32, "NONE");
+					font_print(g_font, 1180, 32, "NONE");
 					break;
 				case WALK_WALK:
-					font_print(1180, 32, "WALK");
+					font_print(g_font, 1180, 32, "WALK");
 					break;
 				case WALK_RUN:
-					font_print(1180, 32, "RUN");
+					font_print(g_font, 1180, 32, "RUN");
 					break;
 				case WALK_SWIM:
-					font_print(1180, 32, "SWIM");
+					font_print(g_font, 1180, 32, "SWIM");
 					break;
 				case WALK_CLIMB:
-					font_print(1180, 32, "CLIMB");
+					font_print(g_font, 1180, 32, "CLIMB");
 					break;
 				case WALK_FLY:
-					font_print(1180, 32, "FLY");
+					font_print(g_font, 1180, 32, "FLY");
 					break;
 				default:
-					font_print(1180, 32, "BROKEN");
+					font_print(g_font, 1180, 32, "BROKEN");
 					break;
 			}
 			break;
@@ -324,13 +329,13 @@ void map_editor_render(state_stack* stack) {
 			break;
 	}
 
-	font_print(10, 10, "%s", g_map.m_cName);
+	font_print(g_font, 10, 10, "%s", g_map.m_cName);
 	
 	return;
 }
 
 void map_editor_destroy(state_stack* stack) {
-	state_desc *top = (state_desc*) array_ind(stack, stack->m_len-1);
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) top->m_pData;
 	free(mapEditor);
 	return;

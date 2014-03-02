@@ -31,7 +31,6 @@ extern "C" {
 #include "define.h"
 #include "structs.h"
 
-#include "arrays.h"
 #include "audio.h"
 #include "debug.h"
 #include "font.h"
@@ -46,7 +45,9 @@ extern "C" {
 #include "screen.h"
 #include "script.h"
 #include "settings.h"
+#include "settings_menu.h"
 #include "sys.h"
+#include "tables.h"
 #include "utils.h"
 
 #endif

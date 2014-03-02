@@ -1,6 +1,6 @@
 #include "include.h"
 
-settings* settings_new() {
+settings* settings_init() {
 	settings *s = (settings*) malloc(sizeof(settings));
 	if (! s) {
 		debug_print("Ran out of memory while trying to load settings.\r\n");
@@ -12,7 +12,7 @@ settings* settings_new() {
 		debug_print("Ran out of memory while trying to load settings.\r\n");
 		sys_abort();
 	}
-	s->m_aWriters = array_new(sizeof(settings_writer), 0, 0);
+	s->m_aWriters = table_new(sizeof(settings_writer), 0, 0);
 	return s;
 }
 
@@ -24,7 +24,7 @@ void settings_add_func(settings *s, const char *name, lua_CFunction func, void *
 
 void settings_add_writer(settings *s, settings_writer_func swriter, void *userdata) {
 	settings_writer sw = {swriter, userdata};
-	array_append(s->m_aWriters, &sw);
+	table_append(s->m_aWriters, &sw);
 }
 
 int settings_load(settings *s, const char* path) {
@@ -54,8 +54,8 @@ int settings_save(settings *s, const char* path) {
 	return 0;
 }
 
-void settings_free(settings *s) {
+void settings_destroy(settings *s) {
 	lua_close(s->m_luaState);
-	array_free(s->m_aWriters);
+	table_free(s->m_aWriters);
 	free(s);
 }

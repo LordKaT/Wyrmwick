@@ -12,7 +12,7 @@ extern font g_font;
 extern map g_map;
 extern audio g_audio;
 extern input_state g_input_state;
-extern input_control g_inmap[IN_MAX];
+extern input_control g_keybinds[IN_MAX];
 
 #ifdef SCREEN_SDL2
 extern SDL_Window *g_sdlWindow;
