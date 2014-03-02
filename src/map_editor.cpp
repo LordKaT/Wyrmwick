@@ -48,7 +48,7 @@ void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
 	
 	if (sdlEvent->type == SDL_QUIT) {
 		// TODO: Check for unsaved changes
-		top->m_isDead = true;
+		state_stack_kill(stack);
 	}
 	
 	// We may as well always check for this, because why not?

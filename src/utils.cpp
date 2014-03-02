@@ -51,3 +51,11 @@ int util_textInput(SDL_Event *sdlEvent, char **cBuffer) {
 	}
 	return 0;
 }
+
+void state_stack_kill(state_stack *stack) {
+	state_desc* states = (state_desc*) stack->m_data;
+	for (int i = 0; i < stack->m_len; i++) {
+		states[i].m_isDead = true;
+	}
+}
+

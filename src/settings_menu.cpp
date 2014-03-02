@@ -70,6 +70,11 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 	menu *pMenu = (menu*) data->m_menu;
 	settings *pSettings = (settings*) data->m_settings;
 	
+	if (sdlEvent->type == SDL_QUIT) {
+		state_stack_kill(stack);
+		return;
+	}
+	
 	switch (menu_input(pMenu, sdlEvent)) {
 	case 0:
 		top->m_fnPushChild = &_controls_push;
@@ -190,6 +195,11 @@ void _bind(_controls_menu *data, SDL_Event *sdlEvent) {
 static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	_controls_menu *data = (_controls_menu*) top->m_pData;
+	
+	if (sdlEvent->type == SDL_QUIT) {
+		state_stack_kill(stack);
+		return;
+	}
 	
 	if (data->m_iWhichBinding >= 0) {
 		_bind(data, sdlEvent);
