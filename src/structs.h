@@ -131,6 +131,7 @@ struct menu {
 	int m_iCursorPos;
 	int m_iX, m_iY;
 	int m_iWidth, m_iHeight;
+	int m_iMaxEntryLen;
 	table /* of color_rgba */ *m_aColors;
 	table /* of char* */ *m_aEntries;
 	table /* of char* */ *m_aValues;

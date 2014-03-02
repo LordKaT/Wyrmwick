@@ -3,8 +3,8 @@
 int main(int iArgC, char * cArgV[]) {
 	debug_print("Wyrmwick: %s\r\n", WYRMWICK_VERSION);
 	
-	settings *Settings = settings_new();
-	input_config_settings(Settings, g_inmap);
+	settings *Settings = settings_init();
+	input_config_settings(Settings, g_keybinds);
 	screen_config_settings(Settings, nullptr);
 	settings_load(Settings, settings_file_path);
 	
@@ -87,7 +87,7 @@ int main(int iArgC, char * cArgV[]) {
 	font_destroy(g_font);
 	input_destroy();
 	screen_destroy();
-	settings_free(Settings);
+	settings_destroy(Settings);
 	
 	return 0;
 }

@@ -14,15 +14,25 @@ static inline char* strdup(const char* s) { return _strdup(s); }
 
 const char* const settings_file_path = "save/settings.cfg";
 
-#define GAME_START		0
-#define GAME_DEBUG		1
-#define GAME_MENU		2
-#define GAME_WORLD		3
-#define GAME_SHOP		4
-#define GAME_DIALOG		5
-#define GAME_BATTLE		6
-#define GAME_END		7
-#define GAME_MAP_EDITOR	8
+#define STR_ARROW_RIGHT "\x10"
+#define STR_ARROW_LEFT  "\x11"
+#define STR_ARROW_UP    "\x1e"
+#define STR_ARROW_DOWN  "\x1f"
+
+
+#define GAME_START      0
+#define GAME_DEBUG      1
+#define GAME_MENU       2
+#define GAME_WORLD      3
+#define GAME_SHOP       4
+#define GAME_DIALOG     5
+#define GAME_BATTLE     6
+#define GAME_END        7
+#define GAME_MAP_EDITOR 8
+
+#define GAME_SETTINGS_MENU     9
+#define GAME_SETTINGS_CONTROLS 10
+
 
 #define MENU_NONE	0
 #define MENU_TEXT	1

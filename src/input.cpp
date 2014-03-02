@@ -18,7 +18,7 @@ static bool _update_key(int which, int newstate);
 
 
 void input_init() {
-	if (g_inmap[0].m_type == IN_NONE) {
+	if (g_keybinds[0].m_type == IN_NONE) {
 		// Nothing set in the settings, load defaults.
 		_load_defaults();
 	}
@@ -75,13 +75,13 @@ void _load_defaults() {
 	input_control m;
 	m.m_type = IN_TYPE_KEYBOARD;
 	
-	m.m_keycode = SDLK_UP;      m.m_iTo = IN_DIRUP;     g_inmap[0] = m;
-	m.m_keycode = SDLK_DOWN;    m.m_iTo = IN_DIRDOWN;   g_inmap[1] = m;
-	m.m_keycode = SDLK_LEFT;    m.m_iTo = IN_DIRLEFT;   g_inmap[2] = m;
-	m.m_keycode = SDLK_RIGHT;   m.m_iTo = IN_DIRRIGHT;  g_inmap[3] = m;
-	m.m_keycode = SDLK_RETURN;  m.m_iTo = IN_OK;        g_inmap[4] = m;
+	m.m_keycode = SDLK_UP;      m.m_iTo = IN_DIRUP;     g_keybinds[0] = m;
+	m.m_keycode = SDLK_DOWN;    m.m_iTo = IN_DIRDOWN;   g_keybinds[1] = m;
+	m.m_keycode = SDLK_LEFT;    m.m_iTo = IN_DIRLEFT;   g_keybinds[2] = m;
+	m.m_keycode = SDLK_RIGHT;   m.m_iTo = IN_DIRRIGHT;  g_keybinds[3] = m;
+	m.m_keycode = SDLK_RETURN;  m.m_iTo = IN_OK;        g_keybinds[4] = m;
 	
-	m.m_type = IN_NONE; g_inmap[5] = m;
+	m.m_type = IN_NONE; g_keybinds[5] = m;
 }
 
 void input_get_event(SDL_Event e, input_event *mapped) {
@@ -104,19 +104,19 @@ void input_get_event(SDL_Event e, input_event *mapped) {
 	}
 	
 	for (int i = 0; i < IN_MAX; i++) {
-		if (g_inmap[i].m_type == IN_NONE) { break; }
-		if (g_inmap[i].m_type != ktype) { continue; }
+		if (g_keybinds[i].m_type == IN_NONE) { break; }
+		if (g_keybinds[i].m_type != ktype) { continue; }
 
 		bool found = false;
 		switch (ktype) {	
 			case IN_TYPE_KEYBOARD:
-				if (e.key.keysym.sym == g_inmap[i].m_keycode) { found = true; }
+				if (e.key.keysym.sym == g_keybinds[i].m_keycode) { found = true; }
 				break;
 			case IN_TYPE_JOYBUTTON:
-				if (e.jbutton.button == g_inmap[i].m_iIndex) { found = true; }
+				if (e.jbutton.button == g_keybinds[i].m_iIndex) { found = true; }
 				break;
 			case IN_TYPE_JOYAXIS:
-				if (e.jaxis.axis == g_inmap[i].m_iIndex) { found = true; }
+				if (e.jaxis.axis == g_keybinds[i].m_iIndex) { found = true; }
 				break;
 		}
 		if (!found) { continue; }
@@ -124,24 +124,24 @@ void input_get_event(SDL_Event e, input_event *mapped) {
 		int newstate = 0;
 		switch (ktype) {	
 			case IN_TYPE_KEYBOARD:
-				if (e.type == SDL_KEYDOWN) { newstate = g_inmap[i].m_iTo; }
+				if (e.type == SDL_KEYDOWN) { newstate = g_keybinds[i].m_iTo; }
 				break;
 			case IN_TYPE_JOYBUTTON:
-				if (e.type == SDL_JOYBUTTONDOWN) { newstate = g_inmap[i].m_iTo; }
+				if (e.type == SDL_JOYBUTTONDOWN) { newstate = g_keybinds[i].m_iTo; }
 				break;
 			case IN_TYPE_JOYAXIS:
-				if (e.jaxis.value * g_inmap[i].m_iAxisDir > 20) { newstate = g_inmap[i].m_iTo; }
+				if (e.jaxis.value * g_keybinds[i].m_iAxisDir > 20) { newstate = g_keybinds[i].m_iTo; }
 				break;
 		}
 		
-		bool changed = _update_key(g_inmap[i].m_iTo, newstate);
+		bool changed = _update_key(g_keybinds[i].m_iTo, newstate);
 		if (!changed) {
 			continue;
 		}
 		
-		if ((g_inmap[i].m_iTo & (IN_DIRUP|IN_DIRDOWN|IN_DIRLEFT|IN_DIRRIGHT)) == 0) {
+		if ((g_keybinds[i].m_iTo & (IN_DIRUP|IN_DIRDOWN|IN_DIRLEFT|IN_DIRRIGHT)) == 0) {
 			mapped->m_iType = newstate != 0 ? IN_ON : IN_OFF;
-			mapped->m_iKey = g_inmap[i].m_iTo;
+			mapped->m_iKey = g_keybinds[i].m_iTo;
 		} else {
 			mapped->m_iType = IN_DIRCHANGE;
 			mapped->m_iKey = g_input_state.m_iDirection;

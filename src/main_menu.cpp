@@ -25,6 +25,7 @@ void main_menu_init(state_stack* stack) {
 	menu_add_entry(pMenu, "Paly Gaem");
 	menu_add_entry(pMenu, "Sound Test");
 	menu_add_entry(pMenu, "Map Editor");
+	menu_add_entry(pMenu, "Settings");
 	menu_add_entry(pMenu, "Exit");
 	menu_auto_resize(pMenu);
 	top->m_pData = pMenu;
@@ -58,6 +59,9 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 		top->m_fnPushChild = &map_editor_push;
 		break;
 	case 3:
+		top->m_fnPushChild = &settings_menu_push;
+		break;
+	case 4:
 		top->m_isDead = true;
 		break;
 	}

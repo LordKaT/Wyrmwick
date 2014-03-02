@@ -1,6 +1,6 @@
 #include "include.h"
 
-settings* settings_new() {
+settings* settings_init() {
 	settings *s = (settings*) malloc(sizeof(settings));
 	if (! s) {
 		debug_print("Ran out of memory while trying to load settings.\r\n");
@@ -54,7 +54,7 @@ int settings_save(settings *s, const char* path) {
 	return 0;
 }
 
-void settings_free(settings *s) {
+void settings_destroy(settings *s) {
 	lua_close(s->m_luaState);
 	table_free(s->m_aWriters);
 	free(s);

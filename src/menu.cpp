@@ -10,6 +10,7 @@ menu* menu_init(int x, int y) {
 	pMenu->m_iY = y;
 	pMenu->m_iWidth = 0;
 	pMenu->m_iHeight = 0;
+	pMenu->m_iMaxEntryLen = 0;
 	pMenu->m_aColors = table_new(sizeof(color_rgba), 0, 0);
 	pMenu->m_aEntries = table_new(sizeof(char*), 0, 0);
 	pMenu->m_aValues = table_new(sizeof(char*), 0, 0);
@@ -28,11 +29,13 @@ void menu_add_entry(menu *pMenu, const char *fmt, ...) {
 	vsnprintf(cText, 512, fmt, vArgs);
 	va_end(vArgs);
 	
+	if ((int)strlen(cText) > pMenu->m_iMaxEntryLen) { pMenu->m_iMaxEntryLen = strlen(cText); }
+	
 	table_append(pMenu->m_aEntries, &cText);
 	cText = nullptr;
 	table_append(pMenu->m_aValues, &cText);
 	color_rgba col = {255, 255, 255, 255};
-	table_append(pMenu->m_aColors, &col);
+	table_append(pMenu->m_aColors, &col);	
 }
 
 void menu_set_value(menu *pMenu, const char *fmt, ...) {
@@ -69,6 +72,7 @@ void menu_auto_resize(menu *pMenu) {
 	}
 	
 	pMenu->m_iWidth = (maxlene + maxlenv) * g_font.m_iGlyphWidth + MARGIN*2;
+	if (maxlenv != 0) { pMenu->m_iWidth += 1; }
 	pMenu->m_iHeight = pMenu->m_aEntries->m_len *  (g_font.m_iGlyphHeight + MARGIN*2);
 }
 
@@ -84,6 +88,12 @@ int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
 	}
 	
 	if (sdlEvent->type == SDL_MOUSEBUTTONUP) {
+		if (sdlEvent->button.button != SDL_BUTTON_LEFT) { return -1; }
+		int x, y;
+		x = sdlEvent->button.x - pMenu->m_iX;
+		y = sdlEvent->button.y - pMenu->m_iY;
+		if (x < 0 || y < 0) { return -1; }
+		if (x > pMenu->m_iWidth || y > pMenu->m_iHeight) { return -1; }
 		return pMenu->m_iCursorPos;
 	}
 	
@@ -106,6 +116,8 @@ int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
 			return pMenu->m_iCursorPos;
 		}
 		break;
+	default:
+		break;
 	}
 	return -1;
 }
@@ -119,6 +131,7 @@ void menu_render(menu* pMenu) {
 	screen_fill_rect(&dst, 0x003380ff);
 	
 	char **menuItem = (char**) pMenu->m_aEntries->m_data;
+	char **menuValue = (char**) pMenu->m_aValues->m_data;
 	for (int i = 0; i < numEntries; i++) {
 		if (i == pMenu->m_iCursorPos) {
 			dst = {pMenu->m_iX, pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2),
@@ -129,6 +142,11 @@ void menu_render(menu* pMenu) {
 		table_get(pMenu->m_aColors, i, &color);
 		image_setcolormod(g_font.m_image, color);
 		font_print(g_font, pMenu->m_iX + MARGIN, pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2) + MARGIN, menuItem[i]);
+		if (menuValue[i] == nullptr) { continue; }
+		font_print(g_font,
+			pMenu->m_iX + MARGIN + pMenu->m_iMaxEntryLen * g_font.m_iGlyphWidth,
+			pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2) + MARGIN,
+			menuValue[i]);
 	}
 	
 	dst = {pMenu->m_iX, pMenu->m_iY, pMenu->m_iWidth, pMenu->m_iHeight};
