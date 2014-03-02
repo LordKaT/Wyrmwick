@@ -19,7 +19,7 @@ int main(int iArgC, char * cArgV[]) {
 	script_init();
 	screen_init();
 	audio_init();
-	g_font = font_init("data/images/fonts/437_16x16.bmp");
+	g_font = font_init("data/images/fonts/437_16x16.png");
 	map_init();
 	input_init();
 	debug_print("Init finished!\r\n");

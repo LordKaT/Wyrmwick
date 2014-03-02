@@ -3,7 +3,7 @@
 player g_player;
 
 void player_init() {
-	g_player.m_image = image_load("data/images/DebugMan3.bmp", true, 255, 0, 255);
+	g_player.m_image = image_load("data/images/DebugMan3.png", true, 255, 0, 255);
 	g_player.m_iFacing = 1;
 	g_player.m_animator.m_iNumFrames = 2;
 	g_player.m_animator.m_iCurrFrame = 0;

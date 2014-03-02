@@ -18,6 +18,7 @@ extern "C" {
 
 #ifdef SCREEN_SDL2
 #include "SDL2-2.0.1/SDL.h"
+#include "SDL2-2.0.1/SDL_image.h"
 
 #include "screen_sdl2.h"
 #endif
