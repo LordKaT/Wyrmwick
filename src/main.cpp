@@ -24,10 +24,6 @@ int main(int iArgC, char * cArgV[]) {
 	input_init();
 	debug_print("Init finished!\r\n");
 	
-	// This is for debugging only. I don't think we want to obliterate the config every time,
-	// especially if there were parsing errors.
-	settings_save(Settings, settings_file_path);
-
 	state_stack *gameStateStack = table_new(sizeof(state_desc), 0, 0);
 	main_menu_push(gameStateStack);
 	main_menu_init(gameStateStack);
