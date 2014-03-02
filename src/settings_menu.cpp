@@ -1,6 +1,7 @@
 #include "include.h"
 
-#define JOY_AXIS_THRESHOLD 20
+#define JOY_AXIS_THRESHOLD_LOW 5
+#define JOY_AXIS_THRESHOLD_HIGH 10000
 
 struct _settings_menu {
 	menu *m_menu;
@@ -12,6 +13,11 @@ struct _controls_menu {
 	menu *m_bindingsMenu;
 	int m_iWhichBinding;
 	input_control m_aControls[5];
+	
+	int m_iJoyAxes;
+	// This is used to ignore the axis that was just bound until it's centered again.
+	// Otherwise, all of the controls would get mapped to one axis with analog sticks.
+	bool *m_bIgnoreAxes;
 };
 
 static void _init(state_stack* stack);
@@ -77,15 +83,19 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 	
 	switch (menu_input(pMenu, sdlEvent)) {
 	case 0:
+		// Controls
 		top->m_fnPushChild = &_controls_push;
 		break;
 	case 1:
+		// (empty)
 		break;
 	case 2:
+		// < Save Settings
 		settings_save(pSettings, settings_file_path);
 		top->m_isDead = true;
 		break;
 	case 3:
+		// < Discard Settings
 		settings_load(pSettings, settings_file_path);
 		top->m_isDead = true;
 		break;
@@ -162,6 +172,9 @@ void _init_controls(state_stack* stack) {
 	data->m_aControls[3] = _find_control_bind(IN_DIRRIGHT);
 	data->m_aControls[4] = _find_control_bind(IN_OK);
 	_update_bind_desc(data);
+	
+	data->m_iJoyAxes = input_joystick_num_axes();
+	data->m_bIgnoreAxes = (bool*) calloc(data->m_iJoyAxes, sizeof(bool));
 }
 
 // TODO: Prevent mapping the same button multiple times!!
@@ -177,12 +190,29 @@ void _bind(_controls_menu *data, SDL_Event *sdlEvent) {
 		control->m_iIndex = sdlEvent->jbutton.button;
 		break;
 	case SDL_JOYAXISMOTION:
-		if (sdlEvent->jaxis.value > -JOY_AXIS_THRESHOLD && sdlEvent->jaxis.value < JOY_AXIS_THRESHOLD) {
+		if (data->m_iJoyAxes <= sdlEvent->jaxis.axis) {
+			free(data->m_bIgnoreAxes);
+			data->m_iJoyAxes = input_joystick_num_axes();
+			data->m_bIgnoreAxes = (bool*) calloc(data->m_iJoyAxes, sizeof(bool));
+		}
+		
+		if (sdlEvent->jaxis.value > -JOY_AXIS_THRESHOLD_LOW && sdlEvent->jaxis.value < JOY_AXIS_THRESHOLD_LOW) {
+			data->m_bIgnoreAxes[sdlEvent->jaxis.axis] = false;
 			return;
 		}
+		
+		if (sdlEvent->jaxis.value > -JOY_AXIS_THRESHOLD_HIGH && sdlEvent->jaxis.value < JOY_AXIS_THRESHOLD_HIGH) {
+			return;
+		}
+		
+		if (data->m_bIgnoreAxes[sdlEvent->jaxis.axis]) {
+			return;
+		}
+		
 		control->m_type = IN_TYPE_JOYAXIS;
 		control->m_iIndex = sdlEvent->jaxis.axis;
 		control->m_iAxisDir = sdlEvent->jaxis.value<0 ? -1 : 1;
+		data->m_bIgnoreAxes[sdlEvent->jaxis.axis] = true;
 		break;
 	default:
 		return;
@@ -210,15 +240,18 @@ static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 			data->m_cmdMenu->m_iCursorPos = 0;
 			_apply_bindings(data);
 		}
+		return;
 	}
 	
 	switch (menu_input(data->m_cmdMenu, sdlEvent)) {
 	case 0:
+		// Set Controls
 		data->m_iWhichBinding = 0;
 		data->m_cmdMenu->m_iCursorPos = -1;
 		data->m_bindingsMenu->m_iCursorPos = 0;
 		break;
 	case 1:
+		// Restore Defaults
 		data->m_aControls[0] = {IN_TYPE_KEYBOARD, 0, 0, SDLK_UP,     IN_DIRUP};
 		data->m_aControls[1] = {IN_TYPE_KEYBOARD, 0, 0, SDLK_DOWN,   IN_DIRDOWN};
 		data->m_aControls[2] = {IN_TYPE_KEYBOARD, 0, 0, SDLK_LEFT,   IN_DIRLEFT};
@@ -228,7 +261,10 @@ static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 		_apply_bindings(data);
 		break;
 	case 2:
+		// < Back
 		top->m_isDead = true;
+		break;
+	default:
 		break;
 	}
 }
@@ -242,6 +278,11 @@ static void _draw_controls(state_stack* stack) {
 }
 
 static void _destroy_controls(state_stack* stack) {
+	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
+	_controls_menu *data = (_controls_menu*) top->m_pData;
+	
+	free(data->m_bIgnoreAxes);
+	free(data);
 }
 
 void _update_bind_desc(_controls_menu *data) {
@@ -254,6 +295,7 @@ void _update_bind_desc(_controls_menu *data) {
 	}
 }
 
+// returns a human-readable description of a cotrol binding
 char* _bind_desc(input_control *bind) {
 	char *buff;
 	int len;
@@ -286,6 +328,8 @@ void _apply_bindings(_controls_menu *data) {
 	g_keybinds[5].m_type = IN_NONE;
 }
 
+// finds the binding that maps to the control given by `which`. This is needed because the controls might
+// be set in a different order through the config file.
 input_control _find_control_bind(int which) {
 	input_control ret = {0,};
 	for (int i = 0; i < IN_MAX; i++) {
