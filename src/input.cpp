@@ -38,6 +38,27 @@ void input_destroy() {
 	}
 }
 
+bool input_bindings_conflict(input_control *x, input_control *y) {
+	if (x->m_type != y->m_type) { return false; }
+	switch (x->m_type) {
+	case IN_TYPE_KEYBOARD:
+		return x->m_keycode == y->m_keycode;
+		break;
+	case IN_TYPE_JOYBUTTON:
+		return x->m_iIndex == y->m_iIndex;
+		break;
+	case IN_TYPE_JOYAXIS:
+		if (x->m_iIndex != y->m_iIndex) { return false; }
+		if (x->m_iAxisDir > 0 && y->m_iAxisDir < 0) { return false; }
+		if (x->m_iAxisDir < 0 && y->m_iAxisDir > 0) { return false; }
+		return true;
+		break;
+	default:
+		break;
+	}
+	return false;
+}
+
 void input_config_settings(settings *st, input_control *controls) {
 	controls[0].m_type = IN_NONE;
 	

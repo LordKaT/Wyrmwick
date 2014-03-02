@@ -11,7 +11,7 @@ menu* menu_init(int x, int y) {
 	pMenu->m_iWidth = 0;
 	pMenu->m_iHeight = 0;
 	pMenu->m_iMaxEntryLen = 0;
-	pMenu->m_aColors = table_new(sizeof(color_rgba), 0, 0);
+	pMenu->m_aColors = table_new(sizeof(Uint32), 0, 0);
 	pMenu->m_aEntries = table_new(sizeof(char*), 0, 0);
 	pMenu->m_aValues = table_new(sizeof(char*), 0, 0);
 	
@@ -34,8 +34,8 @@ void menu_add_entry(menu *pMenu, const char *fmt, ...) {
 	table_append(pMenu->m_aEntries, &cText);
 	cText = nullptr;
 	table_append(pMenu->m_aValues, &cText);
-	color_rgba col = {255, 255, 255, 255};
-	table_append(pMenu->m_aColors, &col);	
+	Uint32 textcol = COLOR_MENU_TEXT;
+	table_append(pMenu->m_aColors, &textcol);	
 }
 
 void menu_set_value(menu *pMenu, const char *fmt, ...) {
@@ -128,7 +128,7 @@ void menu_render(menu* pMenu) {
 	int numEntries = pMenu->m_aEntries->m_len;
 	
 	dst = {pMenu->m_iX, pMenu->m_iY, pMenu->m_iWidth, pMenu->m_iHeight};
-	screen_fill_rect(&dst, 0x003380ff);
+	screen_fill_rect(&dst, COLOR_MENU_BACK);
 	
 	char **menuItem = (char**) pMenu->m_aEntries->m_data;
 	char **menuValue = (char**) pMenu->m_aValues->m_data;
@@ -136,7 +136,7 @@ void menu_render(menu* pMenu) {
 		if (i == pMenu->m_iCursorPos) {
 			dst = {pMenu->m_iX, pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2),
 				pMenu->m_iWidth, g_font.m_iGlyphHeight+MARGIN*2};
-			screen_fill_rect(&dst, 0x5f8dd3ff);
+			screen_fill_rect(&dst, COLOR_MENU_SELECTED);
 		}
 		
 		table_get(pMenu->m_aColors, i, &color);
@@ -150,7 +150,7 @@ void menu_render(menu* pMenu) {
 	}
 	
 	dst = {pMenu->m_iX, pMenu->m_iY, pMenu->m_iWidth, pMenu->m_iHeight};
-	screen_draw_rect(&dst, 0xb8fffbff);
+	screen_draw_rect(&dst, COLOR_MENU_BORDER);
 }
 
 void menu_destroy(menu* pMenu) {

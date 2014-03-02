@@ -55,10 +55,6 @@ typedef SDL_Texture image;
 struct image {};
 #endif
 
-struct color_rgba {
-	Uint8 r, g, b, a;
-};
-
 struct audio {
 	int *m_iPosition;
 	int m_iLength;

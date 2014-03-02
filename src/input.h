@@ -4,7 +4,8 @@
 void input_config_settings(settings *st, input_control *controls);
 
 void input_init();
-void input_save_mapping();
+
+bool input_bindings_conflict(input_control *x, input_control *y);
 
 // maps an SDL event to a logical input event and updates global state
 void input_get_event(SDL_Event e, input_event *mapped);

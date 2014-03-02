@@ -13,6 +13,7 @@ struct _controls_menu {
 	menu *m_bindingsMenu;
 	int m_iWhichBinding;
 	input_control m_aControls[5];
+	bool m_bindingsConflict;
 	
 	int m_iJoyAxes;
 	// This is used to ignore the axis that was just bound until it's centered again.
@@ -238,7 +239,7 @@ static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 		if (data->m_iWhichBinding > 4) {
 			data->m_iWhichBinding = -1;
 			data->m_cmdMenu->m_iCursorPos = 0;
-			_apply_bindings(data);
+			if (! data->m_bindingsConflict) { _apply_bindings(data); }
 		}
 		return;
 	}
@@ -262,6 +263,8 @@ static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 		break;
 	case 2:
 		// < Back
+		if (data->m_bindingsConflict) { break; }
+		_apply_bindings(data);
 		top->m_isDead = true;
 		break;
 	default:
@@ -286,6 +289,26 @@ static void _destroy_controls(state_stack* stack) {
 }
 
 void _update_bind_desc(_controls_menu *data) {
+	Uint32 normal = COLOR_MENU_TEXT;
+	for (int i = 0; i < 5; i++) {
+		table_put(data->m_bindingsMenu->m_aColors, i, &normal);
+	}
+	table_put(data->m_cmdMenu->m_aColors, 2, &normal);
+	data->m_bindingsConflict = false;
+	
+	// check for conflicts
+	for (int i = 0; i < 4; i++) {
+		for (int j = i+1; j < 5; j++) {
+			if (! input_bindings_conflict(&(data->m_aControls[i]), &(data->m_aControls[j]))) { continue; }
+			
+			Uint32 red = 0xff0000ff, disabled = COLOR_MENU_DISABLED;
+			table_put(data->m_bindingsMenu->m_aColors, i, &red);
+			table_put(data->m_bindingsMenu->m_aColors, j, &red);
+			table_put(data->m_cmdMenu->m_aColors, 2, &disabled);
+			data->m_bindingsConflict = true;
+		}
+	}
+	
 	for (int i = 0; i < 5; i++) {
 		char *desc;
 		table_get(data->m_bindingsMenu->m_aValues, i, &desc);
