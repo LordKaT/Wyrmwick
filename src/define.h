@@ -14,10 +14,15 @@ static inline char* strdup(const char* s) { return _strdup(s); }
 
 const char* const settings_file_path = "save/settings.cfg";
 
-#define STR_ARROW_RIGHT "\x10"
-#define STR_ARROW_LEFT  "\x11"
-#define STR_ARROW_UP    "\x1e"
-#define STR_ARROW_DOWN  "\x1f"
+#define STR_ARROW_UP    "\x18"
+#define STR_ARROW_DOWN  "\x19"
+#define STR_ARROW_RIGHT "\x1a"
+#define STR_ARROW_LEFT  "\x1b"
+
+#define STR_ARROWBIG_RIGHT "\x10"
+#define STR_ARROWBIG_LEFT  "\x11"
+#define STR_ARROWBIG_UP    "\x1e"
+#define STR_ARROWBIG_DOWN  "\x1f"
 
 
 #define GAME_START      0

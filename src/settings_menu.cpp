@@ -60,8 +60,8 @@ void _init(state_stack* stack) {
 	menu *pMenu = menu_init(100, 50);
 	menu_add_entry(pMenu, "Controls");
 	menu_add_entry(pMenu, "");
-	menu_add_entry(pMenu, STR_ARROW_LEFT " Save Settings");
-	menu_add_entry(pMenu, STR_ARROW_LEFT " Discard Changes");
+	menu_add_entry(pMenu, STR_ARROWBIG_LEFT " Save Settings");
+	menu_add_entry(pMenu, STR_ARROWBIG_LEFT " Discard Changes");
 	menu_auto_resize(pMenu);
 	data->m_menu = pMenu;
 	
@@ -148,7 +148,7 @@ void _init_controls(state_stack* stack) {
 	menu *pCmdMenu = menu_init(200, 50);
 	menu_add_entry(pCmdMenu, "Set Controls");
 	menu_add_entry(pCmdMenu, "Restore Defaults");
-	menu_add_entry(pCmdMenu, STR_ARROW_LEFT " Back");
+	menu_add_entry(pCmdMenu, STR_ARROWBIG_LEFT " Back");
 	menu_auto_resize(pCmdMenu);
 	data->m_cmdMenu = pCmdMenu;
 	
