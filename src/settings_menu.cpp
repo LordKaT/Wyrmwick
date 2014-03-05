@@ -13,6 +13,7 @@ struct _controls_menu {
 	menu *m_bindingsMenu;
 	int m_iWhichBinding;
 	input_control m_aControls[5];
+	bool m_capturingBindings;
 	bool m_bindingsConflict;
 	
 	int m_iJoyAxes;
@@ -174,11 +175,12 @@ void _init_controls(state_stack* stack) {
 	data->m_aControls[4] = _find_control_bind(IN_OK);
 	_update_bind_desc(data);
 	
+	data->m_capturingBindings = false;
+	
 	data->m_iJoyAxes = input_joystick_num_axes();
 	data->m_bIgnoreAxes = (bool*) calloc(data->m_iJoyAxes, sizeof(bool));
 }
 
-// TODO: Prevent mapping the same button multiple times!!
 void _bind(_controls_menu *data, SDL_Event *sdlEvent) {
 	input_control *control = &(data->m_aControls[data->m_iWhichBinding]);
 	switch (sdlEvent->type) {
@@ -232,13 +234,14 @@ static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 		return;
 	}
 	
-	if (data->m_iWhichBinding >= 0) {
+	if (data->m_capturingBindings) {
 		_bind(data, sdlEvent);
 		_update_bind_desc(data);
 		
 		if (data->m_iWhichBinding > 4) {
 			data->m_iWhichBinding = -1;
 			data->m_cmdMenu->m_iCursorPos = 0;
+			data->m_capturingBindings = false;
 			if (! data->m_bindingsConflict) { _apply_bindings(data); }
 		}
 		return;
@@ -248,8 +251,7 @@ static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 	case 0:
 		// Set Controls
 		data->m_iWhichBinding = 0;
-		data->m_cmdMenu->m_iCursorPos = -1;
-		data->m_bindingsMenu->m_iCursorPos = 0;
+		data->m_capturingBindings = true;
 		break;
 	case 1:
 		// Restore Defaults
@@ -275,6 +277,11 @@ static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 static void _draw_controls(state_stack* stack) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	_controls_menu *data = (_controls_menu*) top->m_pData;
+	
+	if (data->m_capturingBindings) {
+		data->m_cmdMenu->m_iCursorPos = -1;
+		data->m_bindingsMenu->m_iCursorPos = data->m_iWhichBinding;
+	}
 	
 	menu_render(data->m_cmdMenu);
 	menu_render(data->m_bindingsMenu);
