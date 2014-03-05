@@ -192,6 +192,12 @@ void _bind(_controls_menu *data, SDL_Event *sdlEvent) {
 	data->m_bindingsMenu->m_iCursorPos++;
 }
 
+// prev method did not compile in win.
+input_control _event_create_input_control(int iType, Uint8 iIndex, int iAxisDir, SDL_Keycode keycode, int iTo) {
+	input_control temp = {iType, iIndex, iAxisDir, keycode, iTo};
+	return temp;
+}
+
 static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	_controls_menu *data = (_controls_menu*) top->m_pData;
@@ -219,11 +225,12 @@ static void _event_controls(state_stack* stack, SDL_Event *sdlEvent) {
 		data->m_bindingsMenu->m_iCursorPos = 0;
 		break;
 	case 1:
-		data->m_aControls[0] = {IN_TYPE_KEYBOARD, 0, 0, SDLK_UP,     IN_DIRUP};
-		data->m_aControls[1] = {IN_TYPE_KEYBOARD, 0, 0, SDLK_DOWN,   IN_DIRDOWN};
-		data->m_aControls[2] = {IN_TYPE_KEYBOARD, 0, 0, SDLK_LEFT,   IN_DIRLEFT};
-		data->m_aControls[3] = {IN_TYPE_KEYBOARD, 0, 0, SDLK_RIGHT,  IN_DIRRIGHT};
-		data->m_aControls[4] = {IN_TYPE_KEYBOARD, 0, 0, SDLK_RETURN, IN_OK};
+		// prev method will not compile in win.
+		data->m_aControls[0] = _event_create_input_control(IN_TYPE_KEYBOARD, 0, 0, SDLK_UP,     IN_DIRUP);
+		data->m_aControls[1] = _event_create_input_control(IN_TYPE_KEYBOARD, 0, 0, SDLK_DOWN,   IN_DIRDOWN);
+		data->m_aControls[2] = _event_create_input_control(IN_TYPE_KEYBOARD, 0, 0, SDLK_LEFT,   IN_DIRLEFT);
+		data->m_aControls[3] = _event_create_input_control(IN_TYPE_KEYBOARD, 0, 0, SDLK_RIGHT,  IN_DIRRIGHT);
+		data->m_aControls[4] = _event_create_input_control(IN_TYPE_KEYBOARD, 0, 0, SDLK_RETURN, IN_OK);
 		_update_bind_desc(data);
 		_apply_bindings(data);
 		break;
