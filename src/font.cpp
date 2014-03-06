@@ -25,14 +25,14 @@ font font_init(const char *path) {
 }
 
 /* Because va_'s %c is not unsigned! */
-void font_putc(font Font, int iX, int iY, unsigned char ucChar) {
+int font_putc(font Font, int iX, int iY, unsigned char ucChar) {
 	rect srcRect = _glyph_rect(Font, ucChar);
 	rect dstRect = {iX, iY, Font.m_iGlyphWidth, Font.m_iGlyphHeight};
 	image_draw(Font.m_image, &srcRect, &dstRect);
-	return;
+	return Font.m_iGlyphWidth;
 }
 
-void font_print(font Font, int iX, int iY, const char *cFmt, ...) {
+int font_print(font Font, int iX, int iY, const char *cFmt, ...) {
 	char cText[512];
 	va_list vArgs;
 	va_start(vArgs, cFmt);
@@ -47,18 +47,18 @@ void font_print(font Font, int iX, int iY, const char *cFmt, ...) {
 		image_draw(Font.m_image, &srcRect, &dstRect);
 		dstRect.x += Font.m_iGlyphWidth;
 	}
-	return;
+	return Font.m_iGlyphWidth * strlen(cText);
 }
 
 /* font_putc_to and font_print_to used for printing to another texture. */
-void font_putc_to(font Font, image *imageDest, int iX, int iY, unsigned char ucChar) {
+int font_putc_to(font Font, image *imageDest, int iX, int iY, unsigned char ucChar) {
 	rect srcRect = _glyph_rect(Font, ucChar);
 	rect dstRect = {iX, iY, Font.m_iGlyphWidth, Font.m_iGlyphHeight};
 	image_draw_to(imageDest, Font.m_image, &srcRect, &dstRect);
-	return;
+	return Font.m_iGlyphWidth;
 }
 
-void font_print_to(font Font, image *imageDest, int iX, int iY, const char *cFmt, ...) {
+int font_print_to(font Font, image *imageDest, int iX, int iY, const char *cFmt, ...) {
 	char cText[512];
 	va_list vArgs;
 	va_start(vArgs, cFmt);
@@ -73,7 +73,11 @@ void font_print_to(font Font, image *imageDest, int iX, int iY, const char *cFmt
 		image_draw_to(imageDest, Font.m_image, &srcRect, &dstRect);
 		dstRect.x += Font.m_iGlyphWidth;
 	}
-	return;
+	return Font.m_iGlyphWidth * strlen(cText);
+}
+
+int font_text_width(font Font, const char *sText) {
+	return Font.m_iGlyphWidth * strlen(sText);
 }
 
 void font_destroy(font Font) {
