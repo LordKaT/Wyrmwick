@@ -74,7 +74,7 @@ void menu_auto_resize(menu *pMenu) {
 		pMenu->m_iValueX = MARGIN + maxelem + PADDING_CHARS * font_text_width(g_font, "0");
 		pMenu->m_iWidth = pMenu->m_iValueX + maxval + MARGIN;
 	} else {
-		pMenu->m_iValueX = 0;
+		pMenu->m_iValueX = MARGIN + maxelem + PADDING_CHARS * font_text_width(g_font, "0");
 		pMenu->m_iWidth = MARGIN + maxelem + MARGIN;
 	}
 	
