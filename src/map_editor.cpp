@@ -2,13 +2,12 @@
 
 rect _tile_rect(int index) {
 	rect r;
-	r.x = (index % 32) * 16;
-	r.y = (index / 32) * 16;
+	r.x = (index % 32) * 32;
+	r.y = (index / 32) * 32;
 	r.w = 32;
 	r.h = 32;
 	return r;
 }
-
 
 void map_editor_push(state_stack* stack) {
 	state_desc editor = {

@@ -128,20 +128,21 @@ int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
 }
 
 void menu_render(menu* pMenu) {
-	rect dst;
 	Uint32 color;
 	int numEntries = pMenu->m_aEntries->m_len;
-	
-	dst = {pMenu->m_iX, pMenu->m_iY, pMenu->m_iWidth, pMenu->m_iHeight};
-	screen_fill_rect(&dst, COLOR_MENU_BACK);
+	rect dst = {pMenu->m_iX, pMenu->m_iY, pMenu->m_iWidth, pMenu->m_iHeight};
+
+	screen_fill_rect(&dst, 0x003380ff);
 	
 	char **menuItem = (char**) pMenu->m_aEntries->m_data;
 	char **menuValue = (char**) pMenu->m_aValues->m_data;
 	for (int i = 0; i < numEntries; i++) {
 		if (i == pMenu->m_iCursorPos) {
-			dst = {pMenu->m_iX, pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2),
-				pMenu->m_iWidth, g_font.m_iGlyphHeight+MARGIN*2};
-			screen_fill_rect(&dst, COLOR_MENU_SELECTED);
+			dst.x = pMenu->m_iX;
+			dst.y = pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2);
+			dst.w = pMenu->m_iWidth;
+			dst.h = g_font.m_iGlyphHeight+MARGIN * 2;
+			screen_fill_rect(&dst, 0x5f8dd3ff);
 		}
 		
 		table_get(pMenu->m_aColors, i, &color);
@@ -154,7 +155,10 @@ void menu_render(menu* pMenu) {
 			menuValue[i]);
 	}
 	
-	dst = {pMenu->m_iX, pMenu->m_iY, pMenu->m_iWidth, pMenu->m_iHeight};
+	dst.x = pMenu->m_iX;
+	dst.y = pMenu->m_iY;
+	dst.w = pMenu->m_iWidth;
+	dst.h = pMenu->m_iHeight;
 	screen_draw_rect(&dst, COLOR_MENU_BORDER);
 }
 
