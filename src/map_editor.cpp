@@ -1,5 +1,7 @@
 #include "include.h"
 
+static bool _editor_handle_generic_event(map_editor *mapEditor, SDL_Event *sdlEvent);
+
 rect _tile_rect(int index) {
 	rect r;
 	r.x = (index % 32) * 32;
@@ -54,73 +56,11 @@ void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
 	if (sdlEvent->type == SDL_MOUSEMOTION) {
 		mapEditor->m_iMouseX = sdlEvent->motion.x;
 		mapEditor->m_iMouseY = sdlEvent->motion.y;
+		return;
 	}
 
-	/* Generic global keydown events. */
-	if  (sdlEvent->type == SDL_KEYDOWN) {
-		if (sdlEvent->key.keysym.sym == SDLK_ESCAPE) {
-			SDL_StopTextInput();
-			map_draw_view();
-			if (mapEditor->m_bGrid == true) {
-				map_draw_grid_view();
-			}
-			mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F1) {
-			SDL_StartTextInput();
-			mapEditor->m_iMapEditorState = MAPEDITOR_NAME;
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F2) {
-			// Choose new tile from sprite sheet
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F3) {
-			// Choose new sprite sheet
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F4) {
-			// Change to walk edit mode.
-			if (mapEditor->m_iMapEditorState == MAPEDITOR_WALK) {
-				mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
-				map_draw();
-				if (mapEditor->m_bGrid == true) {
-					map_draw_grid_view();
-				}
-			}
-			else {
-				mapEditor->m_iMapEditorState = MAPEDITOR_WALK;
-				map_editor_draw_walk();
-			}
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F5) {
-			map_save();
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F6) {
-			// Turn grid on/off.
-			if (mapEditor->m_bGrid == true) { // turn off grid
-				mapEditor->m_bGrid = false;
-				map_draw();
-			}
-			else {
-				mapEditor->m_bGrid = true;
-				map_draw_grid();
-			}
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F7) {
-			// Change LUA script associated with this map.
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F9) {
-			SDL_StartTextInput();
-			mapEditor->m_iMapEditorState = MAPEDITOR_LOAD;
-			return;
-		}
-	}
+	// Handle keys which do the same thing no matter what the current state is.
+	if (_editor_handle_generic_event(mapEditor, sdlEvent)) { return; }
 
 	switch (mapEditor->m_iMapEditorState) {
 		case MAPEDITOR_EDIT:
@@ -231,6 +171,81 @@ void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
 	}
 
 	return;
+}
+
+bool _editor_handle_generic_event(map_editor *mapEditor, SDL_Event *sdlEvent) {
+	if (sdlEvent->type != SDL_KEYDOWN) {
+		// Only key events are independent of state.
+		return false;
+	}
+	
+	switch (sdlEvent->key.keysym.sym) {
+	case SDLK_ESCAPE:
+		SDL_StopTextInput();
+		map_draw_view();
+		if (mapEditor->m_bGrid == true) {
+			map_draw_grid_view();
+		}
+		mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
+		break;
+	
+	case SDLK_F1:
+		SDL_StartTextInput();
+		mapEditor->m_iMapEditorState = MAPEDITOR_NAME;
+		break;
+	
+	case SDLK_F2:
+		// Choose new tile from sprite sheet
+		break;
+	
+	case SDL_F3:
+		// Choose new sprite sheet
+		break;
+	
+	case SDLK_F4:
+		// Change to walk edit mode.
+		if (mapEditor->m_iMapEditorState == MAPEDITOR_WALK) {
+			mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
+			map_draw();
+			if (mapEditor->m_bGrid == true) {
+				map_draw_grid_view();
+			}
+		}
+		else {
+			mapEditor->m_iMapEditorState = MAPEDITOR_WALK;
+			map_editor_draw_walk();
+		}
+		break;
+	
+	case SDLK_F5:
+		map_save();
+		break;
+	
+	case SDLK_F6:
+		// Turn grid on/off.
+		if (mapEditor->m_bGrid == true) { // turn off grid
+			mapEditor->m_bGrid = false;
+			map_draw();
+		}
+		else {
+			mapEditor->m_bGrid = true;
+			map_draw_grid();
+		}
+		break;
+	
+	case SDLK_F7:
+		// Change LUA script associated with this map.
+		break;
+	
+	case SDLK_F8:
+		SDL_StartTextInput();
+		mapEditor->m_iMapEditorState = MAPEDITOR_LOAD;
+		break;
+	
+	default:
+		return false;
+	}
+	return true;
 }
 
 void map_editor_draw_walk() {
