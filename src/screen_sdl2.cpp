@@ -22,6 +22,7 @@ void sdl2_init() {
 void sdl2_destroy() {
 	SDL_DestroyRenderer(g_sdlRenderer);
 	SDL_DestroyWindow(g_sdlWindow);
+	IMG_Quit();
 	SDL_Quit();
 	return;
 }
