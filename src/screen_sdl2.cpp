@@ -5,6 +5,8 @@ void sdl2_init() {
 		printf("SDL_Init: %s\r\n", SDL_GetError());
 		return;
 	}
+	IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
+	
 	g_sdlWindow = SDL_CreateWindow(WYRMWICK_VERSION, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, g_iScreenWidth, g_iScreenHeight, SDL_WINDOW_SHOWN);
 	if (g_sdlWindow == nullptr) {
 		printf("SDL_CreateWindow: %s\r\n", SDL_GetError());
@@ -20,6 +22,7 @@ void sdl2_init() {
 void sdl2_destroy() {
 	SDL_DestroyRenderer(g_sdlRenderer);
 	SDL_DestroyWindow(g_sdlWindow);
+	IMG_Quit();
 	SDL_Quit();
 	return;
 }

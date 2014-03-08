@@ -1,6 +1,7 @@
 #include "include.h"
 
 #define MARGIN 4
+#define PADDING_CHARS 2
 
 menu* menu_init(int x, int y) {
 	menu *pMenu = (menu*) malloc(sizeof(menu));
@@ -10,8 +11,8 @@ menu* menu_init(int x, int y) {
 	pMenu->m_iY = y;
 	pMenu->m_iWidth = 0;
 	pMenu->m_iHeight = 0;
-	pMenu->m_iMaxEntryLen = 0;
-	pMenu->m_aColors = table_new(sizeof(color_rgba), 0, 0);
+	pMenu->m_iValueX = 0;
+	pMenu->m_aColors = table_new(sizeof(Uint32), 0, 0);
 	pMenu->m_aEntries = table_new(sizeof(char*), 0, 0);
 	pMenu->m_aValues = table_new(sizeof(char*), 0, 0);
 	
@@ -29,13 +30,11 @@ void menu_add_entry(menu *pMenu, const char *fmt, ...) {
 	vsnprintf(cText, 512, fmt, vArgs);
 	va_end(vArgs);
 	
-	if ((int)strlen(cText) > pMenu->m_iMaxEntryLen) { pMenu->m_iMaxEntryLen = strlen(cText); }
-	
 	table_append(pMenu->m_aEntries, &cText);
 	cText = nullptr;
 	table_append(pMenu->m_aValues, &cText);
-	color_rgba col = {255, 255, 255, 255};
-	table_append(pMenu->m_aColors, &col);	
+	Uint32 textcol = COLOR_MENU_TEXT;
+	table_append(pMenu->m_aColors, &textcol);	
 }
 
 void menu_set_value(menu *pMenu, const char *fmt, ...) {
@@ -57,22 +56,28 @@ void menu_set_color(menu *pMenu, Uint32 color) {
 }
 
 void menu_auto_resize(menu *pMenu) {
-	int maxlene, maxlenv, len;
-	maxlene = maxlenv = 0;
+	int maxelem, maxval, len;
+	maxelem = maxval = 0;
 	
 	char **entries = (char**) pMenu->m_aEntries->m_data;
 	char **values = (char**) pMenu->m_aValues->m_data;
 	for (int i = 0; i < pMenu->m_aEntries->m_len; i++) {
-		len = strlen(entries[i]);
-		if (len > maxlene) { maxlene = len; }
+		len = font_text_width(g_font, entries[i]);
+		if (len > maxelem) { maxelem = len; }
 		
 		if (values[i] == nullptr) { continue; }
-		len = strlen(values[i]);
-		if (len > maxlenv) { maxlenv = len; }
+		len = font_text_width(g_font, values[i]);
+		if (len > maxval) { maxval = len; }
 	}
 	
-	pMenu->m_iWidth = (maxlene + maxlenv) * g_font.m_iGlyphWidth + MARGIN*2;
-	if (maxlenv != 0) { pMenu->m_iWidth += 1; }
+	if (maxval > 0) {
+		pMenu->m_iValueX = MARGIN + maxelem + PADDING_CHARS * font_text_width(g_font, "0");
+		pMenu->m_iWidth = pMenu->m_iValueX + maxval + MARGIN;
+	} else {
+		pMenu->m_iValueX = MARGIN + maxelem + PADDING_CHARS * font_text_width(g_font, "0");
+		pMenu->m_iWidth = MARGIN + maxelem + MARGIN;
+	}
+	
 	pMenu->m_iHeight = pMenu->m_aEntries->m_len *  (g_font.m_iGlyphHeight + MARGIN*2);
 }
 
@@ -133,7 +138,6 @@ void menu_render(menu* pMenu) {
 	char **menuValue = (char**) pMenu->m_aValues->m_data;
 	for (int i = 0; i < numEntries; i++) {
 		if (i == pMenu->m_iCursorPos) {
-			// quick way wouldn't compile.
 			dst.x = pMenu->m_iX;
 			dst.y = pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2);
 			dst.w = pMenu->m_iWidth;
@@ -146,16 +150,16 @@ void menu_render(menu* pMenu) {
 		font_print(g_font, pMenu->m_iX + MARGIN, pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2) + MARGIN, menuItem[i]);
 		if (menuValue[i] == nullptr) { continue; }
 		font_print(g_font,
-			pMenu->m_iX + MARGIN + pMenu->m_iMaxEntryLen * g_font.m_iGlyphWidth,
+			pMenu->m_iX + MARGIN + pMenu->m_iValueX,
 			pMenu->m_iY + i * (g_font.m_iGlyphHeight + MARGIN*2) + MARGIN,
 			menuValue[i]);
 	}
-	// quick way wouldn't compile.
+	
 	dst.x = pMenu->m_iX;
 	dst.y = pMenu->m_iY;
 	dst.w = pMenu->m_iWidth;
 	dst.h = pMenu->m_iHeight;
-	screen_draw_rect(&dst, 0xb8fffbff);
+	screen_draw_rect(&dst, COLOR_MENU_BORDER);
 }
 
 void menu_destroy(menu* pMenu) {

@@ -2,7 +2,7 @@
 
 image* image_load(const char *cFile, bool bColorKey, unsigned int uiRed, unsigned int uiGreen, unsigned int uiBlue) {
 #ifdef SCREEN_SDL2
-	SDL_Surface *surfTemp = SDL_LoadBMP(cFile);
+	SDL_Surface *surfTemp = IMG_Load(cFile);
 	if (surfTemp == nullptr) {
 		printf("image_load(): %s\r\n", SDL_GetError());
 		return nullptr;

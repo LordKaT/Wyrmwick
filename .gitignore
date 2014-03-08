@@ -216,7 +216,6 @@ pip-log.txt
 
 src/SDL2-2.0.1/
 src/lua-5.2.3/
-Makefile
 src/tags
 
 save/*

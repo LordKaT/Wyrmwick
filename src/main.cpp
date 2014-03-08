@@ -8,18 +8,10 @@ int main(int iArgC, char * cArgV[]) {
 	screen_config_settings(Settings, nullptr);
 	settings_load(Settings, settings_file_path);
 	
-	// Testing listing
-	sys_dir *dir = sys_dir_open(".");
-	const char *f;
-	while ( (f = sys_dir_next(dir)) ) {
-		printf("%s\r\n", f);
-	}
-	sys_dir_close(dir);
-	
 	script_init();
 	screen_init();
 	audio_init();
-	g_font = font_init("data/images/fonts/437_16x16.bmp");
+	g_font = font_init("data/images/fonts/437_16x16.png");
 	map_init();
 	input_init();
 	debug_print("Init finished!\r\n");
