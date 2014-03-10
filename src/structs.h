@@ -9,6 +9,20 @@ struct table {
 	int m_len, m_cap;
 };
 
+// This is a simple associative array (string -> void*). Might need to be replaced
+// with a proper hash table if it ever turns out to be a performance bottleneck.
+struct string_table_entry {
+	char *m_sKey;
+	void *m_pVal;
+};
+
+typedef table /* of string_table_entry */ string_table; 
+
+struct string_slice {
+	const char *m_ptr;
+	int m_len;
+};
+
 typedef table /* of state_desc */ state_stack;
 
 struct state_desc {

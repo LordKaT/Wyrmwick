@@ -50,6 +50,7 @@ extern "C" {
 #include "script.h"
 #include "settings.h"
 #include "settings_menu.h"
+#include "string_table.h"
 #include "sys.h"
 #include "tables.h"
 #include "text_entry.h"
