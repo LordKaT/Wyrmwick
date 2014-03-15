@@ -1,11 +1,11 @@
 #include "include.h"
 
 void script_init() {
-	debug_print("Loading LUA 5.2.1 ...\r\n");
+	debug_print("Loading LUA 5.2.1 ...\n");
 	g_luaState = luaL_newstate();
 	luaL_openlibs(g_luaState);
 
-	debug_print("	defining LUA globals\r\n");
+	debug_print("	defining LUA globals\n");
 	LUA_DEFINE("GAME_START", GAME_START);
 	LUA_DEFINE("GAME_DEBUG", GAME_DEBUG);
 	LUA_DEFINE("GAME_MENU", GAME_MENU);
@@ -85,13 +85,13 @@ void script_init() {
 	LUA_DEFINE("STATUS_MAX", STATUS_MAX);
 	LUA_DEFINE("ITEMS_MAX", ITEMS_MAX);
 
-	debug_print("	loading item scripts\r\n");
+	debug_print("	loading item scripts\n");
 	script_load_items();
-	debug_print("	loading skill scripts\r\n");
+	debug_print("	loading skill scripts\n");
 	script_load_skills();
-	debug_print("	loading quest scripts\r\n");
+	debug_print("	loading quest scripts\n");
 	script_load_quests();
-	debug_print("	LUA loaded!\r\n");
+	debug_print("	LUA loaded!\n");
 	return;
 }
 
@@ -111,7 +111,7 @@ int script_luaWriter(lua_State *luaState, const void *p, size_t size, void *vDat
 	luaChunk *pChunk = (luaChunk *)vData;
 	void *vAlloc = realloc(pChunk->m_vLuaChunk, pChunk->m_sizeLuaChunk + size);
 	if (vAlloc == 0 || vAlloc == nullptr) {
-		printf("Error: out of memory.\r\n");
+		printf("Error: out of memory.\n");
 	} else {
 		pChunk->m_vLuaChunk = (char *)vAlloc;
 	}
@@ -148,7 +148,7 @@ void script_load_items() {
 				script_call_function("item_init", 0, 5, 0);
 
 				if (!lua_isstring(g_luaState, -5)) {
-					printf("error: init() must return: (string), string, int, int, int.\r\n");
+					printf("error: init() must return: (string), string, int, int, int.\n");
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -5, &sTemp);
@@ -157,7 +157,7 @@ void script_load_items() {
 				}
 
 				if (!lua_isstring(g_luaState, -4)) {
-					printf("error: init() must return: string, (string), int, int, int.\r\n");
+					printf("error: init() must return: string, (string), int, int, int.\n");
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -4, &sTemp);
@@ -166,19 +166,19 @@ void script_load_items() {
 				}
 
 				if (!lua_isnumber(g_luaState, -3)) {
-					printf("error: init() must return: string, string, (int), int, int.\r\n");
+					printf("error: init() must return: string, string, (int), int, int.\n");
 				} else {
 					g_items[iItemID].m_iItemType = lua_tointeger(g_luaState, -3);
 				}
 
 				if (!lua_isnumber(g_luaState, -2)) {
-					printf("error: init() must return: string, string, int, (int), int.\r\n");
+					printf("error: init() must return: string, string, int, (int), int.\n");
 				} else {
 					g_items[iItemID].m_iWeaponType = lua_tointeger(g_luaState, -2);
 				}
 
 				if (!lua_isnumber(g_luaState, -1)) {
-					printf("error: init() must return: string, string, int, int, (int).\r\n");
+					printf("error: init() must return: string, string, int, int, (int).\n");
 				} else {
 					g_items[iItemID].m_iEquipType = lua_tointeger(g_luaState, -1);
 				}
@@ -186,8 +186,8 @@ void script_load_items() {
 				lua_pop(g_luaState, -1);
 
 			} else {
-				printf("script_load_items(): failed to load %s\r\n", cFile);
-				printf("%s\r\n", luaL_checkstring(g_luaState, -1));
+				printf("script_load_items(): failed to load %s\n", cFile);
+				printf("%s\n", luaL_checkstring(g_luaState, -1));
 			}
 			memset(&cLine, 0, sizeof(cLine));
 			memset(&cFile, 0, sizeof(cFile));
@@ -195,7 +195,7 @@ void script_load_items() {
 		}
 		fclose(file);
 	} else {
-		printf("Error: cannot load items_list.txt\r\n");
+		printf("Error: cannot load items_list.txt\n");
 		return;
 	}
 	return;
@@ -223,7 +223,7 @@ void script_load_skills() {
 				script_call_function("skill_init", 0, 2, 0);
 
 				if (!lua_isstring(g_luaState, -2)) {
-					printf("error: skill_init() must return: (string), string.\r\n");
+					printf("error: skill_init() must return: (string), string.\n");
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -2, &sTemp);
@@ -232,7 +232,7 @@ void script_load_skills() {
 				}
 
 				if (!lua_isstring(g_luaState, -1)) {
-					printf("error: skill_init() must return: string, (string).\r\n");
+					printf("error: skill_init() must return: string, (string).\n");
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -1, &sTemp);
@@ -243,8 +243,8 @@ void script_load_skills() {
 				lua_pop(g_luaState, -1);
 
 			} else {
-				printf("script_load_skills(): failed to load %s\r\n", cFile);
-				printf("%s\r\n", luaL_checkstring(g_luaState, -1));
+				printf("script_load_skills(): failed to load %s\n", cFile);
+				printf("%s\n", luaL_checkstring(g_luaState, -1));
 			}
 			memset(&cLine, 0, sizeof(cLine));
 			memset(&cFile, 0, sizeof(cFile));
@@ -252,7 +252,7 @@ void script_load_skills() {
 		}
 		fclose(file);
 	} else {
-		printf("Error: cannot load skills_list.txt\r\n");
+		printf("Error: cannot load skills_list.txt\n");
 		return;
 	}
 	return;
@@ -280,7 +280,7 @@ void script_load_quests() {
 				script_call_function("quest_init", 0, 2, 0);
 
 				if (!lua_isstring(g_luaState, -2)) {
-					printf("error: quest_init() must return: (string), string.\r\n");
+					printf("error: quest_init() must return: (string), string.\n");
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -2, &sTemp);
@@ -290,7 +290,7 @@ void script_load_quests() {
 				}
 
 				if (!lua_isstring(g_luaState, -1)) {
-					printf("error: quest_init() must return: string, (string).\r\n");
+					printf("error: quest_init() must return: string, (string).\n");
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -1, &sTemp);
@@ -302,8 +302,8 @@ void script_load_quests() {
 				lua_pop(g_luaState, -1);
 
 			} else {
-				printf("script_load_skills(): failed to load %s\r\n", cFile);
-				printf("%s\r\n", luaL_checkstring(g_luaState, -1));
+				printf("script_load_skills(): failed to load %s\n", cFile);
+				printf("%s\n", luaL_checkstring(g_luaState, -1));
 			}
 			memset(&cLine, 0, sizeof(cLine));
 			memset(&cFile, 0, sizeof(cFile));
@@ -311,7 +311,7 @@ void script_load_quests() {
 		}
 		fclose(file);
 	} else {
-		printf("Error: cannot load skills_list.txt\r\n");
+		printf("Error: cannot load skills_list.txt\n");
 		return;
 	}
 	return;
@@ -339,7 +339,7 @@ void script_load_npc() {
 				script_call_function("npc_init", 0, 2, 0);
 
 				if (!lua_isstring(g_luaState, -2)) {
-					printf("error: npc_init() must return: (string), string.\r\n");
+					printf("error: npc_init() must return: (string), string.\n");
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -2, &sTemp);
@@ -349,7 +349,7 @@ void script_load_npc() {
 				}
 
 				if (!lua_isstring(g_luaState, -1)) {
-					printf("error: npc_init() must return: string, (string).\r\n");
+					printf("error: npc_init() must return: string, (string).\n");
 				} else {
 					size_t sTemp;
 					const char *cTemp = lua_tolstring(g_luaState, -1, &sTemp);
@@ -361,8 +361,8 @@ void script_load_npc() {
 				lua_pop(g_luaState, -1);
 
 			} else {
-				printf("script_load_npc(): failed to load %s\r\n", cFile);
-				printf("%s\r\n", luaL_checkstring(g_luaState, -1));
+				printf("script_load_npc(): failed to load %s\n", cFile);
+				printf("%s\n", luaL_checkstring(g_luaState, -1));
 			}
 			memset(&cLine, 0, sizeof(cLine));
 			memset(&cFile, 0, sizeof(cFile));
@@ -370,7 +370,7 @@ void script_load_npc() {
 		}
 		fclose(file);
 	} else {
-		printf("Error: cannot load npc_list.txt\r\n");
+		printf("Error: cannot load npc_list.txt\n");
 		return;
 	}
 	return;

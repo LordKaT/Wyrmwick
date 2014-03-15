@@ -1,5 +1,11 @@
 #include "include.h"
 
+void _utils_sdl_must(int retVal, const char *file, int line, const char *func) {
+	if (retVal >= 0) { return; }
+	printf("%s:%d: %s(): %s\n", file, line, func, SDL_GetError());
+	sys_abort();
+}
+
 int util_textInput(SDL_Event *sdlEvent, char **cBuffer) {
 	char *cTemp;
 	char *cClipboardText;

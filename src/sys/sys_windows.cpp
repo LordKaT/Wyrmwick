@@ -7,7 +7,7 @@ typedef struct sys_dir {
 	WIN32_FIND_DATA entry;
 } system_dir;
 
-void sys_abort_at(const char* file, const int line) {
+void sys_abort_at(const char* file, int line) {
 	printf("Aborted at %s:%d\n", file, line);
 	// FIXME: Windows can do some stupid crap on abort, as it is wont to do.
 	abort();

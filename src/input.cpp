@@ -25,10 +25,10 @@ void input_init() {
 	
 	g_sdlJoystick = SDL_JoystickOpen(0);
 	if (g_sdlJoystick == nullptr) {
-		debug_print("No joysticks found. %s\r\n", SDL_GetError());
+		debug_print("No joysticks found. %s\n", SDL_GetError());
 		return;
 	}
-	debug_print("Found a joystick: %s\r\n", SDL_JoystickName(g_sdlJoystick));
+	debug_print("Found a joystick: %s\n", SDL_JoystickName(g_sdlJoystick));
 	SDL_JoystickEventState(SDL_ENABLE);
 }
 

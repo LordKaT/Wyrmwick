@@ -22,7 +22,7 @@ menu* menu_init(int x, int y) {
 void menu_add_entry(menu *pMenu, const char *fmt, ...) {
 	char* cText = (char*) malloc(512);
 	if (! cText) {
-		debug_print("Out of memory.\r\n");
+		debug_print("Out of memory.\n");
 		sys_abort();
 	}
 	va_list vArgs;
@@ -40,7 +40,7 @@ void menu_add_entry(menu *pMenu, const char *fmt, ...) {
 void menu_set_value(menu *pMenu, const char *fmt, ...) {
 	char* cText = (char*) malloc(512);
 	if (! cText) {
-		debug_print("Out of memory.\r\n");
+		debug_print("Out of memory.\n");
 		sys_abort();
 	}
 	va_list vArgs;

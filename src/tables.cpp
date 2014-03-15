@@ -2,13 +2,13 @@
 
 table* table_new(size_t elemSize, int startingSize, int startingCapacity) {
 	if (startingSize > startingCapacity) {
-		debug_print("Array size > cap.\r\n");
+		debug_print("Array size > cap.\n");
 		sys_abort();
 	}
 	
 	table* arr = (table*) malloc(sizeof(table));
 	if (! arr) {
-		debug_print("Out of memory.\r\n");
+		debug_print("Out of memory.\n");
 		sys_abort();
 	}
 	arr->m_elemSize = elemSize;
@@ -29,7 +29,7 @@ void table_append(table *arr, const void *val) {
 		
 		arr->m_data = realloc(arr->m_data, arr->m_elemSize * newcap);
 		if (! arr->m_data) {
-			debug_print("Not enough memory to append.\r\n");
+			debug_print("Not enough memory to append.\n");
 			sys_abort();
 		}
 		memset(((unsigned char*)arr->m_data) + arr->m_cap*arr->m_elemSize, 0, newcap - arr->m_cap);
@@ -42,7 +42,7 @@ void table_append(table *arr, const void *val) {
 
 void table_get(table *arr, int index, void *val) {
 	if (index >= arr->m_len) {
-		debug_print("Array index out of bounds.\r\n");
+		debug_print("Array index out of bounds.\n");
 		sys_abort();
 	}
 	memmove(val, ((unsigned char*) arr->m_data) + index * arr->m_elemSize, arr->m_elemSize);
@@ -50,7 +50,7 @@ void table_get(table *arr, int index, void *val) {
 
 void table_put(table *arr, int index, const void *val) {
 	if (index >= arr->m_len) {
-		debug_print("Array index out of bounds.\r\n");
+		debug_print("Array index out of bounds.\n");
 		sys_abort();
 	}
 	memmove(((unsigned char*) arr->m_data) + index * arr->m_elemSize, val, arr->m_elemSize);
@@ -58,7 +58,7 @@ void table_put(table *arr, int index, const void *val) {
 
 void* table_ind(table *arr, int index) {
 	if (index >= arr->m_len) {
-		debug_print("Array index out of bounds.\r\n");
+		debug_print("Array index out of bounds.\n");
 		sys_abort();
 	}
 	return ((unsigned char*) arr->m_data) + index * arr->m_elemSize;

@@ -4,7 +4,7 @@ image* image_load(const char *cFile, bool bColorKey, unsigned int uiRed, unsigne
 #ifdef SCREEN_SDL2
 	SDL_Surface *surfTemp = IMG_Load(cFile);
 	if (surfTemp == nullptr) {
-		printf("image_load(): %s\r\n", SDL_GetError());
+		printf("image_load(): %s\n", SDL_GetError());
 		return nullptr;
 	}
 
@@ -14,7 +14,7 @@ image* image_load(const char *cFile, bool bColorKey, unsigned int uiRed, unsigne
 
 	SDL_Texture *texTemp = SDL_CreateTextureFromSurface(g_sdlRenderer, surfTemp);
 	if (texTemp == nullptr) {
-		printf("image_load(): %s\r\n", SDL_GetError());
+		printf("image_load(): %s\n", SDL_GetError());
 		return nullptr;
 	}
 	
@@ -29,7 +29,7 @@ void image_get_size(image *img, int *iWidth, int *iHeight) {
 	int junk2;
 	int err = SDL_QueryTexture(img, &junk1, &junk2, iWidth, iHeight);
 	if (err) {
-		debug_print("Failed to get texture size: %s\r\n", SDL_GetError());
+		debug_print("Failed to get texture size: %s\n", SDL_GetError());
 		// HALT HERE
 	}
 #endif
@@ -40,7 +40,7 @@ image* image_create_texture(int iWidth, int iHeight) {
 	image *imageDest;
 	imageDest = SDL_CreateTexture(g_sdlRenderer, SDL_GetWindowPixelFormat(g_sdlWindow), SDL_TEXTUREACCESS_TARGET, iWidth, iHeight);
 	if (imageDest == nullptr) {
-		debug_print("image_draw_to(): %s\r\n", SDL_GetError());
+		debug_print("image_draw_to(): %s\n", SDL_GetError());
 		return nullptr;
 	}
 	return imageDest;
@@ -60,160 +60,54 @@ int image_draw(image *iImage, rect *rectSource, rect *rectDest) {
 #endif
 }
 
-int image_draw_to(image *imageDest, image *imageSource, rect *rectSource, rect *rectDest) {
+void image_draw_to(image *imageDest, image *imageSource, rect *rectSource, rect *rectDest) {
 #ifdef SCREEN_SDL2
-	int iRet = 0;
+	sdl_must(SDL_SetTextureBlendMode(imageDest, SDL_BLENDMODE_BLEND));
+	sdl_must(SDL_SetRenderTarget(g_sdlRenderer, imageDest));
+	sdl_must(SDL_RenderCopy(g_sdlRenderer, imageSource, rectSource, rectDest));
+	sdl_must(SDL_SetRenderTarget(g_sdlRenderer, nullptr));
+#endif
+}
+
+void image_draw_rect(rect *rectDest, int iRed, int iGreen, int iBlue) {
+#ifdef SCREEN_SDL2
+	sdl_must(SDL_SetRenderDrawColor(g_sdlRenderer, iRed, iGreen, iBlue, 255));
+	sdl_must(SDL_RenderDrawRect(g_sdlRenderer, rectDest));
+	sdl_must(SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255));
+#endif
+}
+
+void image_draw_fill_rect(rect *rectDest, int iRed, int iGreen, int iBlue) {
+#ifdef SCREEN_SDL2
+	sdl_must(SDL_SetRenderDrawColor(g_sdlRenderer, iRed, iGreen, iBlue, 255));
+	sdl_must(SDL_RenderFillRect(g_sdlRenderer, rectDest));
+	sdl_must(SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255));
+#endif
+}
+
+void image_draw_rect_to(image *imageDest, rect *rectDest, int iRed, int iGreen, int iBlue) {
+#ifdef SCREEN_SDL2
+	sdl_must(SDL_SetTextureBlendMode(imageDest, SDL_BLENDMODE_BLEND));
+	sdl_must(SDL_SetRenderTarget(g_sdlRenderer, imageDest));
+	sdl_must(SDL_SetRenderDrawColor(g_sdlRenderer, iRed, iGreen, iBlue, 255));
+	sdl_must(SDL_RenderDrawRect(g_sdlRenderer, rectDest));
+	sdl_must(SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255));
+	sdl_must(SDL_SetRenderTarget(g_sdlRenderer, nullptr));
+#endif
+}
+
+void image_draw_fill_rect_to(image *imageDest, rect *rectDest, int iRed, int iGreen, int iBlue) {
+#ifdef SCREEN_SDL2
 	if (imageDest == nullptr) {
-		debug_print("image_draw_to(): image is null. How do I draw to it?\r\n");
-		return 0;
+		debug_print("image_draw_rect_to(): image is null. How do I draw to it?\n");
+		sys_abort();
 	}
-	iRet = SDL_SetTextureBlendMode(imageDest, SDL_BLENDMODE_BLEND);
-	if (iRet < 0) {
-		debug_print("image_draw_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderTarget(g_sdlRenderer, imageDest);
-	if (iRet < 0) {
-		debug_print("image_draw_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_RenderCopy(g_sdlRenderer, imageSource, rectSource, rectDest);
-	if (iRet < 0) {
-		debug_print("image_draw_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderTarget(g_sdlRenderer, nullptr);
-	if (iRet < 0) {
-		debug_print("image_draw_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	return iRet;
-#endif
-}
-
-int image_draw_rect(rect *rectDest, int iRed, int iGreen, int iBlue) {
-#ifdef SCREEN_SDL2
-	int iRet = 0;
-	iRet = SDL_SetRenderDrawColor(g_sdlRenderer, iRed, iGreen, iBlue, 255);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_RenderDrawRect(g_sdlRenderer, rectDest);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	return iRet;
-#endif
-}
-
-int image_draw_fill_rect(rect *rectDest, int iRed, int iGreen, int iBlue) {
-#ifdef SCREEN_SDL2
-	int iRet = 0;
-	iRet = SDL_SetRenderDrawColor(g_sdlRenderer, iRed, iGreen, iBlue, 255);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_RenderFillRect(g_sdlRenderer, rectDest);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	return iRet;
-#endif
-}
-
-int image_draw_rect_to(image *imageDest, rect *rectDest, int iRed, int iGreen, int iBlue) {
-#ifdef SCREEN_SDL2
-	int iRet = 0;
-	if (imageDest == nullptr) {
-		debug_print("image_draw_rect_to(): image is null. How do I draw to it?\r\n");
-		return iRet;
-	}
-	iRet = SDL_SetTextureBlendMode(imageDest, SDL_BLENDMODE_BLEND);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderTarget(g_sdlRenderer, imageDest);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderDrawColor(g_sdlRenderer, iRed, iGreen, iBlue, 255);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_RenderDrawRect(g_sdlRenderer, rectDest);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderTarget(g_sdlRenderer, nullptr);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	return iRet;
-#endif
-}
-
-int image_draw_fill_rect_to(image *imageDest, rect *rectDest, int iRed, int iGreen, int iBlue) {
-#ifdef SCREEN_SDL2
-	int iRet = 0;
-	if (imageDest == nullptr) {
-		debug_print("image_draw_rect_to(): image is null. How do I draw to it?\r\n");
-		return iRet;
-	}
-	iRet = SDL_SetTextureBlendMode(imageDest, SDL_BLENDMODE_BLEND);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderTarget(g_sdlRenderer, imageDest);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderDrawColor(g_sdlRenderer, iRed, iGreen, iBlue, 255);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_RenderFillRect(g_sdlRenderer, rectDest);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	iRet = SDL_SetRenderTarget(g_sdlRenderer, nullptr);
-	if (iRet < 0) {
-		debug_print("image_draw_rect_to(): %s\r\n", SDL_GetError());
-		return iRet;
-	}
-	return iRet;
+	sdl_must(SDL_SetTextureBlendMode(imageDest, SDL_BLENDMODE_BLEND));
+	sdl_must(SDL_SetRenderTarget(g_sdlRenderer, imageDest));
+	sdl_must(SDL_SetRenderDrawColor(g_sdlRenderer, iRed, iGreen, iBlue, 255));
+	sdl_must(SDL_RenderFillRect(g_sdlRenderer, rectDest));
+	sdl_must(SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255));
+	sdl_must(SDL_SetRenderTarget(g_sdlRenderer, nullptr));
 #endif
 }
 

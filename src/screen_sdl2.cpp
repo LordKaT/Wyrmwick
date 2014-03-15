@@ -2,14 +2,14 @@
 
 void sdl2_init() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-		printf("SDL_Init: %s\r\n", SDL_GetError());
+		printf("SDL_Init: %s\n", SDL_GetError());
 		return;
 	}
 	IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
 	
 	g_sdlWindow = SDL_CreateWindow(WYRMWICK_VERSION, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, g_iScreenWidth, g_iScreenHeight, SDL_WINDOW_SHOWN);
 	if (g_sdlWindow == nullptr) {
-		printf("SDL_CreateWindow: %s\r\n", SDL_GetError());
+		printf("SDL_CreateWindow: %s\n", SDL_GetError());
 		return;
 	}
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");

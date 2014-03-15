@@ -11,7 +11,7 @@ int audio_load_music(audio *audioChunk, const char *cFile) {
 #ifdef AUDIO_SDL2MIXER
 	audioChunk->m_music = Mix_LoadMUS(cFile);
 	if (audioChunk->m_music == nullptr) {
-		debug_print("audio_load_music(): %s\r\n", Mix_GetError());
+		debug_print("audio_load_music(): %s\n", Mix_GetError());
 		return 0;
 	}
 #endif

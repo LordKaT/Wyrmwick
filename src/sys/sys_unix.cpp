@@ -6,7 +6,7 @@ typedef struct sys_dir {
 	dirent entry;
 } sys_dir;
 
-void sys_abort_at(const char* file, const int line) {
+void sys_abort_at(const char* file, int line) {
 	printf("Aborted at %s:%d\n", file, line);
 	abort();
 }

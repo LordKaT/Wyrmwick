@@ -11,13 +11,13 @@ rect _glyph_rect(font Font, int index) {
 
 font font_init(const char *path) {
 	font Font;
-	debug_print("Loading Font ...\r\n");
+	debug_print("Loading Font ...\n");
 	Font.m_image = image_load(path, true, 0xff, 0x00, 0xff);
 
 	int iW, iH;
 	image_get_size(Font.m_image, &iW, &iH);
 	if (iW % 16 != 0 || iH % 16 != 0) {
-		debug_print("Font has invalid dimensions.\r\n");
+		debug_print("WARNING: Font has invalid dimensions.\n");
 	}
 	Font.m_iGlyphWidth = iW / 16;
 	Font.m_iGlyphHeight = iH / 16;

@@ -31,9 +31,9 @@ void screen_config_settings(settings* st, void* udata) {
 }
 
 void screen_init() {
-	debug_print("Loading Screen ...\r\n");
+	debug_print("Loading Screen ...\n");
 #ifdef SCREEN_SDL2
-	debug_print("	screen: SDL2\r\n");
+	debug_print("	screen: SDL2\n");
 	sdl2_init();
 #endif
 	return;
