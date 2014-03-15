@@ -75,6 +75,7 @@ int main(int iArgC, char * cArgV[]) {
 	font_destroy(g_font);
 	input_destroy();
 	screen_destroy();
+	audio_destroy();
 	settings_destroy(Settings);
 	
 	return 0;

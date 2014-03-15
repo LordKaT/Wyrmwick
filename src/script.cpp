@@ -85,6 +85,7 @@ void script_init() {
 	LUA_DEFINE("STATUS_MAX", STATUS_MAX);
 	LUA_DEFINE("ITEMS_MAX", ITEMS_MAX);
 
+	// FIXME: We never free these.
 	debug_print("	loading item scripts\n");
 	script_load_items();
 	debug_print("	loading skill scripts\n");

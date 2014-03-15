@@ -169,6 +169,7 @@ void menu_destroy(menu* pMenu) {
 		free(entry);
 	}
 	table_free(pMenu->m_aEntries);
+	table_free(pMenu->m_aValues);
 	free(pMenu);
 
 	return;

@@ -106,6 +106,8 @@ void _load_defaults() {
 }
 
 void input_get_event(SDL_Event e, input_event *mapped) {
+	mapped->m_iKey = IN_NONE;
+	
 	int ktype;
 	switch (e.type) {
 		case SDL_KEYDOWN:

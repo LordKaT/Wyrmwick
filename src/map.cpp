@@ -2,6 +2,7 @@
 
 void map_init() {
 	debug_print("Loading Map ...\n");
+	// FIXME: This is never freed.
 	g_map.m_cName = strdup("Debug Map");
 	g_map.m_imageTiles = image_load("data/images/tiles/Goo-13022014_TileSet_Test.bmp", false, 0, 0, 0);
 	g_map.m_imageMap = image_create_texture(MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE);
