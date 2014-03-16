@@ -4,6 +4,7 @@
 void input_config_settings(settings *st, input_control *controls);
 
 void input_init();
+void input_load_defaults();
 
 bool input_bindings_conflict(input_control *x, input_control *y);
 

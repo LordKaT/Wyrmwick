@@ -52,6 +52,7 @@ extern "C" {
 #include "settings_menu.h"
 #include "sys.h"
 #include "tables.h"
+#include "text_entry.h"
 #include "utils.h"
 
 #endif

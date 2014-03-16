@@ -34,9 +34,6 @@ bool file_dialog_reload(file_dialog *fd) {
 }
 
 bool file_dialog_input(file_dialog *fd, SDL_Event *sdlEvent) {
-	int i;
-	i = menu_input(fd->m_menu, sdlEvent);
-	return i >= 0;
 }
 
 void file_dialog_get(file_dialog *fd, char **dir, char **file) {

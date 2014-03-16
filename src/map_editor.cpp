@@ -36,6 +36,12 @@ void map_editor_init(state_stack* stack) {
 	mapEditor->m_bGrid = false;
 	top->m_pData = mapEditor;
 	
+	for (int i = 0; i < IN_MAX; i++) {
+		if (g_keybinds[i].m_type == IN_NONE) { break; }
+		mapEditor->m_savedKeybinds[i] = g_keybinds[i];
+	}
+	input_load_defaults();
+	
 	// TODO: Stuff the map into the map editor properly.
 	return;
 }
@@ -336,6 +342,12 @@ void map_editor_render(state_stack* stack) {
 void map_editor_destroy(state_stack* stack) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) top->m_pData;
+	
+	for (int i = 0; i < IN_MAX; i++) {
+		if (g_keybinds[i].m_type == IN_NONE) { break; }
+		mapEditor->m_savedKeybinds[i] = g_keybinds[i];
+	}
+
 	free(mapEditor);
 	return;
 }

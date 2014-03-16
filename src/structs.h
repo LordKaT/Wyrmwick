@@ -133,9 +133,34 @@ struct menu {
 	table /* of char* */ *m_aValues;
 };
 
+struct text_entry {
+	char *m_sBuff;
+	int m_iX, m_iY;
+	int m_iPos, m_iLen, m_iCap;
+};
+
 struct file_dialog {
 	char *m_sRoot, *m_sPath;
 	menu *m_menu;
+};
+
+struct input_state {
+	int m_iDirection;
+	int m_iActive;
+};
+
+struct input_event {
+	int m_iType;  // IN_NONE, IN_ON, IN_OFF or IN_DIRCHANGE
+	int m_iKey;  // key if ON/OFF or new direction for DIRCHANGE
+};
+
+struct input_control {
+	int m_type;             // IN_TYPE_KEYBOARD, IN_TYPE_JOYBUTTON or IN_TYPE_JOYAXIS
+	Uint8 m_iIndex;         // joystick button/axis index
+	int m_iAxisDir;       // axis direction, 1 or -1
+	SDL_Keycode m_keycode;
+	
+	int m_iTo;    // logical button (IN_DIRUP etc.)
 };
 
 struct map_editor {
@@ -146,6 +171,7 @@ struct map_editor {
 	char m_cMapWalk;
 	bool m_bDragMap;
 	bool m_bGrid;
+	input_control m_savedKeybinds[IN_MAX];
 };
 
 struct mapData {
@@ -166,25 +192,6 @@ struct map {
 	image *m_imageMap;	// Map is drawn to this texture
 	image *m_imageTiles;	// Tile image storage
 	luaChunk m_luaChunk;
-};
-
-struct input_state {
-	int m_iDirection;
-	int m_iActive;
-};
-
-struct input_event {
-	int m_iType;  // IN_NONE, IN_ON, IN_OFF or IN_DIRCHANGE
-	int m_iKey;  // key if ON/OFF or new direction for DIRCHANGE
-};
-
-struct input_control {
-	int m_type;             // IN_TYPE_KEYBOARD, IN_TYPE_JOYBUTTON or IN_TYPE_JOYAXIS
-	Uint8 m_iIndex;         // joystick button/axis index
-	int m_iAxisDir;       // axis direction, 1 or -1
-	SDL_Keycode m_keycode;
-	
-	int m_iTo;    // logical button (IN_DIRUP etc.)
 };
 
 typedef int (*settings_writer_func)(FILE *sfile, void *userdata);

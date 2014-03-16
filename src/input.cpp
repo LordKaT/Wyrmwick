@@ -1,8 +1,5 @@
 #include "include.h"
 
-
-static void _load_defaults();
-
 static void _set_lua_constants(lua_State *st);
 static int _save_controls(FILE *sfile, void *controls);
 
@@ -20,7 +17,7 @@ static bool _update_key(int which, int newstate);
 void input_init() {
 	if (g_keybinds[0].m_type == IN_NONE) {
 		// Nothing set in the settings, load defaults.
-		_load_defaults();
+		input_load_defaults();
 	}
 	
 	g_sdlJoystick = SDL_JoystickOpen(0);
@@ -92,7 +89,7 @@ int _save_controls(FILE *sfile, void *controls) {
 	return 0;
 }
 
-void _load_defaults() {
+void input_load_defaults() {
 	input_control m;
 	m.m_type = IN_TYPE_KEYBOARD;
 	

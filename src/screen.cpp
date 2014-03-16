@@ -53,6 +53,11 @@ void screen_draw_rect(rect *dst, Uint32 color) {
 #endif
 }
 
+void screen_draw_line(int x1, int y1, int x2, int y2, Uint32 color) {
+	SDL_SetRenderDrawColor(g_sdlRenderer, (color&0xff000000)>>24, (color&0xff0000)>>16, (color&0xff00)>>8, color&0xff);
+	SDL_RenderDrawLine(g_sdlRenderer, x1, y1, x2, y2);
+}
+
 void screen_clear() {
 #ifdef SCREEN_SDL2
 	SDL_SetRenderDrawColor(g_sdlRenderer, 0, 0, 0, 255);
