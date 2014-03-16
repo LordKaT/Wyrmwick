@@ -36,6 +36,7 @@ extern "C" {
 
 #include "audio.h"
 #include "debug.h"
+#include "file_dialog.h"
 #include "font.h"
 #include "globals.h"
 #include "image.h"

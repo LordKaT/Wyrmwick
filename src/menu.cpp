@@ -127,6 +127,12 @@ int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
 	return -1;
 }
 
+const char* menu_current_entry(menu* pMenu) {
+	const char *str;
+	table_get(pMenu->m_aEntries, pMenu->m_iCursorPos, &str);
+	return str;
+}
+
 void menu_render(menu* pMenu) {
 	Uint32 color;
 	int numEntries = pMenu->m_aEntries->m_len;

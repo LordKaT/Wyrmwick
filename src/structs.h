@@ -133,6 +133,11 @@ struct menu {
 	table /* of char* */ *m_aValues;
 };
 
+struct file_dialog {
+	char *m_sRoot, *m_sPath;
+	menu *m_menu;
+};
+
 struct map_editor {
 	int m_iActiveTile;
 	int m_iMouseX;

@@ -12,3 +12,5 @@ int util_textInput(SDL_Event *sdlEvent, char **cBuffer);
 // Use this if you want to quit the game immediately, but in an orderly manner.
 // (closing files, freeing memory etc.)
 void state_stack_kill(state_stack *stack);
+
+void util_sort_menu(menu *pMenu);
