@@ -134,13 +134,14 @@ const char* text_entry_text(text_entry *te) {
 	return te->m_sBuff;
 }
 
-void text_entry_render(text_entry *te) {
+int text_entry_render(text_entry *te) {
 	char txt[256];
+	int tlen;
 	const char *alltxt = text_entry_text(te);
 	image_setcolormod(g_font.m_image, COLOR_MENU_TEXT);
-	font_print(g_font, te->m_iX, te->m_iY, "%s", alltxt);
+	tlen = font_print(g_font, te->m_iX, te->m_iY, "%s", alltxt);
 	
-	if (strlen(alltxt) > 255) { return; }
+	if (strlen(alltxt) > 255) { return tlen; }
 	memmove(txt, te->m_sBuff, te->m_iPos);
 	txt[te->m_iPos] = '\0';
 	
@@ -148,6 +149,8 @@ void text_entry_render(text_entry *te) {
 	int y = te->m_iY;
 	rect cursor = {x, y, 3, g_font.m_iGlyphHeight};
 	screen_fill_rect(&cursor, COLOR_MENU_TEXT);
+	
+	return tlen;
 }
 
 void text_entry_destroy(text_entry *te) {
