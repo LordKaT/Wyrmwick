@@ -2,6 +2,7 @@
 
 #include "../include.h"
 
+typedef struct sys_dir sys_dir;
 struct sys_dir {
 	HANDLE dir;
 	WIN32_FIND_DATA entry;
