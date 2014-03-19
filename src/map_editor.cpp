@@ -198,7 +198,7 @@ bool _editor_handle_generic_event(map_editor *mapEditor, SDL_Event *sdlEvent) {
 		// Choose new tile from sprite sheet
 		break;
 	
-	case SDL_F3:
+	case SDLK_F3:
 		// Choose new sprite sheet
 		break;
 	
@@ -324,9 +324,7 @@ void map_editor_render(state_stack* stack) {
 		return;
 	}
 	
-	if (mapEditor->m_iMapEditorState != MAPEDITOR_WALK) {
-		return;
-	}
+	if (mapEditor->m_iMapEditorState != MAPEDITOR_WALK) { return; }
 	
 	for (int i = 0; i < SIZE(walkModeNames); i++) {
 		if (walkModeNames[i].mode == mapEditor->m_cMapWalk) {
@@ -335,7 +333,7 @@ void map_editor_render(state_stack* stack) {
 		}
 	}
 	
-	font_print(g_font, 10, 690, "How the fuck are you even here?");
+	font_print(g_font, 1180, 32, "BROKEN");
 	return;
 }
 
