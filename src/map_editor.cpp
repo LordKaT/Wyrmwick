@@ -288,63 +288,54 @@ void map_editor_render(state_stack* stack) {
 
 	rect tempSrc = _tile_rect(mapEditor->m_iActiveTile);
 	rect tempDst = {1180, 32, 64, 64};
-
-	switch (mapEditor->m_iMapEditorState) {
-		case MAPEDITOR_NONE:
-			font_print(g_font, 10, 690, "How the fuck are you even here?");
-			break;
-		case MAPEDITOR_EDIT:
-			image_draw(g_map.m_imageTiles, &tempSrc, &tempDst);
-			font_print(g_font, 10, 690, "Edit Mode");
-			break;
-		case MAPEDITOR_NAME:
-			font_print(g_font, 10, 690, "Rename Map");
-			break;
-		case MAPEDITOR_SAVE:
-			font_print(g_font, 10, 690, "Saving Map");
-			break;
-		case MAPEDITOR_LOAD:
-			font_print(g_font, 10, 690, "Loading Map");
-			break;
-		case MAPEDITOR_TILE:
-			font_print(g_font, 10, 690, "Tile Select");
-			break;
-		case MAPEDITOR_SHEET:
-			font_print(g_font, 10, 690, "Sheet Select");
-			break;
-		case MAPEDITOR_WALK:
-			image_draw(g_map.m_imageMap, &g_map.m_rectView, &g_map.m_rectDest);
-			font_print(g_font, 10, 690, "Walk Edit");
-			switch (mapEditor->m_cMapWalk) {
-				case WALK_NONE:
-					font_print(g_font, 1180, 32, "NONE");
-					break;
-				case WALK_WALK:
-					font_print(g_font, 1180, 32, "WALK");
-					break;
-				case WALK_RUN:
-					font_print(g_font, 1180, 32, "RUN");
-					break;
-				case WALK_SWIM:
-					font_print(g_font, 1180, 32, "SWIM");
-					break;
-				case WALK_CLIMB:
-					font_print(g_font, 1180, 32, "CLIMB");
-					break;
-				case WALK_FLY:
-					font_print(g_font, 1180, 32, "FLY");
-					break;
-				default:
-					font_print(g_font, 1180, 32, "BROKEN");
-					break;
-			}
-			break;
-		default:
-			break;
-	}
-
+	image_draw(g_map.m_imageTiles, &tempSrc, &tempDst);
 	font_print(g_font, 10, 10, "%s", g_map.m_cName);
 	
+	struct { int mode; const char *name; } modeNames[] = {
+		{MAPEDITOR_NONE,	"How the fuck are you even here?"},
+		{MAPEDITOR_EDIT,	"Edit Mode"},
+		{MAPEDITOR_NAME,	"Rename Map"},
+		{MAPEDITOR_SAVE,	"Saving Map"},
+		{MAPEDITOR_LOAD,	"Loading Map"},
+		{MAPEDITOR_TILE,	"Tile Select"},
+		{MAPEDITOR_SHEET,	"Sheet Select"},
+		{MAPEDITOR_WALK,	"Walk Edit"},
+	};
+	
+	struct { int mode; const char *name; } walkModeNames[] = {
+		{WALK_NONE, "NONE"},
+		{WALK_WALK, "WALK"},
+		{WALK_RUN, "RUN"},
+		{WALK_SWIM, "SWIM"},
+		{WALK_CLIMB, "CLIMB"},
+		{WALK_FLY, "FLY"},
+	};
+	
+	bool found = false;
+	for (int i = 0; i < SIZE(modeNames); i++) {
+		if (modeNames[i].mode == mapEditor->m_iMapEditorState) {
+			font_print(g_font, 10, 690, modeNames[i].name);
+			found = true;
+		}
+	}
+	
+	if (!found) {
+		font_print(g_font, 10, 690, "How the fuck are you even here?");
+		return;
+	}
+	
+	if (mapEditor->m_iMapEditorState != MAPEDITOR_WALK) {
+		return;
+	}
+	
+	for (int i = 0; i < SIZE(walkModeNames); i++) {
+		if (walkModeNames[i].mode == mapEditor->m_cMapWalk) {
+			font_print(g_font, 1180, 32, walkModeNames[i].name);
+			return;
+		}
+	}
+	
+	font_print(g_font, 10, 690, "How the fuck are you even here?");
 	return;
 }
 
