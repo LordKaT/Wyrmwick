@@ -2,12 +2,11 @@
 
 #include "../include.h"
 
-typedef struct sys_dir sys_dir;
-struct sys_dir {
+typedef struct sys_dir {
 	HANDLE dir;
 	WIN32_FIND_DATA entry;
 	bool first;
-};
+} sys_dir;
 
 void sys_abort_at(const char* file, int line) {
 	printf("Aborted at %s:%d\n", file, line);
