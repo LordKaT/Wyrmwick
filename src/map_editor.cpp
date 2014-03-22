@@ -52,15 +52,14 @@ void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
 		state_stack_kill(stack);
 	}
 	
+	// Handle keys which do the same thing no matter what the current state is.
+	if (_editor_handle_generic_event(mapEditor, sdlEvent)) { return; }
+
 	// We may as well always check for this, because why not?
 	if (sdlEvent->type == SDL_MOUSEMOTION) {
 		mapEditor->m_iMouseX = sdlEvent->motion.x;
 		mapEditor->m_iMouseY = sdlEvent->motion.y;
-		return;
 	}
-
-	// Handle keys which do the same thing no matter what the current state is.
-	if (_editor_handle_generic_event(mapEditor, sdlEvent)) { return; }
 
 	switch (mapEditor->m_iMapEditorState) {
 		case MAPEDITOR_EDIT:
