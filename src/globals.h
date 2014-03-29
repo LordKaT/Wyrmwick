@@ -17,6 +17,7 @@ extern input_control g_keybinds[IN_MAX];
 #ifdef SCREEN_SDL2
 extern SDL_Window *g_sdlWindow;
 extern SDL_Renderer *g_sdlRenderer;
+extern SDL_Joystick **g_sdlJoysticksAll;  // NULL-terminated.
 extern SDL_Joystick *g_sdlJoystick;
 #endif
 

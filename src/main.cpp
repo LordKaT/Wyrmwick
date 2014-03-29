@@ -39,6 +39,8 @@ int main(int iArgC, char * cArgV[]) {
 				sys_abort();
 			}
 			
+			input_joystick_update(&sdlEvent);
+			
 			if (currentState->m_fnEvent != nullptr) { currentState->m_fnEvent(gameStateStack, &sdlEvent); }
 		}
 		
