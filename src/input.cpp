@@ -1,8 +1,5 @@
 #include "include.h"
 
-
-static void _load_defaults();
-
 static void _set_lua_constants(lua_State *st);
 static int _save_controls(FILE *sfile, void *controls);
 
@@ -16,20 +13,15 @@ static const char* _inkname(int key);
 
 static bool _update_key(int which, int newstate);
 
+static void _open_all_joysticks(void);
 
 void input_init() {
 	if (g_keybinds[0].m_type == IN_NONE) {
 		// Nothing set in the settings, load defaults.
-		_load_defaults();
+		input_load_defaults();
 	}
 	
-	g_sdlJoystick = SDL_JoystickOpen(0);
-	if (g_sdlJoystick == nullptr) {
-		debug_print("No joysticks found. %s\r\n", SDL_GetError());
-		return;
-	}
-	debug_print("Found a joystick: %s\r\n", SDL_JoystickName(g_sdlJoystick));
-	SDL_JoystickEventState(SDL_ENABLE);
+	_open_all_joysticks();
 }
 
 void input_destroy() {
@@ -92,7 +84,7 @@ int _save_controls(FILE *sfile, void *controls) {
 	return 0;
 }
 
-void _load_defaults() {
+void input_load_defaults() {
 	input_control m;
 	m.m_type = IN_TYPE_KEYBOARD;
 	
@@ -106,6 +98,8 @@ void _load_defaults() {
 }
 
 void input_get_event(SDL_Event e, input_event *mapped) {
+	mapped->m_iKey = IN_NONE;
+	
 	int ktype;
 	switch (e.type) {
 		case SDL_KEYDOWN:
@@ -171,18 +165,123 @@ void input_get_event(SDL_Event e, input_event *mapped) {
 	}
 }
 
+void _open_all_joysticks(void) {
+	int njs;
+	SDL_Joystick* joy;
+	
+	SDL_JoystickEventState(SDL_ENABLE);
+	
+	g_sdlJoystick = nullptr;
+	njs  = SDL_NumJoysticks();
+	g_sdlJoysticksAll = (SDL_Joystick**) calloc(njs+1, sizeof(SDL_Joystick*));
+	int i = 0;
+	while (njs != 0) {
+		joy = SDL_JoystickOpen(i);
+		--njs;
+		if (! joy) {
+			debug_print("Failed to open joystick %d: %s\n", i, SDL_GetError());
+			continue;
+		}
+		g_sdlJoysticksAll[i] = joy;
+		i++;
+	}
+	g_sdlJoysticksAll[i] = nullptr;
+	debug_print("Opened %d joystick(s).\n", i);
+	
+	if (i == 0) {
+		free(g_sdlJoysticksAll);
+		g_sdlJoysticksAll = nullptr;
+	}
+}
+
+void _close_joysticks(void) {
+	if (g_sdlJoysticksAll == nullptr) { return; }
+	
+	SDL_Joystick** joy;
+	for (joy = g_sdlJoysticksAll; *joy != nullptr; joy++) {
+		SDL_JoystickClose(*joy);
+	}
+	free(g_sdlJoysticksAll);
+	g_sdlJoysticksAll = nullptr;
+}
+
+bool input_joystick_update(SDL_Event *event) {
+	Sint32 joyid;
+	
+	switch (event->type) {
+	case SDL_JOYBUTTONDOWN:
+	case SDL_JOYBUTTONUP:
+		joyid = event->jbutton.which;
+		break;
+		
+	case SDL_JOYAXISMOTION:
+		joyid = event->jaxis.which;
+		break;
+		
+	case SDL_JOYDEVICEADDED:
+	case SDL_JOYDEVICEREMOVED:
+		joyid = event->jdevice.which;
+		break;
+		
+	default:
+		joyid = -1;
+		break;
+	}
+	
+	SDL_Joystick** joy;
+	
+	switch (event->type) {
+	case SDL_JOYBUTTONDOWN:
+	case SDL_JOYBUTTONUP:
+	case SDL_JOYAXISMOTION:
+		if (g_sdlJoysticksAll == nullptr) { return g_sdlJoystick != nullptr; }
+		
+		for (joy = g_sdlJoysticksAll; *joy != nullptr; joy++) {
+			if (joyid == SDL_JoystickInstanceID(*joy)) {
+				g_sdlJoystick = *joy;
+				continue;
+			}
+			SDL_JoystickClose(*joy);
+		}
+		free(g_sdlJoysticksAll);
+		g_sdlJoysticksAll = nullptr;
+		return true;
+		
+	case SDL_JOYDEVICEADDED:
+		if (g_sdlJoystick) {
+			SDL_JoystickClose(g_sdlJoystick);
+		}
+		_close_joysticks();
+		g_sdlJoystick = SDL_JoystickOpen(joyid);
+		if (! g_sdlJoystick) {
+			debug_print("Failed to open joystick %d: %s\n", joyid, SDL_GetError());
+			_open_all_joysticks();
+			return false;
+		}
+		return true;
+	
+	case SDL_JOYDEVICEREMOVED:
+		if (g_sdlJoysticksAll) {
+			// Ugh. Just keep them open?
+			return false;
+		}
+		
+		if (g_sdlJoystick && joyid == SDL_JoystickInstanceID(g_sdlJoystick)) {
+			SDL_JoystickClose(g_sdlJoystick);
+			_open_all_joysticks();
+			return false;
+		}
+		return g_sdlJoystick != nullptr;
+	
+	default:
+		break;
+	}
+	
+	return g_sdlJoystick != nullptr;
+}
+
 bool input_joystick_connected() {
-	if (g_sdlJoystick) {
-		return true;
-	}
-	
-	if (SDL_NumJoysticks() != 0) {
-		g_sdlJoystick = SDL_JoystickOpen(0);
-		SDL_JoystickEventState(SDL_ENABLE);
-		return true;
-	}
-	
-	return false;
+	return g_sdlJoystick != nullptr;
 }
 
 int input_joystick_num_axes() {
@@ -348,6 +447,7 @@ int _lua_input_joy_axis(lua_State *L) {
 	return 0;
 }
 
+// This is needed to expose the keycode definitions in Lua.
 const struct _keycode {
 	const char *name;
 	SDL_Keycode code;

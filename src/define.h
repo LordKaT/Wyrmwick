@@ -161,23 +161,26 @@ const char* const settings_file_path = "save/settings.cfg";
 
 
 /* Walkability of a tile. */
-#define WALK_NONE	0
-#define WALK_WALK	1
-#define WALK_RUN	2
-#define WALK_SWIM	3
-#define WALK_CLIMB	4
-#define WALK_FLY	5
+enum {
+	WALK_NONE,
+	WALK_WALK,
+	WALK_RUN,
+	WALK_SWIM,
+	WALK_CLIMB,
+	WALK_FLY,
+	
+	WALK_MAX,
+};
 
-#define WALK_MAX	5
-
-
-#define MAPEDITOR_NONE	0
-#define MAPEDITOR_EDIT	1
-#define MAPEDITOR_NAME	2
-#define MAPEDITOR_SAVE	3
-#define MAPEDITOR_LOAD	4
-#define MAPEDITOR_TILE	5
-#define MAPEDITOR_SHEET	6
-#define MAPEDITOR_WALK	7
+enum {
+	MAPEDITOR_NONE = 0,
+	MAPEDITOR_EDIT,
+	MAPEDITOR_NAME,
+	MAPEDITOR_SAVE,
+	MAPEDITOR_LOAD,
+	MAPEDITOR_TILE,
+	MAPEDITOR_SHEET,
+	MAPEDITOR_WALK,
+};
 
 #endif

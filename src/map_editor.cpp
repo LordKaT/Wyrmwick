@@ -1,5 +1,7 @@
 #include "include.h"
 
+static bool _editor_handle_generic_event(map_editor *mapEditor, SDL_Event *sdlEvent);
+
 rect _tile_rect(int index) {
 	rect r;
 	r.x = (index % 32) * 32;
@@ -36,6 +38,12 @@ void map_editor_init(state_stack* stack) {
 	mapEditor->m_bGrid = false;
 	top->m_pData = mapEditor;
 	
+	for (int i = 0; i < IN_MAX; i++) {
+		if (g_keybinds[i].m_type == IN_NONE) { break; }
+		mapEditor->m_savedKeybinds[i] = g_keybinds[i];
+	}
+	input_load_defaults();
+	
 	// TODO: Stuff the map into the map editor properly.
 	return;
 }
@@ -50,76 +58,13 @@ void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
 		state_stack_kill(stack);
 	}
 	
+	// Handle keys which do the same thing no matter what the current state is.
+	if (_editor_handle_generic_event(mapEditor, sdlEvent)) { return; }
+
 	// We may as well always check for this, because why not?
 	if (sdlEvent->type == SDL_MOUSEMOTION) {
 		mapEditor->m_iMouseX = sdlEvent->motion.x;
 		mapEditor->m_iMouseY = sdlEvent->motion.y;
-	}
-
-	/* Generic global keydown events. */
-	if  (sdlEvent->type == SDL_KEYDOWN) {
-		if (sdlEvent->key.keysym.sym == SDLK_ESCAPE) {
-			SDL_StopTextInput();
-			map_draw_view();
-			if (mapEditor->m_bGrid == true) {
-				map_draw_grid_view();
-			}
-			mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F1) {
-			SDL_StartTextInput();
-			mapEditor->m_iMapEditorState = MAPEDITOR_NAME;
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F2) {
-			// Choose new tile from sprite sheet
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F3) {
-			// Choose new sprite sheet
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F4) {
-			// Change to walk edit mode.
-			if (mapEditor->m_iMapEditorState == MAPEDITOR_WALK) {
-				mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
-				map_draw();
-				if (mapEditor->m_bGrid == true) {
-					map_draw_grid_view();
-				}
-			}
-			else {
-				mapEditor->m_iMapEditorState = MAPEDITOR_WALK;
-				map_editor_draw_walk();
-			}
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F5) {
-			map_save();
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F6) {
-			// Turn grid on/off.
-			if (mapEditor->m_bGrid == true) { // turn off grid
-				mapEditor->m_bGrid = false;
-				map_draw();
-			}
-			else {
-				mapEditor->m_bGrid = true;
-				map_draw_grid();
-			}
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F7) {
-			// Change LUA script associated with this map.
-			return;
-		}
-		if (sdlEvent->key.keysym.sym == SDLK_F9) {
-			SDL_StartTextInput();
-			mapEditor->m_iMapEditorState = MAPEDITOR_LOAD;
-			return;
-		}
 	}
 
 	switch (mapEditor->m_iMapEditorState) {
@@ -233,6 +178,81 @@ void map_editor_input(state_stack* stack, SDL_Event *sdlEvent) {
 	return;
 }
 
+bool _editor_handle_generic_event(map_editor *mapEditor, SDL_Event *sdlEvent) {
+	if (sdlEvent->type != SDL_KEYDOWN) {
+		// Only key events are independent of state.
+		return false;
+	}
+	
+	switch (sdlEvent->key.keysym.sym) {
+	case SDLK_ESCAPE:
+		SDL_StopTextInput();
+		map_draw_view();
+		if (mapEditor->m_bGrid == true) {
+			map_draw_grid_view();
+		}
+		mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
+		break;
+	
+	case SDLK_F1:
+		SDL_StartTextInput();
+		mapEditor->m_iMapEditorState = MAPEDITOR_NAME;
+		break;
+	
+	case SDLK_F2:
+		// Choose new tile from sprite sheet
+		break;
+	
+	case SDLK_F3:
+		// Choose new sprite sheet
+		break;
+	
+	case SDLK_F4:
+		// Change to walk edit mode.
+		if (mapEditor->m_iMapEditorState == MAPEDITOR_WALK) {
+			mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
+			map_draw();
+			if (mapEditor->m_bGrid == true) {
+				map_draw_grid_view();
+			}
+		}
+		else {
+			mapEditor->m_iMapEditorState = MAPEDITOR_WALK;
+			map_editor_draw_walk();
+		}
+		break;
+	
+	case SDLK_F5:
+		map_save();
+		break;
+	
+	case SDLK_F6:
+		// Turn grid on/off.
+		if (mapEditor->m_bGrid == true) { // turn off grid
+			mapEditor->m_bGrid = false;
+			map_draw();
+		}
+		else {
+			mapEditor->m_bGrid = true;
+			map_draw_grid();
+		}
+		break;
+	
+	case SDLK_F7:
+		// Change LUA script associated with this map.
+		break;
+	
+	case SDLK_F8:
+		SDL_StartTextInput();
+		mapEditor->m_iMapEditorState = MAPEDITOR_LOAD;
+		break;
+	
+	default:
+		return false;
+	}
+	return true;
+}
+
 void map_editor_draw_walk() {
 	rect tempRect;
 	for (int x = 0; x < MAP_SIZE; x++) {
@@ -273,69 +293,64 @@ void map_editor_render(state_stack* stack) {
 
 	rect tempSrc = _tile_rect(mapEditor->m_iActiveTile);
 	rect tempDst = {1180, 32, 64, 64};
-
-	switch (mapEditor->m_iMapEditorState) {
-		case MAPEDITOR_NONE:
-			font_print(g_font, 10, 690, "How the fuck are you even here?");
-			break;
-		case MAPEDITOR_EDIT:
-			image_draw(g_map.m_imageTiles, &tempSrc, &tempDst);
-			font_print(g_font, 10, 690, "Edit Mode");
-			break;
-		case MAPEDITOR_NAME:
-			font_print(g_font, 10, 690, "Rename Map");
-			break;
-		case MAPEDITOR_SAVE:
-			font_print(g_font, 10, 690, "Saving Map");
-			break;
-		case MAPEDITOR_LOAD:
-			font_print(g_font, 10, 690, "Loading Map");
-			break;
-		case MAPEDITOR_TILE:
-			font_print(g_font, 10, 690, "Tile Select");
-			break;
-		case MAPEDITOR_SHEET:
-			font_print(g_font, 10, 690, "Sheet Select");
-			break;
-		case MAPEDITOR_WALK:
-			image_draw(g_map.m_imageMap, &g_map.m_rectView, &g_map.m_rectDest);
-			font_print(g_font, 10, 690, "Walk Edit");
-			switch (mapEditor->m_cMapWalk) {
-				case WALK_NONE:
-					font_print(g_font, 1180, 32, "NONE");
-					break;
-				case WALK_WALK:
-					font_print(g_font, 1180, 32, "WALK");
-					break;
-				case WALK_RUN:
-					font_print(g_font, 1180, 32, "RUN");
-					break;
-				case WALK_SWIM:
-					font_print(g_font, 1180, 32, "SWIM");
-					break;
-				case WALK_CLIMB:
-					font_print(g_font, 1180, 32, "CLIMB");
-					break;
-				case WALK_FLY:
-					font_print(g_font, 1180, 32, "FLY");
-					break;
-				default:
-					font_print(g_font, 1180, 32, "BROKEN");
-					break;
-			}
-			break;
-		default:
-			break;
-	}
-
+	image_draw(g_map.m_imageTiles, &tempSrc, &tempDst);
 	font_print(g_font, 10, 10, "%s", g_map.m_cName);
 	
+	struct { int mode; const char *name; } modeNames[] = {
+		{MAPEDITOR_NONE,	"How the fuck are you even here?"},
+		{MAPEDITOR_EDIT,	"Edit Mode"},
+		{MAPEDITOR_NAME,	"Rename Map"},
+		{MAPEDITOR_SAVE,	"Saving Map"},
+		{MAPEDITOR_LOAD,	"Loading Map"},
+		{MAPEDITOR_TILE,	"Tile Select"},
+		{MAPEDITOR_SHEET,	"Sheet Select"},
+		{MAPEDITOR_WALK,	"Walk Edit"},
+	};
+	
+	struct { int mode; const char *name; } walkModeNames[] = {
+		{WALK_NONE, "NONE"},
+		{WALK_WALK, "WALK"},
+		{WALK_RUN, "RUN"},
+		{WALK_SWIM, "SWIM"},
+		{WALK_CLIMB, "CLIMB"},
+		{WALK_FLY, "FLY"},
+	};
+	
+	bool found = false;
+	for (int i = 0; i < SIZE(modeNames); i++) {
+		if (modeNames[i].mode == mapEditor->m_iMapEditorState) {
+			font_print(g_font, 10, 690, modeNames[i].name);
+			found = true;
+		}
+	}
+	
+	if (!found) {
+		font_print(g_font, 10, 690, "How the fuck are you even here?");
+		return;
+	}
+	
+	if (mapEditor->m_iMapEditorState != MAPEDITOR_WALK) { return; }
+	
+	for (int i = 0; i < SIZE(walkModeNames); i++) {
+		if (walkModeNames[i].mode == mapEditor->m_cMapWalk) {
+			font_print(g_font, 1180, 32, walkModeNames[i].name);
+			return;
+		}
+	}
+	
+	font_print(g_font, 1180, 32, "BROKEN");
 	return;
 }
 
 void map_editor_destroy(state_stack* stack) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	map_editor *mapEditor = (map_editor*) top->m_pData;
+	
+	for (int i = 0; i < IN_MAX; i++) {
+		if (g_keybinds[i].m_type == IN_NONE) { break; }
+		mapEditor->m_savedKeybinds[i] = g_keybinds[i];
+	}
+
 	free(mapEditor);
 	return;
 }

@@ -1,7 +1,7 @@
 #include "include.h"
 
 int main(int iArgC, char * cArgV[]) {
-	debug_print("Wyrmwick: %s\r\n", WYRMWICK_VERSION);
+	debug_print("Wyrmwick: %s\n", WYRMWICK_VERSION);
 	
 	settings *Settings = settings_init();
 	input_config_settings(Settings, g_keybinds);
@@ -14,7 +14,7 @@ int main(int iArgC, char * cArgV[]) {
 	g_font = font_init("data/images/fonts/437_16x16.png");
 	map_init();
 	input_init();
-	debug_print("Init finished!\r\n");
+	debug_print("Init finished!\n");
 	
 	state_stack *gameStateStack = table_new(sizeof(state_desc), 0, 0);
 	main_menu_push(gameStateStack);
@@ -38,6 +38,8 @@ int main(int iArgC, char * cArgV[]) {
 					(sdlEvent.key.keysym.mod & KMOD_CTRL) != 0) {
 				sys_abort();
 			}
+			
+			input_joystick_update(&sdlEvent);
 			
 			if (currentState->m_fnEvent != nullptr) { currentState->m_fnEvent(gameStateStack, &sdlEvent); }
 		}
@@ -75,6 +77,7 @@ int main(int iArgC, char * cArgV[]) {
 	font_destroy(g_font);
 	input_destroy();
 	screen_destroy();
+	audio_destroy();
 	settings_destroy(Settings);
 	
 	return 0;

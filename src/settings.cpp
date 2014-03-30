@@ -3,13 +3,13 @@
 settings* settings_init() {
 	settings *s = (settings*) malloc(sizeof(settings));
 	if (! s) {
-		debug_print("Ran out of memory while trying to load settings.\r\n");
+		debug_print("Ran out of memory while trying to load settings.\n");
 		sys_abort();
 	}
 		
 	s->m_luaState = luaL_newstate();
 	if (! s->m_luaState) {
-		debug_print("Ran out of memory while trying to load settings.\r\n");
+		debug_print("Ran out of memory while trying to load settings.\n");
 		sys_abort();
 	}
 	s->m_aWriters = table_new(sizeof(settings_writer), 0, 0);
@@ -29,7 +29,7 @@ void settings_add_writer(settings *s, settings_writer_func swriter, void *userda
 
 int settings_load(settings *s, const char* path) {
 	if (luaL_dofile(s->m_luaState, path)) {
-		debug_print("Failed to load controls: %s\r\n", lua_tostring(s->m_luaState, -1));
+		debug_print("Failed to load controls: %s\n", lua_tostring(s->m_luaState, -1));
 		return 1;
 	}
 	return 0;
@@ -38,7 +38,7 @@ int settings_load(settings *s, const char* path) {
 int settings_save(settings *s, const char* path) {
 	FILE *file = fopen(path, "w");
 	if (! file) {
-		debug_print("Failed to save controls: %s\r\n", strerror(errno));
+		debug_print("Failed to save controls: %s\n", strerror(errno));
 		return 1;
 	}
 	

@@ -4,6 +4,8 @@ static void _event(state_stack* stack, SDL_Event *sdlEvent);
 static void _draw(state_stack* stack);
 static void _destroy(state_stack* stack);
 
+text_entry *text;
+
 void main_menu_push(state_stack* stack) {
 	state_desc mm = {
 		GAME_MENU, nullptr,
@@ -21,6 +23,9 @@ void main_menu_push(state_stack* stack) {
 void main_menu_init(state_stack* stack) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	
+	text = text_entry_init(200, 5);
+	SDL_StartTextInput();
+	
 	menu *pMenu = menu_init(5, 5);
 	menu_add_entry(pMenu, "Paly Gaem");
 	menu_add_entry(pMenu, "Sound Test");
@@ -34,6 +39,8 @@ void main_menu_init(state_stack* stack) {
 void _event(state_stack* stack, SDL_Event *sdlEvent) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
 	menu *pMenu = (menu*) top->m_pData;
+	
+	text_entry_input(text, sdlEvent);
 	
 	if (sdlEvent->type == SDL_QUIT) {
 		top->m_isDead = true;
@@ -69,6 +76,7 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 
 void _draw(state_stack* stack) {
 	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
+	text_entry_render(text);
 	menu *pMenu = (menu*) top->m_pData;
 	menu_render(pMenu);
 }

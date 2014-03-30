@@ -1,7 +1,8 @@
 #include "include.h"
 
 void map_init() {
-	debug_print("Loading Map ...\r\n");
+	debug_print("Loading Map ...\n");
+	// FIXME: This is never freed.
 	g_map.m_cName = strdup("Debug Map");
 	g_map.m_imageTiles = image_load("data/images/tiles/Goo-13022014_TileSet_Test.bmp", false, 0, 0, 0);
 	g_map.m_imageMap = image_create_texture(MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE);
@@ -110,7 +111,7 @@ void map_load(const char *cMap) {
 	strcat(cFile, ".map");
 	FILE *file = fopen(cFile, "rb");
 	if (file == nullptr) {
-		debug_print("map_load(): could not open file: %s\r\n", cFile);
+		debug_print("map_load(): could not open file: %s\n", cFile);
 		return;
 	}
 	fread(g_map.m_map, sizeof(struct mapData), MAP_SIZE*MAP_SIZE, file);
@@ -127,7 +128,7 @@ void map_save() {
 	strcat(cFile, ".map");
 	FILE *file = fopen(cFile, "wb+");
 	if (file == nullptr) {
-		debug_print("map_save(): could not open file: %s\r\n", cFile);
+		debug_print("map_save(): could not open file: %s\n", cFile);
 		return;
 	}
 	fwrite(g_map.m_map, sizeof(struct mapData), MAP_SIZE*MAP_SIZE, file);

@@ -36,6 +36,7 @@ extern "C" {
 
 #include "audio.h"
 #include "debug.h"
+#include "file_dialog.h"
 #include "font.h"
 #include "globals.h"
 #include "image.h"
@@ -51,6 +52,7 @@ extern "C" {
 #include "settings_menu.h"
 #include "sys.h"
 #include "tables.h"
+#include "text_entry.h"
 #include "utils.h"
 
 #endif

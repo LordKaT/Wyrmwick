@@ -31,9 +31,9 @@ void screen_config_settings(settings* st, void* udata) {
 }
 
 void screen_init() {
-	debug_print("Loading Screen ...\r\n");
+	debug_print("Loading Screen ...\n");
 #ifdef SCREEN_SDL2
-	debug_print("	screen: SDL2\r\n");
+	debug_print("	screen: SDL2\n");
 	sdl2_init();
 #endif
 	return;
@@ -51,6 +51,11 @@ void screen_draw_rect(rect *dst, Uint32 color) {
 	SDL_SetRenderDrawColor(g_sdlRenderer, (color&0xff000000)>>24, (color&0xff0000)>>16, (color&0xff00)>>8, color&0xff);
 	SDL_RenderDrawRect(g_sdlRenderer, dst);
 #endif
+}
+
+void screen_draw_line(int x1, int y1, int x2, int y2, Uint32 color) {
+	SDL_SetRenderDrawColor(g_sdlRenderer, (color&0xff000000)>>24, (color&0xff0000)>>16, (color&0xff00)>>8, color&0xff);
+	SDL_RenderDrawLine(g_sdlRenderer, x1, y1, x2, y2);
 }
 
 void screen_clear() {

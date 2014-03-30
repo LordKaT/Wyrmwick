@@ -22,7 +22,7 @@ menu* menu_init(int x, int y) {
 void menu_add_entry(menu *pMenu, const char *fmt, ...) {
 	char* cText = (char*) malloc(512);
 	if (! cText) {
-		debug_print("Out of memory.\r\n");
+		debug_print("Out of memory.\n");
 		sys_abort();
 	}
 	va_list vArgs;
@@ -40,7 +40,7 @@ void menu_add_entry(menu *pMenu, const char *fmt, ...) {
 void menu_set_value(menu *pMenu, const char *fmt, ...) {
 	char* cText = (char*) malloc(512);
 	if (! cText) {
-		debug_print("Out of memory.\r\n");
+		debug_print("Out of memory.\n");
 		sys_abort();
 	}
 	va_list vArgs;
@@ -127,6 +127,12 @@ int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
 	return -1;
 }
 
+const char* menu_current_entry(menu* pMenu) {
+	const char *str;
+	table_get(pMenu->m_aEntries, pMenu->m_iCursorPos, &str);
+	return str;
+}
+
 void menu_render(menu* pMenu) {
 	Uint32 color;
 	int numEntries = pMenu->m_aEntries->m_len;
@@ -169,6 +175,7 @@ void menu_destroy(menu* pMenu) {
 		free(entry);
 	}
 	table_free(pMenu->m_aEntries);
+	table_free(pMenu->m_aValues);
 	free(pMenu);
 
 	return;

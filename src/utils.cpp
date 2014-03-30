@@ -1,5 +1,11 @@
 #include "include.h"
 
+void _utils_sdl_must(int retVal, const char *file, int line, const char *func) {
+	if (retVal >= 0) { return; }
+	printf("%s:%d: %s(): %s\n", file, line, func, SDL_GetError());
+	sys_abort();
+}
+
 int util_textInput(SDL_Event *sdlEvent, char **cBuffer) {
 	char *cTemp;
 	char *cClipboardText;
@@ -59,3 +65,16 @@ void state_stack_kill(state_stack *stack) {
 	}
 }
 
+int _cmp(const void* a, const void* b) {
+	return strcmp(*((const char**) a), *((const char**) b));
+}
+
+void util_sort_menu(menu *pMenu) {
+	char **values = (char**) pMenu->m_aValues->m_data;
+	for(int i = 0; i < pMenu->m_aValues->m_len; ++i) {
+		if (values[i] == nullptr) { continue; }
+		debug_print("util_sort_menu(): Can't sort a menu with values!\n");
+		sys_abort();
+	}
+	qsort(pMenu->m_aEntries->m_data, pMenu->m_aEntries->m_len, pMenu->m_aEntries->m_elemSize, &_cmp);
+}
