@@ -84,6 +84,9 @@ void script_init() {
 	LUA_DEFINE("SKILLS_MAX", SKILLS_MAX);
 	LUA_DEFINE("STATUS_MAX", STATUS_MAX);
 	LUA_DEFINE("ITEMS_MAX", ITEMS_MAX);
+	
+	debug_print("	loading utility library\n");
+	script_exec_dir(g_luaState, "data/lib");
 
 	// FIXME: We never free these.
 	debug_print("	loading item scripts\n");
@@ -375,4 +378,37 @@ void script_load_npc() {
 		return;
 	}
 	return;
+}
+
+void script_exec_dir(lua_State *L, const char *path) {
+	sys_dir *dir;
+	char pathbuff[1024];
+	int pathlen;
+	
+	pathlen = strlen(path);
+	strcpy(pathbuff, path);
+	strcat(pathbuff, "/");
+	
+	dir = sys_dir_open(path);
+	if (!dir) {
+		debug_print("Failed to load scripts from %s\n", path);
+		return;
+	}
+	
+	const char *fpath;
+	while ((fpath = sys_dir_next(dir)) != nullptr) {
+		if (fpath[0] == '.') { continue; }
+		if (strlen(fpath) < 4 || strcmp(fpath + strlen(fpath)-4, ".lua") != 0) {
+			debug_print("script_exec_dir: ignoring %s: invalid extension\n", fpath);
+			continue;
+		}
+		
+		strcpy(pathbuff + pathlen + 1, fpath);
+		bool err = luaL_dofile(L, pathbuff);
+		if (err) {
+			const char* errmsg = lua_tostring(L, -1);
+			debug_print("%s\n", errmsg);
+		}
+	}
+	sys_dir_close(dir);
 }

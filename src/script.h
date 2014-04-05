@@ -11,4 +11,6 @@ void script_load_skills();
 void script_load_quests();
 void script_load_npc();
 
+void script_exec_dir(lua_State *L, const char *path);
+
 #endif
