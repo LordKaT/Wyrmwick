@@ -1,7 +1,8 @@
-blacksmith = {}
+blacksmith = { id = "npcguy", dialog = {}, convChoices = {} }
 
 function blacksmith:init()
 	self.dialog = DialogTree.make(self.convChoices)
+	print "made a dialog\n"
 end
 
 function blacksmith:onActivate(context)
@@ -23,7 +24,7 @@ blacksmith.convChoices["main"] = {
 	{ "Can you tell me more about your products?",
 		DialogTree.jump "about_armor" };
 	{ "Bye!",
-		{ "Don't get horribly eaten by giant crabs or anything.", DialogTree.bye };
+		{ "Don't get horribly eaten by giant crabs or anything.", DialogTree.bye } };
 }
 
 blacksmith.convChoices["about_armor"] = {

@@ -9,6 +9,11 @@ int main(int iArgC, char * cArgV[]) {
 	settings_load(Settings, settings_file_path);
 	
 	script_init();
+	// useful for testing Lua scripts.
+	if (iArgC >= 1 && strcmp(cArgV[1], "-q") == 0) {
+		return 0;
+	}
+	
 	screen_init();
 	audio_init();
 	g_font = font_init("data/images/fonts/437_16x16.png");

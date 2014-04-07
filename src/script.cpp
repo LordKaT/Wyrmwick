@@ -1,11 +1,11 @@
 #include "include.h"
 
 void script_init() {
-	debug_print("Loading LUA 5.2.1 ...\n");
+	debug_print("Loading Lua 5.2.1 ...\n");
 	g_luaState = luaL_newstate();
 	luaL_openlibs(g_luaState);
 
-	debug_print("	defining LUA globals\n");
+	debug_print("	defining Lua globals...\n");
 	LUA_DEFINE("GAME_START", GAME_START);
 	LUA_DEFINE("GAME_DEBUG", GAME_DEBUG);
 	LUA_DEFINE("GAME_MENU", GAME_MENU);
@@ -85,17 +85,20 @@ void script_init() {
 	LUA_DEFINE("STATUS_MAX", STATUS_MAX);
 	LUA_DEFINE("ITEMS_MAX", ITEMS_MAX);
 	
-	debug_print("	loading utility library\n");
+	debug_print("\tloading utility library...\n");
 	script_exec_dir(g_luaState, "data/lib");
+	
+	debug_print("\tloading NPCs...\n");
+	script_exec_dir(g_luaState, "data/npc");
 
 	// FIXME: We never free these.
-	debug_print("	loading item scripts\n");
+	debug_print("	loading item scripts...\n");
 	script_load_items();
-	debug_print("	loading skill scripts\n");
+	debug_print("	loading skill scripts...\n");
 	script_load_skills();
-	debug_print("	loading quest scripts\n");
+	debug_print("	loading quest scripts...\n");
 	script_load_quests();
-	debug_print("	LUA loaded!\n");
+	debug_print("	Lua loaded!\n");
 	return;
 }
 
@@ -391,7 +394,7 @@ void script_exec_dir(lua_State *L, const char *path) {
 	
 	dir = sys_dir_open(path);
 	if (!dir) {
-		debug_print("Failed to load scripts from %s\n", path);
+		debug_print("script_exec_dir: Failed to open %s\n", path);
 		return;
 	}
 	
@@ -399,7 +402,7 @@ void script_exec_dir(lua_State *L, const char *path) {
 	while ((fpath = sys_dir_next(dir)) != nullptr) {
 		if (fpath[0] == '.') { continue; }
 		if (strlen(fpath) < 4 || strcmp(fpath + strlen(fpath)-4, ".lua") != 0) {
-			debug_print("script_exec_dir: ignoring %s: invalid extension\n", fpath);
+			debug_print("script_exec_dir: ignoring '%s': invalid extension\n", fpath);
 			continue;
 		}
 		
