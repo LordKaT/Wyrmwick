@@ -10,7 +10,7 @@ int main(int iArgC, char * cArgV[]) {
 	
 	script_init();
 	// useful for testing Lua scripts.
-	if (iArgC >= 1 && strcmp(cArgV[1], "-q") == 0) {
+	if (iArgC >= 2 && strcmp(cArgV[1], "-q") == 0) {
 		return 0;
 	}
 	
@@ -22,8 +22,9 @@ int main(int iArgC, char * cArgV[]) {
 	debug_print("Init finished!\n");
 	
 	state_stack *gameStateStack = table_new(sizeof(state_desc), 0, 0);
-	main_menu_push(gameStateStack);
-	main_menu_init(gameStateStack);
+	lua_pushlightuserdata(g_luaState, gameStateStack);
+	lua_setfield(g_luaState, LUA_REGISTRYINDEX, "game/stateStack");
+	main_menu_push(gameStateStack, nullptr);
 	
 	state_desc *currentState;
 	
@@ -69,11 +70,9 @@ int main(int iArgC, char * cArgV[]) {
 		
 		if (currentState->m_fnPushChild != nullptr) {
 			if (currentState->m_fnSuspend != nullptr) { currentState->m_fnSuspend(gameStateStack); }
-			currentState->m_fnPushChild(gameStateStack);
+			currentState->m_fnPushChild(gameStateStack, currentState->m_pChildData);
 			currentState->m_fnPushChild = nullptr;
-			
-			currentState = (state_desc*) table_ind(gameStateStack, gameStateStack->m_len-1);
-			currentState->m_fnInit(gameStateStack);
+			currentState->m_pChildData = nullptr;
 		}
 	}
 

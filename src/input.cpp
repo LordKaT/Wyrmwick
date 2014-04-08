@@ -102,11 +102,11 @@ void input_load_defaults() {
 	m.m_type = IN_NONE; g_keybinds[5] = m;
 }
 
-void input_get_event(SDL_Event e, input_event *mapped) {
+void input_get_event(SDL_Event *e, input_event *mapped) {
 	mapped->m_iKey = IN_NONE;
 	
 	int ktype;
-	switch (e.type) {
+	switch (e->type) {
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
 			ktype = IN_TYPE_KEYBOARD;
@@ -130,13 +130,13 @@ void input_get_event(SDL_Event e, input_event *mapped) {
 		bool found = false;
 		switch (ktype) {	
 			case IN_TYPE_KEYBOARD:
-				if (e.key.keysym.sym == g_keybinds[i].m_keycode) { found = true; }
+				if (e->key.keysym.sym == g_keybinds[i].m_keycode) { found = true; }
 				break;
 			case IN_TYPE_JOYBUTTON:
-				if (e.jbutton.button == g_keybinds[i].m_iIndex) { found = true; }
+				if (e->jbutton.button == g_keybinds[i].m_iIndex) { found = true; }
 				break;
 			case IN_TYPE_JOYAXIS:
-				if (e.jaxis.axis == g_keybinds[i].m_iIndex) { found = true; }
+				if (e->jaxis.axis == g_keybinds[i].m_iIndex) { found = true; }
 				break;
 		}
 		if (!found) { continue; }
@@ -144,14 +144,14 @@ void input_get_event(SDL_Event e, input_event *mapped) {
 		int newstate = 0;
 		switch (ktype) {	
 			case IN_TYPE_KEYBOARD:
-				if (e.type == SDL_KEYDOWN) { newstate = g_keybinds[i].m_iTo; }
+				if (e->type == SDL_KEYDOWN) { newstate = g_keybinds[i].m_iTo; }
 				break;
 			case IN_TYPE_JOYBUTTON:
-				if (e.type == SDL_JOYBUTTONDOWN) { newstate = g_keybinds[i].m_iTo; }
+				if (e->type == SDL_JOYBUTTONDOWN) { newstate = g_keybinds[i].m_iTo; }
 				break;
 			case IN_TYPE_JOYAXIS:
 				// TODO: Hysteresis?
-				if (e.jaxis.value * g_keybinds[i].m_iAxisDir > 1000) { newstate = g_keybinds[i].m_iTo; }
+				if (e->jaxis.value * g_keybinds[i].m_iAxisDir > 1000) { newstate = g_keybinds[i].m_iTo; }
 				break;
 		}
 		
@@ -282,15 +282,12 @@ void _append_control(input_control* controls, input_control ctl) {
 
 int _lua_input_key(lua_State *L) {
 	if (lua_gettop(L) != 2) {
-		lua_pushstring(L, "function input_key needs exactly 2 arguments");
-		lua_error(L);
-		return 0;
+		return luaL_error(L, "function input_key needs exactly 2 arguments");
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2))) {
 		lua_pushstring(L, "arguments of function input_key must be (number, number)");
-		lua_error(L);
-		return 0;
+		return luaL_error(L, "arguments of function input_key must be (number, number)");
 	}
 	
 	input_control *controls = (input_control*) lua_touserdata(L, lua_upvalueindex(1));
@@ -304,15 +301,11 @@ int _lua_input_key(lua_State *L) {
 
 int _lua_input_joy_button(lua_State *L) {
 	if (lua_gettop(L) != 2) {
-		lua_pushstring(L, "function input_joy_button needs exactly 2 arguments");
-		lua_error(L);
-		return 0;
+		return luaL_error(L, "function input_joy_button needs exactly 2 arguments");
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2))) {
-		lua_pushstring(L, "arguments of function input_joy_button must be (number, number)");
-		lua_error(L);
-		return 0;
+		return luaL_error(L, "arguments of function input_joy_button must be (number, number)");
 	}
 	
 	input_control *controls = (input_control*) lua_touserdata(L, lua_upvalueindex(1));
@@ -326,15 +319,11 @@ int _lua_input_joy_button(lua_State *L) {
 
 int _lua_input_joy_axis(lua_State *L) {
 	if (lua_gettop(L) != 3) {
-		lua_pushstring(L, "function input_joy_axis needs exactly 3 arguments");
-		lua_error(L);
-		return 0;
+		return luaL_error(L, "function input_joy_axis needs exactly 3 arguments");
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2)) || (! lua_isnumber(L, 3))) {
-		lua_pushstring(L, "arguments of function input_joy_axis must be (number, number, number)");
-		lua_error(L);
-		return 0;
+		return luaL_error(L, "arguments of function input_joy_axis must be (number, number, number)");
 	}
 	
 	input_control *controls = (input_control*) lua_touserdata(L, lua_upvalueindex(1));

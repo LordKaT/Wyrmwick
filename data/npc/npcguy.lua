@@ -1,17 +1,5 @@
 blacksmith = { id = "npcguy", dialog = {}, convChoices = {} }
 
-function blacksmith:init()
-	self.dialog = DialogTree.make(self.convChoices)
-	print "made a dialog\n"
-end
-
-function blacksmith:onActivate(context)
-	local convo = context.startTalking(self)
-	self.dialog:reset()
-	self.dialog:run(convo)
-	convo.stop()
-end
-
 blacksmith.convChoices["main"] = {
 	"Hello. I'm the blacksmith.";
 --	alt(
@@ -24,7 +12,8 @@ blacksmith.convChoices["main"] = {
 	{ "Can you tell me more about your products?",
 		DialogTree.jump "about_armor" };
 	{ "Bye!",
-		{ "Don't get horribly eaten by giant crabs or anything.", DialogTree.bye } };
+		"Don't get horribly eaten by giant crabs or anything.",
+		DialogTree.bye };
 }
 
 blacksmith.convChoices["about_armor"] = {
@@ -35,4 +24,24 @@ blacksmith.convChoices["about_armor"] = {
 		DialogTree.jump "main" };
 }
 
+DialogTree.make(blacksmith.convChoices):attach(blacksmith)
+blacksmith.convChoices = nil
+
 npc.register(blacksmith)
+
+--[[ function blacksmith:onActivate()
+	local c = game.startTalking()
+	c.say("Some pointless text.");
+	c.wait()
+	c.addChoice("A choice")
+	c.addChoice("Another choice")
+	print(c.offerChoice())
+	c.wait()
+	c.say("WHAT IS THAT, SANDVICH? KILL THEM ALL!?");
+	c.resetChoices()
+	c.addChoice("GOOD IDEA");
+	c.addChoice("NO BIG SURPRISE.");
+	print(c.offerChoice())
+	c.stop()
+end
+]]

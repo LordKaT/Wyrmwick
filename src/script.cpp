@@ -4,6 +4,13 @@ void script_init() {
 	debug_print("Loading Lua 5.2.1 ...\n");
 	g_luaState = luaL_newstate();
 	luaL_openlibs(g_luaState);
+	
+	luaL_Reg funcs[] = {
+		{ "startTalking", talk_lua_start },
+		{ nullptr, nullptr },
+	};
+	luaL_newlib(g_luaState, funcs);
+	lua_setglobal(g_luaState, "game");
 
 	debug_print("	defining Lua globals...\n");
 	LUA_DEFINE("EQ_NONE", EQ_NONE);

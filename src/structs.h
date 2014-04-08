@@ -9,28 +9,11 @@ struct table {
 	int m_len, m_cap;
 };
 
-// This is a simple associative array (string -> void*). Might need to be replaced
-// with a proper hash table if it ever turns out to be a performance bottleneck.
-struct string_table_entry {
-	char *m_sKey;
-	void *m_pVal;
-};
-
-typedef table /* of string_table_entry */ string_table; 
-
-struct string_slice {
-	const char *m_ptr;
-	int m_len;
-};
-
 typedef table /* of state_desc */ state_stack;
 
 struct state_desc {
 	int m_type;  // e.g. GAME_WORLD
 	void* m_pData;
-	
-	// Init is called just after pushing this state onto the stack.
-	void (*m_fnInit)(state_stack* stack);
 	
 	// Suspend is called before pushing a child state onto the stack, Resume after the child is destroyed.
 	void (*m_fnSuspend)(state_stack* stack);
@@ -42,7 +25,9 @@ struct state_desc {
 	// Destroy is called just before popping this state off the stack.
 	void (*m_fnDestroy)(state_stack* stack);
 	
-	void (*m_fnPushChild)(state_stack* stack);
+	void (*m_fnPushChild)(state_stack* stack, void *udata);
+	void *m_pChildData;
+	
 	// If m_isDead is true, this state description is popped off the stack.
 	bool m_isDead;  
 };
