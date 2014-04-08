@@ -225,8 +225,7 @@ save/*
 
 
 ##
-lib/
-lib/*
+/lib/*
 Wyrmwick-VisualC/
 Wyrmwick-VisualC/*
 *.dll

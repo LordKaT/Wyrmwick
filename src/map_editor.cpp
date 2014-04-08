@@ -11,22 +11,18 @@ rect _tile_rect(int index) {
 	return r;
 }
 
-void map_editor_push(state_stack* stack) {
+void map_editor_push(state_stack* stack, void *udata) {
+	(void) udata;
 	state_desc editor = {
 		GAME_MAP_EDITOR, nullptr,
-		&map_editor_init,
 		nullptr, nullptr,
 		&map_editor_input,
 		nullptr,
 		&map_editor_render,
 		&map_editor_destroy,
-		nullptr, false,
+		nullptr, nullptr, false,
 	};
-	table_append(stack, &editor);
-}
-
-void map_editor_init(state_stack* stack) {
-	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
+	
 	map_editor *mapEditor = (map_editor*) malloc(sizeof(map_editor));
 	
 	map_init();
@@ -36,16 +32,16 @@ void map_editor_init(state_stack* stack) {
 	mapEditor->m_iMapEditorState = MAPEDITOR_EDIT;
 	mapEditor->m_cMapWalk = WALK_NONE;
 	mapEditor->m_bGrid = false;
-	top->m_pData = mapEditor;
 	
 	for (int i = 0; i < IN_MAX; i++) {
 		if (g_keybinds[i].m_type == IN_NONE) { break; }
 		mapEditor->m_savedKeybinds[i] = g_keybinds[i];
 	}
 	input_load_defaults();
-	
 	// TODO: Stuff the map into the map editor properly.
-	return;
+	
+	editor.m_pData = mapEditor;
+	table_append(stack, &editor);
 }
 
 /* TODO: comment this more. Sorry --lk */

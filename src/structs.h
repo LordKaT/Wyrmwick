@@ -15,9 +15,6 @@ struct state_desc {
 	int m_type;  // e.g. GAME_WORLD
 	void* m_pData;
 	
-	// Init is called just after pushing this state onto the stack.
-	void (*m_fnInit)(state_stack* stack);
-	
 	// Suspend is called before pushing a child state onto the stack, Resume after the child is destroyed.
 	void (*m_fnSuspend)(state_stack* stack);
 	void (*m_fnResume)(state_stack* stack);
@@ -28,7 +25,9 @@ struct state_desc {
 	// Destroy is called just before popping this state off the stack.
 	void (*m_fnDestroy)(state_stack* stack);
 	
-	void (*m_fnPushChild)(state_stack* stack);
+	void (*m_fnPushChild)(state_stack* stack, void *udata);
+	void *m_pChildData;
+	
 	// If m_isDead is true, this state description is popped off the stack.
 	bool m_isDead;  
 };

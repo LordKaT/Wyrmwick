@@ -1,20 +1,18 @@
 #include "include.h"
 
 void script_init() {
-	debug_print("Loading LUA 5.2.1 ...\n");
+	debug_print("Loading Lua 5.2.1 ...\n");
 	g_luaState = luaL_newstate();
 	luaL_openlibs(g_luaState);
+	
+	luaL_Reg funcs[] = {
+		{ "startTalking", talk_lua_start },
+		{ nullptr, nullptr },
+	};
+	luaL_newlib(g_luaState, funcs);
+	lua_setglobal(g_luaState, "game");
 
-	debug_print("	defining LUA globals\n");
-	LUA_DEFINE("GAME_START", GAME_START);
-	LUA_DEFINE("GAME_DEBUG", GAME_DEBUG);
-	LUA_DEFINE("GAME_MENU", GAME_MENU);
-	LUA_DEFINE("GAME_WORLD", GAME_WORLD);
-	LUA_DEFINE("GAME_SHOP", GAME_SHOP);
-	LUA_DEFINE("GAME_DIALOG", GAME_DIALOG);
-	LUA_DEFINE("GAME_BATTLE", GAME_BATTLE);
-	LUA_DEFINE("GAME_END", GAME_END);
-
+	debug_print("	defining Lua globals...\n");
 	LUA_DEFINE("EQ_NONE", EQ_NONE);
 	LUA_DEFINE("EQ_HEAD", EQ_HEAD);
 	LUA_DEFINE("EQ_FACE", EQ_FACE);
@@ -84,15 +82,21 @@ void script_init() {
 	LUA_DEFINE("SKILLS_MAX", SKILLS_MAX);
 	LUA_DEFINE("STATUS_MAX", STATUS_MAX);
 	LUA_DEFINE("ITEMS_MAX", ITEMS_MAX);
+	
+	debug_print("\tloading utility library...\n");
+	script_exec_dir(g_luaState, "data/lib");
+	
+	debug_print("\tloading NPCs...\n");
+	script_exec_dir(g_luaState, "data/npc");
 
 	// FIXME: We never free these.
-	debug_print("	loading item scripts\n");
+	debug_print("	loading item scripts...\n");
 	script_load_items();
-	debug_print("	loading skill scripts\n");
+	debug_print("	loading skill scripts...\n");
 	script_load_skills();
-	debug_print("	loading quest scripts\n");
+	debug_print("	loading quest scripts...\n");
 	script_load_quests();
-	debug_print("	LUA loaded!\n");
+	debug_print("	Lua loaded!\n");
 	return;
 }
 
@@ -375,4 +379,37 @@ void script_load_npc() {
 		return;
 	}
 	return;
+}
+
+void script_exec_dir(lua_State *L, const char *path) {
+	sys_dir *dir;
+	char pathbuff[1024];
+	int pathlen;
+	
+	pathlen = strlen(path);
+	strcpy(pathbuff, path);
+	strcat(pathbuff, "/");
+	
+	dir = sys_dir_open(path);
+	if (!dir) {
+		debug_print("script_exec_dir: Failed to open %s\n", path);
+		return;
+	}
+	
+	const char *fpath;
+	while ((fpath = sys_dir_next(dir)) != nullptr) {
+		if (fpath[0] == '.') { continue; }
+		if (strlen(fpath) < 4 || strcmp(fpath + strlen(fpath)-4, ".lua") != 0) {
+			debug_print("script_exec_dir: ignoring '%s': invalid extension\n", fpath);
+			continue;
+		}
+		
+		strcpy(pathbuff + pathlen + 1, fpath);
+		bool err = luaL_dofile(L, pathbuff);
+		if (err) {
+			const char* errmsg = lua_tostring(L, -1);
+			debug_print("%s\n", errmsg);
+		}
+	}
+	sys_dir_close(dir);
 }
