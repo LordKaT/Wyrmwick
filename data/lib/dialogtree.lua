@@ -81,9 +81,7 @@ function DialogTree:run(conv)
 	end
 	
 	local ch = conv.offerChoice()
-	if ch == -1 then return end
-	
-	self:doAction(self.current.responses[ch + 1], conv)
+	self:doAction(self.current.responses[ch], conv)
 	if self.finished then return end
 	return self:run(conv)
 end

@@ -24,7 +24,8 @@ static int _lua_say(lua_State *L);
 static int _lua_stop(lua_State *L);
 
 
-// startTalking() - opens the conversation screen and returns its interface.
+// startTalking()
+// 	startTalking opens the conversation screen and returns its interface.
 int talk_lua_start(lua_State *L) {
 	lua_getfield(L, LUA_REGISTRYINDEX, "game/stateStack");
 	if (lua_isnil(L, -1)) {
@@ -114,7 +115,7 @@ void _event(state_stack *stack, SDL_Event *evt) {
 	case _WAIT_CHOICE:
 		i = menu_input(st->m_pChoices, evt);
 		if (i == -1) { return; }
-		lua_pushnumber(st->m_pThread, i);
+		lua_pushnumber(st->m_pThread, i + 1);
 		err = lua_resume(st->m_pThread, nullptr, 1);
 		if (_util_lua_done(err, top)) { return; }
 		break;
@@ -197,7 +198,7 @@ int _lua_addchoice(lua_State *L) {
 
 // offerChoice()
 // 	offerChoice blocks (yields to the C code) until the user makes a choice, returning
-// 	the 0-based index of the chosen option.
+// 	the 1-based index of the chosen option.
 int _lua_offerchoice(lua_State *L) {
 	_talk_state *st = (_talk_state*) lua_touserdata(L, lua_upvalueindex(1));
 	int ctx, status;
