@@ -3,14 +3,15 @@
 struct _talk_state {
 	char *m_sNPCText;
 	menu *m_pChoices;
-	int m_iChoice, m_iState;
-	lua_State *m_pThread;
+	int m_iState;  // Indicates what the Lua coroutine is waiting for.
+	lua_State *m_pThread;  // Lua coroutine thread waiting for input.
 };
 
 // just started, waiting for any input, waiting for the user to make a choice, finished.
 enum { _STARTED, _WAIT_ANY, _WAIT_CHOICE, _STOPPED};
 
 static void _talk_push(state_stack *stack, void* udata);
+static bool _util_lua_done(int ret, state_desc *top);
 static void _event(state_stack *stack, SDL_Event *evt);
 static void _draw(state_stack *stack);
 static void _destroy(state_stack *stack);
@@ -71,12 +72,29 @@ void _talk_push(state_stack *stack, void* udata) {
 	_talk_state *st = (_talk_state*) malloc(sizeof(_talk_state));
 	st->m_sNPCText = strdup("");
 	st->m_pChoices = menu_init(100, 200);
-	st->m_iChoice = -1;
 	st->m_iState = _STARTED;
 	st->m_pThread = (lua_State*) udata;
 	
 	talks.m_pData = (void*) st;
 	table_append(stack, &talks);
+}
+
+bool _util_lua_done(int ret, state_desc *top) {
+	_talk_state *st = (_talk_state*) top->m_pData;
+	if (ret == LUA_OK) {
+		st->m_iState = _STOPPED;
+		top->m_isDead = true;
+		return true;
+	}
+	
+	if (ret != LUA_YIELD) {
+		const char *errstr = lua_tostring(st->m_pThread, -1);
+		debug_print("%s\n", errstr);
+		st->m_iState = _STOPPED;
+		top->m_isDead = true;
+		return true;
+	}
+	return false;
 }
 
 void _event(state_stack *stack, SDL_Event *evt) {
@@ -89,19 +107,7 @@ void _event(state_stack *stack, SDL_Event *evt) {
 	switch (st->m_iState) {
 	case _STARTED:
 		err = lua_resume(st->m_pThread, nullptr, 0);
-		if (err == LUA_OK) {
-			st->m_iState = _STOPPED;
-			top->m_isDead = true;
-			return;
-		}
-		
-		if (err != LUA_YIELD) {
-			const char *errstr = lua_tostring(st->m_pThread, -1);
-			debug_print("%s\n", errstr);
-			st->m_iState = _STOPPED;
-			top->m_isDead = true;
-			return;
-		}
+		if (_util_lua_done(err, top)) { return; }
 		_event(stack, evt);
 		break;
 	
@@ -110,38 +116,14 @@ void _event(state_stack *stack, SDL_Event *evt) {
 		if (i == -1) { return; }
 		lua_pushnumber(st->m_pThread, i);
 		err = lua_resume(st->m_pThread, nullptr, 1);
-		if (err == LUA_OK) {
-			st->m_iState = _STOPPED;
-			top->m_isDead = true;
-			return;
-		}
-		
-		if (err != LUA_YIELD) {
-			const char *errstr = lua_tostring(st->m_pThread, -1);
-			debug_print("%s\n", errstr);
-			st->m_iState = _STOPPED;
-			top->m_isDead = true;
-			return;
-		}
+		if (_util_lua_done(err, top)) { return; }
 		break;
 	
 	case _WAIT_ANY:
 		input_get_event(evt, &mapped);
 		if (mapped.m_iType == IN_OFF || evt->type == SDL_MOUSEBUTTONUP) {
-			err = lua_resume(st->m_pThread, nullptr, 0);
-			if (err == LUA_OK) {
-				st->m_iState = _STOPPED;
-				top->m_isDead = true;
-				return;
-			}
-			
-			if (err != LUA_YIELD) {
-				const char *errstr = lua_tostring(st->m_pThread, -1);
-				debug_print("%s\n", errstr);
-				st->m_iState = _STOPPED;
-				top->m_isDead = true;
-				return;
-			}
+			err = lua_resume(st->m_pThread, nullptr, 0);			
+			if (_util_lua_done(err, top)) { return; }
 		}
 		break;
 	
@@ -160,19 +142,7 @@ void _draw(state_stack *stack) {
 	switch (st->m_iState) {
 	case _STARTED:
 		err = lua_resume(st->m_pThread, nullptr, 0);
-		if (err == LUA_OK) {
-			st->m_iState = _STOPPED;
-			top->m_isDead = true;
-			return;
-		}
-		
-		if (err != LUA_YIELD) {
-			const char *errstr = lua_tostring(st->m_pThread, -1);
-			debug_print("%s\n", errstr);
-			st->m_iState = _STOPPED;
-			top->m_isDead = true;
-			return;
-		}
+		if (_util_lua_done(err, top)) { return; }
 		_draw(stack);
 		break;
 	
@@ -201,23 +171,39 @@ void _destroy(state_stack *stack) {
 	free(st);
 }
 
+// resetChoices()
+// 	resetChoices clears all menu options. Returns immediately.
 int _lua_resetchoices(lua_State *L) {
 	_talk_state *st = (_talk_state*) lua_touserdata(L, lua_upvalueindex(1));
+	if (st->m_iState == _STOPPED) {
+		return luaL_error(L, "conversation is already stopped");
+	}
 	menu_clear(st->m_pChoices);
 	return 0;
 }
 
+// addChoice(choice_string)
+// 	addChoice adds the given string to the menu of convrsation choices. Returns immediately.
 int _lua_addchoice(lua_State *L) {
 	_talk_state *st = (_talk_state*) lua_touserdata(L, lua_upvalueindex(1));
+	if (st->m_iState == _STOPPED) {
+		return luaL_error(L, "conversation is already stopped");
+	}
 	const char *txt = lua_tostring(L, 1);
 	menu_add_entry(st->m_pChoices, txt);
 	lua_remove(L, 1);
 	return 0;
 }
 
+// offerChoice()
+// 	offerChoice blocks (yields to the C code) until the user makes a choice, returning
+// 	the 0-based index of the chosen option.
 int _lua_offerchoice(lua_State *L) {
 	_talk_state *st = (_talk_state*) lua_touserdata(L, lua_upvalueindex(1));
 	int ctx, status;
+	if (st->m_iState == _STOPPED) {
+		return luaL_error(L, "conversation is already stopped");
+	}
 	
 	status = lua_getctx(L, &ctx);
 	if (status == LUA_YIELD) {
@@ -232,9 +218,15 @@ int _lua_offerchoice(lua_State *L) {
 	return lua_yieldk(L, 0, 0, _lua_offerchoice);
 }
 
+// wait()
+// 	wait blocks (yields to the C code), waiting until the user is ready to continue.
+// 	Call this in situations where a "press any key to continue" prompt would be appropriate.
 int _lua_wait(lua_State *L) {
 	_talk_state *st = (_talk_state*) lua_touserdata(L, lua_upvalueindex(1));
 	int ctx, status;
+	if (st->m_iState == _STOPPED) {
+		return luaL_error(L, "conversation is already stopped");
+	}
 	
 	status = lua_getctx(L, &ctx);
 	if (status == LUA_YIELD) {
@@ -246,14 +238,21 @@ int _lua_wait(lua_State *L) {
 	return lua_yieldk(L, 0, 0, _lua_wait);
 }
 
+// say(text)
+// 	say makes the NPC say the given text.
 int _lua_say(lua_State *L) {
 	_talk_state *st = (_talk_state*) lua_touserdata(L, lua_upvalueindex(1));
+	if (st->m_iState == _STOPPED) {
+		return luaL_error(L, "conversation is already stopped");
+	}
 	free(st->m_sNPCText);
 	st->m_sNPCText = strdup(lua_tostring(L, 1));
 	lua_remove(L, 1);
 	return 0;
 }
 
+// stop()
+// 	stop ends the conversation. Calling any other functions in the same context after stop will result in an error.
 int _lua_stop(lua_State *L) {
 	_talk_state *st = (_talk_state*) lua_touserdata(L, lua_upvalueindex(1));
 	st->m_iState = _STOPPED;
