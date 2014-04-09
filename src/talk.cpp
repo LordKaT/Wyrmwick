@@ -228,6 +228,7 @@ int _lua_offerchoice(lua_State *L) {
 
 	menu_auto_resize(st->m_pChoices);
 	st->m_iState = _WAIT_CHOICE;
+	st->m_pThread = L;
 	return lua_yieldk(L, 0, 0, _lua_offerchoice);
 }
 
@@ -241,6 +242,7 @@ int _lua_wait(lua_State *L) {
 	}
 	
 	st->m_iState = _WAIT_ANY;
+	st->m_pThread = L;
 	return lua_yieldk(L, 0, 0, _lua_wait);
 }
 
