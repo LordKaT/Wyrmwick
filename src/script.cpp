@@ -322,64 +322,6 @@ void script_load_quests() {
 	return;
 }
 
-void script_load_npc() {
-	FILE *file =  fopen("data/npc/npc_list.txt", "r");
-	if (file != nullptr) {
-		char cLine[512];
-		char cFile[512];
-		int iNPCID = 0;
-		memset(&cLine, 0, sizeof(cLine));
-		memset(&cFile, 0, sizeof(cFile));
-		while (fgets(cLine, sizeof(cLine), file) != nullptr) {
-			strtok(cLine, "\n");
-			strcpy(cFile, "data/npc/scripts/");
-			strcat(cFile, cLine);
-			strcat(cFile, ".lua");
-			g_npc[iNPCID].m_cLuaScript = (char *)malloc(sizeof(cFile)+1);
-			strcpy(g_npc[iNPCID].m_cLuaScript, cFile);
-			int iRes = luaL_loadfile(g_luaState, cFile);
-			if (iRes == 0) { /* good. */
-				lua_dump(g_luaState, &script_luaWriter, &g_npc[iNPCID].m_luaChunk);
-				script_run_chunk(&g_npc[iNPCID].m_luaChunk.m_vLuaChunk, &script_luaWriter, script_luaReader);
-				script_call_function("npc_init", 0, 2, 0);
-
-				if (!lua_isstring(g_luaState, -2)) {
-					printf("error: npc_init() must return: (string), string.\n");
-				} else {
-					size_t sTemp;
-					const char *cTemp = lua_tolstring(g_luaState, -2, &sTemp);
-					g_npc[iNPCID].m_cName = (char *)malloc(sTemp);
-					memset(g_npc[iNPCID].m_cName, 0, sTemp);
-					memcpy(g_npc[iNPCID].m_cName, cTemp, sTemp + 1);
-				}
-
-				if (!lua_isstring(g_luaState, -1)) {
-					printf("error: npc_init() must return: string, (string).\n");
-				} else {
-					size_t sTemp;
-					const char *cTemp = lua_tolstring(g_luaState, -1, &sTemp);
-					g_npc[iNPCID].m_cDesc = (char *)malloc(sTemp);
-					memset(g_npc[iNPCID].m_cDesc, 0, sTemp);
-					memcpy(g_npc[iNPCID].m_cDesc, cTemp, sTemp + 1);
-				}
-
-				lua_pop(g_luaState, -1);
-
-			} else {
-				printf("script_load_npc(): failed to load %s\n", cFile);
-				printf("%s\n", luaL_checkstring(g_luaState, -1));
-			}
-			memset(&cLine, 0, sizeof(cLine));
-			memset(&cFile, 0, sizeof(cFile));
-			iNPCID++;
-		}
-		fclose(file);
-	} else {
-		printf("Error: cannot load npc_list.txt\n");
-		return;
-	}
-	return;
-}
 
 void script_exec_dir(lua_State *L, const char *path) {
 	sys_dir *dir;
