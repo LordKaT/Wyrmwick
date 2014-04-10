@@ -40,6 +40,52 @@ void table_append(table *arr, const void *val) {
 	arr->m_len++;
 }
 
+void table_insert(table *arr, int index, const void *val) {
+	if (arr->m_len == arr->m_cap) {
+		int newcap;
+		if (arr->m_cap == 0) {
+			newcap = 8;
+		} else {
+			newcap = arr->m_cap * 2;
+		}
+		
+		arr->m_data = realloc(arr->m_data, arr->m_elemSize * newcap);
+		if (! arr->m_data) {
+			debug_print("Not enough memory to append.\r\n");
+			sys_abort();
+		}
+		memset(((unsigned char*)arr->m_data) + arr->m_cap*arr->m_elemSize, 0, newcap - arr->m_cap);
+		arr->m_cap = newcap;
+	}
+	
+	if (index == arr->m_len) {
+		table_append(arr, val);
+		return;
+	}
+	
+	unsigned char *arrbytes = (unsigned char*) arr->m_data;
+	unsigned char *target = arrbytes + arr->m_elemSize * index;
+	unsigned char *next = target + arr->m_elemSize;
+	memmove(next, target, (arr->m_len - index) * arr->m_elemSize);
+	memmove(target, val, arr->m_elemSize);
+}
+
+void table_remove(table *arr, int index) {
+	unsigned char *arrbytes = (unsigned char*) arr->m_data;
+	unsigned char *target = arrbytes + arr->m_elemSize * index;
+	unsigned char *next = target + arr->m_elemSize;
+	
+	memmove(target, next, arr->m_elemSize);
+	arr->m_len--;
+	
+	if (arr->m_len * 4 < arr->m_cap) {
+		// Note that tables shrink less often than they grow. This is intentional.
+		arr->m_cap /= 2;
+		arr->m_data = realloc(arr->m_data, arr->m_cap * arr->m_elemSize);
+	}
+
+}
+
 void table_get(table *arr, int index, void *val) {
 	if (index >= arr->m_len) {
 		debug_print("Array index out of bounds.\n");

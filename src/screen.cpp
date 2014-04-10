@@ -4,15 +4,11 @@
 
 static int _lua_screen_resolution(lua_State *L) {
 	if (lua_gettop(L) != 2) {
-		lua_pushstring(L, "function screen_resolution needs exactly 2 arguments");
-		lua_error(L);
-		return 0;
+		return luaL_error(L, "function screen_resolution needs exactly 2 arguments");
 	}
 	
 	if ((! lua_isnumber(L, 1)) || (! lua_isnumber(L, 2))) {
-		lua_pushstring(L, "arguments of function screen_resolution must be (number, number)");
-		lua_error(L);
-		return 0;
+		return luaL_error(L, "arguments of function screen_resolution must be (number, number)");
 	}
 	
 	g_iScreenWidth = lua_tointeger(L, 1);

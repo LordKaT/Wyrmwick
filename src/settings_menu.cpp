@@ -22,13 +22,11 @@ struct _controls_menu {
 	bool *m_bIgnoreAxes;
 };
 
-static void _init(state_stack* stack);
 static void _event(state_stack* stack, SDL_Event *sdlEvent);
 static void _draw(state_stack* stack);
 static void _destroy(state_stack* stack);
 
-static void _controls_push(state_stack* stack);
-static void _init_controls(state_stack* stack);
+static void _controls_push(state_stack* stack, void *udata);
 static void _event_controls(state_stack* stack, SDL_Event *sdlEvent);
 static void _draw_controls(state_stack* stack);
 static void _destroy_controls(state_stack* stack);
@@ -39,24 +37,19 @@ static char* _bind_desc(input_control *bind);
 static void _apply_bindings(_controls_menu *data);
 static input_control _find_control_bind(int which);
 
-void settings_menu_push(state_stack* stack) {
+void settings_menu_push(state_stack* stack, void* udata) {
+	(void) udata;
 	state_desc mm = {
 		GAME_SETTINGS_MENU, nullptr,
-		&_init,
 		nullptr, nullptr,
 		&_event,
 		nullptr,
 		&_draw,
 		&_destroy,
-		nullptr, false,
+		nullptr, nullptr, false,
 	};
-	table_append(stack, &mm);
-}
-
-void _init(state_stack* stack) {
-	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
+	
 	_settings_menu *data = (_settings_menu*) malloc(sizeof(_settings_menu));
-	top->m_pData = data;
 	
 	menu *pMenu = menu_init(100, 50);
 	menu_add_entry(pMenu, "Controls");
@@ -70,6 +63,9 @@ void _init(state_stack* stack) {
 	input_config_settings(data->m_settings, g_keybinds);
 	screen_config_settings(data->m_settings, nullptr);
 	settings_load(data->m_settings, settings_file_path);
+	
+	mm.m_pData = data;
+	table_append(stack, &mm);
 }
 
 void _event(state_stack* stack, SDL_Event *sdlEvent) {
@@ -125,24 +121,19 @@ void _destroy(state_stack* stack) {
 }
 
 
-void _controls_push(state_stack* stack) {
+void _controls_push(state_stack* stack, void* udata) {
+	(void) udata;
 	state_desc mm = {
 		GAME_SETTINGS_CONTROLS, nullptr,
-		&_init_controls,
 		nullptr, nullptr,
 		&_event_controls,
 		nullptr,
 		&_draw_controls,
 		&_destroy_controls,
-		nullptr, false,
+		nullptr, nullptr, false,
 	};
-	table_append(stack, &mm);
-}
-
-void _init_controls(state_stack* stack) {
-	state_desc *top = (state_desc*) table_ind(stack, stack->m_len-1);
+	
 	_controls_menu *data = (_controls_menu*) malloc(sizeof(_controls_menu));
-	top->m_pData = data;
 	
 	data->m_iWhichBinding = -1;
 	
@@ -179,6 +170,9 @@ void _init_controls(state_stack* stack) {
 	
 	data->m_iJoyAxes = input_joystick_num_axes();
 	data->m_bIgnoreAxes = (bool*) calloc(data->m_iJoyAxes, sizeof(bool));
+	
+	mm.m_pData = data;
+	table_append(stack, &mm);
 }
 
 void _bind(_controls_menu *data, SDL_Event *sdlEvent) {

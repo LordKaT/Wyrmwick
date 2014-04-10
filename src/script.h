@@ -9,6 +9,11 @@ const char *script_luaReader(lua_State *luaState, void *vData, size_t *size);
 void script_load_items();
 void script_load_skills();
 void script_load_quests();
-void script_load_npc();
+
+void script_exec_dir(lua_State *L, const char *path);
+
+// script_remember_thread prevents a Lua thread created in C code from being removed by the GC.
+lua_State* script_remember_thread(lua_State *L, lua_State *thread);
+void script_forget_thread(lua_State *L, lua_State *thread);
 
 #endif

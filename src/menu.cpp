@@ -55,6 +55,18 @@ void menu_set_color(menu *pMenu, Uint32 color) {
 	table_put(pMenu->m_aColors, pMenu->m_aColors->m_len-1, &color);
 }
 
+void menu_clear(menu *pMenu) {
+	char *entry;
+	for (int i = 0; i < pMenu->m_aEntries->m_len; i++) {
+		table_get(pMenu->m_aEntries, i, &entry);
+		free(entry);
+		table_get(pMenu->m_aValues, i, &entry);
+		free(entry);
+	}
+	table_shrink(pMenu->m_aEntries, pMenu->m_aEntries->m_len);
+	table_shrink(pMenu->m_aValues, pMenu->m_aValues->m_len);
+}
+
 void menu_auto_resize(menu *pMenu) {
 	int maxelem, maxval, len;
 	maxelem = maxval = 0;
@@ -103,7 +115,7 @@ int menu_input(menu* pMenu, SDL_Event *sdlEvent) {
 	}
 	
 	input_event ev;
-	input_get_event(*sdlEvent, &ev);
+	input_get_event(sdlEvent, &ev);
 	
 	switch (ev.m_iKey) {
 	case IN_DIRUP:
@@ -173,10 +185,10 @@ void menu_destroy(menu* pMenu) {
 	for (int i = 0; i < pMenu->m_aEntries->m_len; i++) {
 		table_get(pMenu->m_aEntries, i, &entry);
 		free(entry);
+		table_get(pMenu->m_aValues, i, &entry);
+		free(entry);
 	}
 	table_free(pMenu->m_aEntries);
 	table_free(pMenu->m_aValues);
 	free(pMenu);
-
-	return;
 }

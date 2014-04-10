@@ -5,6 +5,8 @@ table* table_new(size_t elemSize, int startingSize, int startingCapacity);
 
 // data pointer must be of *exactly* the same type as the table, i.e. can't append a char to an int table.
 void table_append(table *arr, const void *val);
+void table_insert(table *arr, int index, const void *val);
+void table_remove(table *arr, int index);
 void table_get(table *arr, int index, void *val);
 void table_put(table *arr, int index, const void *val);
 void* table_ind(table *arr, int index);
