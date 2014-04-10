@@ -46,6 +46,7 @@ extern "C" {
 #include "map.h"
 #include "map_editor.h"
 #include "menu.h"
+#include "npc.h"
 #include "screen.h"
 #include "script.h"
 #include "settings.h"

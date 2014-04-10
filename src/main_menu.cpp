@@ -44,18 +44,12 @@ void _event(state_stack* stack, SDL_Event *sdlEvent) {
 	
 	int choice = menu_input(pMenu, sdlEvent);
 	if (choice == -1) { return; }
-	lua_State *thread;
 	switch (choice) {
 	case 0:
-		thread = lua_newthread(g_luaState);
-		lua_pop(g_luaState, 1);
-		lua_getglobal(thread, "npc");
-		lua_getfield(thread, -1, "list");
-		lua_getfield(thread, -1, "npcguy");
-		if (lua_isnil(thread, -1)) { sys_abort(); }
-		lua_getfield(thread, -1, "onActivate");
-		lua_pushvalue(thread, -2);
-		lua_resume(thread, nullptr, 1);
+		if (npc_event("npcguy", "onActivate") != 0) {
+			debug_print("%s\n", lua_tostring(g_luaState, -1));
+			lua_pop(g_luaState, 1);
+		}
 		break;
 	case 1:
 		audio_load_music(&g_audio, "data/audio/Encounter5.mp3");

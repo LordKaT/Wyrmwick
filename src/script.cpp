@@ -413,3 +413,43 @@ void script_exec_dir(lua_State *L, const char *path) {
 	}
 	sys_dir_close(dir);
 }
+
+lua_State* script_remember_thread(lua_State *L, lua_State *thread) {
+	lua_getfield(L, LUA_REGISTRYINDEX, "script/threads");
+	if (lua_isnil(L, -1)) {
+		lua_newtable(L);
+		lua_pushvalue(L, -1);
+		lua_setfield(L, LUA_REGISTRYINDEX, "script/threads");
+	}
+
+	lua_pushthread(thread);
+	lua_xmove(thread, L, 1);
+	lua_pushboolean(L, true);
+	lua_settable(L, -3);
+	lua_pop(L, 1);
+	return thread;
+}
+
+void script_forget_thread(lua_State *L, lua_State *thread) {
+	lua_getfield(L, LUA_REGISTRYINDEX, "script/threads");
+	if (lua_isnil(L, -1)) {
+		lua_pop(L, 1);
+		debug_print("warning: script_forget_thread: script/threads not initialized\n");
+		return;
+	}
+	
+	lua_pushthread(thread);
+	lua_xmove(thread, L, 1);
+	lua_pushvalue(L, -1);
+	lua_gettable(L, -3);
+	if (lua_isnil(L, -1)) {
+		lua_pop(L, 2);
+		debug_print("warning: script_forget_thread: thankfully I already don't remember this thread\n");
+		return;
+	}
+	
+	lua_pop(L, 1);
+	lua_pushnil(L);
+	lua_settable(L, LUA_REGISTRYINDEX);
+	lua_pop(L, 1);
+}

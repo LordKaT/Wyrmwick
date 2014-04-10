@@ -13,4 +13,7 @@ void script_load_npc();
 
 void script_exec_dir(lua_State *L, const char *path);
 
+lua_State* script_remember_thread(lua_State *L, lua_State *thread);
+void script_forget_thread(lua_State *L, lua_State *thread);
+
 #endif
